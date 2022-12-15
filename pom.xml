@@ -258,11 +258,11 @@
 			<version>${omnifaces.version}</version> </dependency> -->
 
 		<!-- https://mvnrepository.com/artifact/org.primefaces.themes/ui-lightness -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.primefaces.themes</groupId>
 			<artifactId>bootstrap</artifactId>
 			<version>1.0.10</version>
-		</dependency>
+		</dependency> -->
 
 		<!-- https://turreta.com/2017/07/14/find-out-the-differences-between-two-objects-in-java/ -->
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
