@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>New Hire Report</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+							<div class="row">
+								<div class="col-xs-4">
+												<div class="form-group">
+												<h:outputLabel value="Company Code" />
+													<h:selectOneMenu styleClass="form-control"
+														value="#{newHireReportsBean.companyCode}" id="compCode">																											
+														<f:selectItem itemLabel="ALL" itemValue="ALL" />
+														<f:selectItems value="#{companyBean.companies}"
+															var="compCode" itemLabel="#{compCode.label}"
+															itemValue="#{compCode.value}" />															
+													</h:selectOneMenu>
+												</div>
+								</div>	
+								</div>
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="startDate" value="Start Date" />
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="startDate" value="#{newHireReportsBean.startDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="endDate" value="End Date" />
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="endDate" value="#{newHireReportsBean.endDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Report type" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{newHireReportsBean.reportType}" id="branch">
+												<f:selectItem itemLabel="New Hire" itemValue="1" />
+												<f:selectItem itemLabel="Term" itemValue="2" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate
+												Report</span>
+											<f:ajax event="click"
+												listener="#{newHireReportsBean.generateReport}"
+												execute="@form"
+												render=":dataTableForm :dataTableForm:recordTotal :dataTableForm:recordTotalZero" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{newHireReportsBean.eraseFilter}"
+												oncomplete="resetEntirePage();"/>
+										</button>
+										
+										<h:commandButton value="Reset p:ajax" style="display:none;" id="resetButton">
+                							<p:ajax update="@form :dataTableForm" resetValues="true" 
+                							oncomplete="initializePageComponents();resetDates();"/>
+            							</h:commandButton>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary" rendered="#{newHireReportsBean.roleId == 3 or newHireReportsBean.roleId == 447 or newHireReportsBean.roleId == 448}">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{newHireReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{newHireReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{newHireReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{newHireReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{newHireReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable"
+												value="#{newHireReportsBean.reportData}" var="x" rows="15"
+												paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{newHireReportsBean.filteredList}" filterEvent="enter">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->												
+																				
+           										<p:column headerText="FILENUM" width="110" sortBy="#{x.get('FILENUM')}" filterBy="#{x.get('FILENUM')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('FILENUM')}" />
+           										</p:column>
+																								
+           										<p:column headerText="SSN" width="110" sortBy="#{x.get('SSN')}" filterBy="#{x.get('SSN')}" filterMatchMode="contains"
+           										rendered="#{newHireReportsBean.userRoleAllowedDownloadAccess == true ? 'true': 'false'}">
+               								 		<h:outputText value="#{x.get('SSN')}" />
+           										</p:column>
+																							
+           										<p:column headerText="LNAME" width="110" sortBy="#{x.get('LNAME')}" filterBy="#{x.get('LNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('LNAME')}" />
+           										</p:column>
+																								
+           										<p:column headerText="FNAME" width="110" sortBy="#{x.get('FNAME')}" filterBy="#{x.get('FNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('FNAME')}" />
+           										</p:column>
+																								
+           										<p:column headerText="EMAIL" width="250" sortBy="#{x.get('EMAIL')}" filterBy="#{x.get('EMAIL')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('EMAIL')}" />
+           										</p:column>
+																								
+           										<p:column headerText="LIAISONNAME" width="110" sortBy="#{x.get('LIAISONNAME')}" filterBy="#{x.get('LIAISONNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('LIAISONNAME')}" />
+           										</p:column>
+																						
+           										<p:column headerText="STARTDATE" width="110" sortBy="#{x.get('STARTDATE')}" filterBy="#{x.get('STARTDATE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('STARTDATE')}" />
+           										</p:column>
+																								
+           										<p:column headerText="ENDDATE" width="110" sortBy="#{x.get('ENDDATE')}" filterBy="#{x.get('ENDDATE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('ENDDATE')}" />
+           										</p:column>
+																								
+           										<p:column headerText="TERMINATEDATE" width="110" sortBy="#{x.get('TERMINATEDATE')}" filterBy="#{x.get('TERMINATEDATE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('TERMINATEDATE')}" />
+           										</p:column>
+																								
+           										<p:column headerText="HEALTH" width="110" sortBy="#{x.get('HEALTH')}" filterBy="#{x.get('HEALTH')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('HEALTH')}" />
+           										</p:column>
+																								
+           										<p:column headerText="EMPTYPE" width="110" sortBy="#{x.get('EMPTYPE')}" filterBy="#{x.get('EMPTYPE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('EMPTYPE')}" />
+           										</p:column>
+																							
+           										<p:column headerText="TEMPS" width="110" sortBy="#{x.get('TEMPS')}" filterBy="#{x.get('TEMPS')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('TEMPS')}" />
+           										</p:column>
+																								
+           										<p:column headerText="RECRUITINGCLASSIFICATION" width="110" sortBy="#{x.get('RECRUITINGCLASSIFICATION')}" filterBy="#{x.get('RECRUITINGCLASSIFICATION')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('RECRUITINGCLASSIFICATION')}" />
+           										</p:column>
+																							
+           										<p:column headerText="DEALTYPE" width="110" sortBy="#{x.get('DEALTYPE')}" filterBy="#{x.get('DEALTYPE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('DEALTYPE')}" />
+           										</p:column>
+																								
+           										<p:column headerText="VERTICAL" width="110" sortBy="#{x.get('VERTICAL')}" filterBy="#{x.get('VERTICAL')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('VERTICAL')}" />
+           										</p:column>
+																								
+           										<p:column headerText="PRODUCT" width="110" sortBy="#{x.get('PRODUCT')}" filterBy="#{x.get('PRODUCT')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('PRODUCT')}" />
+           										</p:column>
+																								
+           										<p:column headerText="COMMISION_NAME1" width="110" sortBy="#{x.get('COMMISION_NAME1')}" filterBy="#{x.get('COMMISION_NAME1')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISION_NAME1')}" />
+           										</p:column>
+																								
+           										<p:column headerText="COMMISSIONMODEL1" width="110" sortBy="#{x.get('COMMISSIONMODEL1')}" filterBy="#{x.get('COMMISSIONMODEL1')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISSIONMODEL1')}" />
+           										</p:column>
+																								
+           										<p:column headerText="SPLITCOMMISSIONPERCENTAGE1" width="110" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" />
+           										</p:column>
+																								
+           										<p:column headerText="COMMISION_NAME2" width="110" sortBy="#{x.get('COMMISION_NAME2')}" filterBy="#{x.get('COMMISION_NAME2')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISION_NAME2')}" />
+           										</p:column>
+																						
+           										<p:column headerText="COMMISSIONMODEL2" width="110" sortBy="#{x.get('COMMISSIONMODEL2')}" filterBy="#{x.get('COMMISSIONMODEL2')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISSIONMODEL2')}" />
+           										</p:column>
+																								
+           										<p:column headerText="SPLITCOMMISSIONPERCENTAGE2" width="110" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" />
+           										</p:column>
+																								
+           										<p:column headerText="COMMISION_NAME3" width="110" sortBy="#{x.get('COMMISION_NAME3')}" filterBy="#{x.get('COMMISION_NAME3')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISION_NAME3')}" />
+           										</p:column>
+																								
+          										<p:column headerText="COMMISSIONMODEL3" width="110" sortBy="#{x.get('COMMISSIONMODEL3')}" filterBy="#{x.get('COMMISSIONMODEL3')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISSIONMODEL3')}" />
+           										</p:column>
+																								
+           										<p:column headerText="SPLITCOMMISSIONPERCENTAGE3" width="110" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" />
+           										</p:column>
+																							
+           										<p:column headerText="COMMISION_NAME4" width="110" sortBy="#{x.get('COMMISION_NAME4')}" filterBy="#{x.get('COMMISION_NAME4')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISION_NAME4')}" />
+           										</p:column>
+																							
+           										<p:column headerText="COMMISSIONMODEL4" width="110" sortBy="#{x.get('COMMISSIONMODEL4')}" filterBy="#{x.get('COMMISSIONMODEL4')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISSIONMODEL4')}" />
+           										</p:column>
+															
+           										<p:column headerText="SPLITCOMMISSIONPERCENTAGE4" width="110" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" 
+           										filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" />
+           										</p:column>
+																								
+           										<p:column headerText="Reason" width="110" sortBy="#{x.get('Reason')}" filterBy="#{x.get('Reason')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('Reason')}" />
+           										</p:column>
+																																					
+           										<p:column headerText="SubmissionDate" width="110" sortBy="#{x.get('SubmissionDate')}" filterBy="#{x.get('SubmissionDate')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SubmissionDate')}" />
+           										</p:column>
+																						
+           										<p:column headerText="DOB" width="110" sortBy="#{x.get('DOB')}" filterBy="#{x.get('DOB')}" filterMatchMode="contains"
+           										rendered="#{newHireReportsBean.userRoleAllowedDownloadAccess == true ? 'true': 'false'}">
+               								 		<h:outputText value="#{x.get('DOB')}" />
+           										</p:column>
+															
+           										<p:column headerText="Record Status" width="110" sortBy="#{x.get('RECORDSTATUS')}" filterBy="#{x.get('RECORDSTATUS')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('RECORDSTATUS')}" />
+           										</p:column>
+															
+           										<p:column headerText="Company Code" width="100" sortBy="#{x.get('COMPANYCODE')}" filterBy="#{x.get('COMPANYCODE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMPANYCODE')}" />
+           										</p:column>
+           										
+<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->												
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		$(document).ready(
+				function() {
+					resetDates();
+				});
+		
+		function resetDates(){
+			$('.select2').select2();
+			var currentDate = new Date();
+
+			//due to time of 0000, it was setting it to one day before, so set 2 as start date.
+			var firstDay = new Date(currentDate.getFullYear(),
+					currentDate.getMonth(), 2);
+
+			var from = firstDay.toJSON().slice(0, 10).split('-');
+			firstDay = from[1] + "/" + from[2] + "/" + from[0];
+			$("#filterForm\\:startDate").val(firstDay);
+
+			var to = currentDate.toJSON().slice(0, 10).split('-');
+			currentDate = to[1] + "/" + to[2] + "/" + to[0];
+			$("#filterForm\\:endDate").val(currentDate);
+
+			$('#filterForm\\:startDate').datepicker({
+				autoclose : true
+			})
+
+			$('#filterForm\\:endDate').datepicker({
+				autoclose : true
+			})
+		}
+	</script>
+
+</body>
+
+</html>

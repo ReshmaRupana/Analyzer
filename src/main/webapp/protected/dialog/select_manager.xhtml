@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<title>Analyzer Liaison</title>
+	<style type="text/css">
+.ui-widget {
+	font-size: 90%;
+}
+</style>
+</h:head>
+
+<h:body>
+	<h:form>
+		<p:dataTable var="analyserLiaison"
+			value="#{analyserLiaisonBean.analyserLiaisonList}">
+			<p:column headerText="Id">
+				<h:outputText value="#{analyserLiaison.liaisonID}" />
+			</p:column>
+
+			<p:column headerText="Name">
+				<h:outputText value="#{analyserLiaison.liaisonName}" />
+			</p:column>
+
+
+			<p:column style="width:32px;text-align: center">
+				<p:commandButton icon="ui-icon-search"
+					actionListener="#{analyserLiaisonBean.selectAnalyserLiaisonFromDialog(analyserLiaison)}"  immediate="true"/>
+			</p:column>
+
+
+		</p:dataTable>
+	</h:form>
+</h:body>
+
+</html>

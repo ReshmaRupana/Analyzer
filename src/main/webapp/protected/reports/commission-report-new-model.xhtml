@@ -1,0 +1,905 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:ct="http://www.chartistjsf.org/charts">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+
+.chart-box {
+	width: 85%;
+	height: 75%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Commission Report - New Model</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Accounting Period" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{commissionNewModelReportsBean.month}" id="month">
+												<f:selectItems
+													value="#{commissionNewModelReportsBean.monthsList}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Fiscal Year" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{commissionNewModelReportsBean.reportingYear}"
+												id="year">
+												<f:selectItems
+													value="#{commissionNewModelReportsBean.yearsList}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Commission Person" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{commissionNewModelReportsBean.person}"
+												id="commissionPerson" required="true">
+												<f:selectItem itemLabel="" itemValue="" />
+												<f:selectItems
+													value="#{commissionNewModelReportsBean.commissionPersons}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate
+												Report</span>
+											<f:ajax event="click"
+												listener="#{commissionNewModelReportsBean.generateReport}"
+												execute="@form" render=":dataTableForm" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{commissionNewModelReportsBean.eraseFilter}"
+												oncomplete="resetEntirePage();"/>
+										</button>
+										
+										<h:commandButton value="Reset p:ajax" style="display:none;" id="resetButton">
+                							<p:ajax update="@form :dataTableForm" resetValues="true" oncomplete="initializePageComponents();"/>
+            							</h:commandButton>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+				<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="box">
+								<div class="box-body">
+									<div class="row">
+										<div class="col-xs-4 inner-end">
+											<div class="form-group">
+												<h:outputLabel value="Commission Person ID" />
+												<h:outputText
+													value="#{commissionNewModelReportsBean.commissionPersonInfo.commissionPersonEmplId}" />
+											</div>
+										</div>
+
+										<div class="col-xs-4 inner-end">
+											<div class="form-group">
+												<h:outputLabel value="Commission Person Name " />
+												<h:outputText
+													value="#{commissionNewModelReportsBean.commissionPersonInfo.commissionPersonName}" />
+											</div>
+										</div>
+										<div class="col-xs-4 inner-end">
+											<div class="form-group">
+												<h:outputLabel value="Commission Period" />
+												<h:outputText
+													value="#{commissionNewModelReportsBean.commissionPersonInfo.commissionPeriod}" />
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-4 inner-end">
+											<div class="form-group">
+												<h:outputLabel value="Current Commission $" />
+												<h:outputText
+													value="#{commissionNewModelReportsBean.commissionPersonInfo.currentCommission}" />
+											</div>
+										</div>
+										<div class="col-xs-4 inner-end">
+											<div class="form-group">
+												<h:outputLabel value="YTD Commission $" />
+												<h:outputText
+													value="#{commissionNewModelReportsBean.commissionPersonInfo.ytdCommission}" />
+											</div>
+										</div>
+										<div class="col-xs-4 inner-end">
+											<div class="form-group">
+												<div class="col-xs-8" style="text-align: right;">
+													<button jsf:id="pdfButton" type="submit"
+														class="btn btn-sm btn-primary">
+														<i class="fa fa-file-pdf-o"></i> <span>Commission Statement</span>
+														<f:ajax event="click" render="completeStatementFilePath"
+															listener="#{commissionNewModelReportsBean.createPdfStatement}"
+															execute="@form"
+															onevent="function(data) { if (data.status === 'success') { 
+    														parsePdfMessage(data.responseText);
+    													} 
+    												}" />
+														<!-- render=":filterForm :dataTableForm" /> -->
+													</button>
+
+													<h:commandLink id="downlodPdfButton" title="Download"
+														style="display:none;"
+														actionListener="#{commissionNewModelReportsBean.downloadPdfStatement('')}">
+														<p:fileDownload
+															value="#{commissionNewModelReportsBean.generatedPdfFile}" />
+													</h:commandLink>
+
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="box">
+								<div class="box-body">
+									<div class="row">
+
+										<div class="col-xs-6">
+											<div class="chart-box">
+												<ct:chart id="barChart" type="bar"
+													model="#{barChartBean.perMonthBarChart}"
+													rendered="#{commissionNewModelReportsBean.showCharts}">
+													<!-- <p:ajax event="itemSelect"
+													listener="#{barChartBean.barItemSelect}"
+													update="barChartMessage" /> -->
+												</ct:chart>
+												<p:message id="barChartMessage" for="barChart"
+													showDetail="true" />
+											</div>
+										</div>
+
+										<div class="col-xs-6">
+											<div class="chart-box">
+												<ct:chart id="barChartSingle" type="bar"
+													model="#{barChartBean.perMonthComparableBarChart}"
+													rendered="#{commissionNewModelReportsBean.showCharts}">
+													<!-- <p:ajax event="itemSelect"
+														listener="#{barChartBean.barItemSelect}"
+														update="barChartMessage" /> -->
+												</ct:chart>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-xs-6">
+											<div class="chart-box">
+												<ct:chart id="pieChart" type="pie"
+													model="#{pieChartBean.pieChartModel}"
+													rendered="#{commissionNewModelReportsBean.showCharts}">
+													<p:ajax event="itemSelect"
+														listener="#{pieChartBean.pieItemSelect}"
+														update="pieChartMessage" />
+												</ct:chart>
+												<p:message id="pieChartMessage" for="pieChart"
+													showDetail="true" />
+											</div>
+										</div>
+
+										<div class="col-xs-6">
+											<div class="chart-box">
+												<ct:chart id="lineChart" type="line"
+													model="#{lineChartBean.lineChartModel}"
+													rendered="#{commissionNewModelReportsBean.showCharts}">
+												</ct:chart>
+											</div>
+										</div>
+
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="box">
+								<div class="box-body">
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{commissionNewModelReportsBean.exportMasterFileToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{commissionNewModelReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{commissionNewModelReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{commissionNewModelReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{commissionNewModelReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable"
+												value="#{commissionNewModelReportsBean.commissionDetails}"
+												var="x" rows="15" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{commissionNewModelReportsBean.filteredList}"
+												selectionMode="single"
+												selection="#{commissionNewModelReportsBean.selectedCommissionDetail}"
+												rowKey="#{x.projectId}"  filterEvent="enter">
+
+												<p:ajax event="rowSelect"
+													listener="#{commissionNewModelReportsBean.onRowSelect}"
+													update=":dataTableForm:childTable" />
+												<p:ajax event="rowUnselect"
+													listener="#{commissionNewModelReportsBean.onRowUnselect}"
+													update=":dataTableForm:childTable" />
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->
+												
+												<p:column headerText="Project ID" width="130" sortBy="#{x.projectId}" filterBy="#{x.projectId}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.projectId}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Employee ID" width="120" sortBy="#{x.emplId}" filterBy="#{x.emplId}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.emplId}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Consultant Name" width="140" sortBy="#{x.employeeName}" filterBy="#{x.employeeName}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.employeeName}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Hours" width="80" sortBy="#{x.hours}" filterBy="#{x.hours}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.hours}" />
+           										</p:column>
+												
+
+												
+												<p:column headerText="Comm. Rate" width="110" sortBy="#{x.estimatedCommissionRate}" filterBy="#{x.estimatedCommissionRate}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.estimatedCommissionRate}" />
+           										</p:column>
+												
+												
+												<p:column headerText="ProRated Commission $" width="180" sortBy="#{x.proRatedCommissionAmount}" filterBy="#{x.proRatedCommissionAmount}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.proRatedCommissionAmount}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Calculation Model" width="150" sortBy="#{x.commissionCalculationModel}" filterBy="#{x.commissionCalculationModel}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionCalculationModel}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Commission Model" width="160" sortBy="#{x.analyzerCommissionModelCode}" filterBy="#{x.analyzerCommissionModelCode}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.analyzerCommissionModelCode}" />
+           										</p:column>
+												
+											
+												<p:column headerText="Revenue" width="90" sortBy="#{x.revenue}" filterBy="#{x.revenue}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.revenue}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Cost" width="80" sortBy="#{x.cost}" filterBy="#{x.cost}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.cost}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Commission Revenue" width="210" sortBy="#{x.commissionRevenue}" filterBy="#{x.commissionRevenue}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionRevenue}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Commission Cost" width="200" sortBy="#{x.commissionCost}" filterBy="#{x.commissionCost}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionCost}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Discount Rate %" width="210" sortBy="#{x.commissionDiscountRate}" filterBy="#{x.commissionDiscountRate}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionDiscountRate}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Discount Amount" width="210" sortBy="#{x.commissionDiscountAmount}" filterBy="#{x.commissionDiscountAmount}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionDiscountAmount}" />
+           										</p:column>
+												
+												
+												<p:column headerText="G&amp;A Rate %" width="210" sortBy="#{x.commissionGARate}" filterBy="#{x.commissionGARate}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionGARate}" />
+           										</p:column>
+												
+												
+												<p:column headerText="G&amp;A Amount $" width="210" sortBy="#{x.commissionGAAmount}" filterBy="#{x.commissionGAAmount}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionGAAmount}" />
+           										</p:column>
+												
+											
+												<p:column headerText="Business Type" width="180" sortBy="#{x.businessTypeName}" filterBy="#{x.businessTypeName}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.businessTypeName}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Flat Fee ?" width="170" sortBy="#{x.isFlatFeeCommissionRecord}" filterBy="#{x.isFlatFeeCommissionRecord}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.isFlatFeeCommissionRecord}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Gross Profit $" width="170" sortBy="#{x.grossProfit}" filterBy="#{x.grossProfit}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.grossProfit}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Analyzer GP%" width="170" sortBy="#{x.estimatedGPPercentage}" filterBy="#{x.estimatedGPPercentage}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.estimatedGPPercentage}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Actual GP%" width="170" sortBy="#{x.actualGrossProfitPercentage}" filterBy="#{x.actualGrossProfitPercentage}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.actualGrossProfitPercentage}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Comm Profit" width="170" sortBy="#{x.commissionProfit}" filterBy="#{x.commissionProfit}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionProfit}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Role Name" width="170" sortBy="#{x.roleName}" filterBy="#{x.roleName}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.roleName}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Comm Rate %" width="170" sortBy="#{x.actualCommissionPercentage}" filterBy="#{x.actualCommissionPercentage}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.actualCommissionPercentage}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Prorate Factor" width="170" sortBy="#{x.proRateFactor}" filterBy="#{x.proRateFactor}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.proRateFactor}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Customer Id" width="170" sortBy="#{x.customerId}" filterBy="#{x.customerId}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.customerId}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Customer Name" width="130" sortBy="#{x.customerName}" filterBy="#{x.customerName}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.customerName}" />
+           										</p:column>
+												
+												
+												<p:column headerText="For Quota only?" width="170" sortBy="#{x.isCommissionPersonForQuota}" filterBy="#{x.isCommissionPersonForQuota}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.isCommissionPersonForQuota}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Orphan?" width="140" sortBy="#{x.commissionPersonOrphan}" filterBy="#{x.commissionPersonOrphan}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.commissionPersonOrphan}" />
+           										</p:column>
+												
+												
+												<p:column headerText="CCCF" width="130" sortBy="#{x.cccf}" filterBy="#{x.cccf}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.cccf}" />
+           										</p:column>
+												
+												
+												<p:column headerText="CCAF" width="100" sortBy="#{x.ccaf}" filterBy="#{x.ccaf}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.ccaf}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Master Project ID" width="210" sortBy="#{x.masterProjectId}" filterBy="#{x.masterProjectId}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.masterProjectId}" />
+           										</p:column>
+												
+
+
+												
+												<p:column headerText="Master Project Revenue" width="210" sortBy="#{x.masterProjectRevenue}" filterBy="#{x.masterProjectRevenue}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.masterProjectRevenue}" />
+           										</p:column>
+												
+
+												
+												<p:column headerText="Sum of All Projects Revenue" width="270" sortBy="#{x.sumOfAllProjectsRevenue}" filterBy="#{x.sumOfAllProjectsRevenue}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.sumOfAllProjectsRevenue}" />
+           										</p:column>
+												
+												
+												<p:column headerText="All Projects Revenue" width="270" sortBy="#{x.sumOfAllProjectsCost}" filterBy="#{x.sumOfAllProjectsCost}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.sumOfAllProjectsCost}" />
+           										</p:column>
+												
+
+												
+												<p:column headerText="Count Of Child Projects" width="270" sortBy="#{x.countOfChildProjects}" filterBy="#{x.countOfChildProjects}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.countOfChildProjects}" />
+           										</p:column>
+					
+												<p:column headerText="Category Code" width="170" sortBy="#{x.categoryCode}" filterBy="#{x.categoryCode}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.categoryCode}" />
+           										</p:column>
+												
+					
+												<p:column headerText="Employee Type" width="170" sortBy="#{x.employeeType}" filterBy="#{x.employeeType}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.employeeType}" />
+           										</p:column>
+												
+						
+												<p:column headerText="Job Title" width="240" sortBy="#{x.jobTitle}" filterBy="#{x.jobTitle}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.jobTitle}" />
+           										</p:column>
+												
+											
+												<p:column headerText="Project GL Location" width="270" sortBy="#{x.projectGLLocation}" filterBy="#{x.projectGLLocation}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.projectGLLocation}" />
+           										</p:column>
+												
+											
+												<p:column headerText="Estimated Commission Percentage %" width="270" sortBy="#{x.estimatedCommissionPercentage}" filterBy="#{x.estimatedCommissionPercentage}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.estimatedCommissionPercentage}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Flat Fee Commission $" width="270" sortBy="#{x.flatFeeCommissionAmount}" filterBy="#{x.flatFeeCommissionAmount}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.flatFeeCommissionAmount}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Project GP For Quota Attainment" width="270" sortBy="#{x.projectGPForQuotaAttainment}" 
+												filterBy="#{x.projectGPForQuotaAttainment}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.projectGPForQuotaAttainment}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Commission Payment%" width="200" sortBy="#{x.appliedCommissionPaymentPercentage}" filterBy="#{x.appliedCommissionPaymentPercentage}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.appliedCommissionPaymentPercentage}" />
+           										</p:column>
+												
+												
+												<p:column headerText="Accelerator Commission $" width="270" sortBy="#{x.additionalAcceleratorCommissionAmount}" filterBy="#{x.additionalAcceleratorCommissionAmount}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.additionalAcceleratorCommissionAmount}" />
+           										</p:column>
+												
+												<p:column headerText="Accelerator Commission %" width="250" sortBy="#{x.currentAppliedAcceleratorCommPercentage}" filterBy="#{x.currentAppliedAcceleratorCommPercentage}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.currentAppliedAcceleratorCommPercentage}" />
+           										</p:column>
+												
+												
+												<p:column headerText="BillRate" width="150" sortBy="#{x.analyzerBillRate}" filterBy="#{x.analyzerBillRate}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.analyzerBillRate}" />
+           										</p:column>
+												
+												
+												<p:column headerText="PayRate" width="150" sortBy="#{x.analyzerPayRate}" filterBy="#{x.analyzerPayRate}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.analyzerPayRate}" />
+           										</p:column>
+												
+<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->												
+											</p:dataTable>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="box">
+												<div class="box-body">
+													<h3>Details Table</h3>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelChildButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeChildFilePath"
+													listener="#{commissionNewModelReportsBean.exportChildFileToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseChildMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodChildButton" title="Download"
+												style="display:none;"
+												actionListener="#{commissionNewModelReportsBean.downloadChildExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{commissionNewModelReportsBean.newChildFileName}" />
+												<p:fileDownload
+													value="#{commissionNewModelReportsBean.generatedChildExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeChildFilePath"
+												name="completeChildFilePath"
+												value="#{commissionNewModelReportsBean.newChildFileName}" />
+
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="childTable"
+												value="#{commissionNewModelReportsBean.journalData}" var="x"
+												rows="15" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="childTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{commissionNewModelReportsBean.journalDataFilteredList}"
+												 filterEvent="enter">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onkeyup="PF('childTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->
+<!--  												
+												<p:column width="200" filterStyle="display:none"
+													filterBy="#{x.projectId}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.projectId}">
+													<f:facet name="header">
+														<h:outputText value="Project ID" />
+													</f:facet>
+													<h:outputText value="#{x.projectId}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.journalId}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.journalId}">
+													<f:facet name="header">
+														<h:outputText value="Journal ID" />
+													</f:facet>
+													<h:outputText value="#{x.journalId}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.chartField1}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.chartField1}">
+													<f:facet name="header">
+														<h:outputText value="Location" />
+													</f:facet>
+													<h:outputText value="#{x.chartField1}" />
+												</p:column>
+
+												<p:column width="70" filterStyle="display:none"
+													filterBy="#{x.systemSource}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.systemSource}">
+													<f:facet name="header">
+														<h:outputText value="Type" />
+													</f:facet>
+													<h:outputText value="#{x.systemSource}" />
+												</p:column>
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.account}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.account}">
+													<f:facet name="header">
+														<h:outputText value="Account" />
+													</f:facet>
+													<h:outputText value="#{x.account}" />
+												</p:column>
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.monetaryAmount}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.monetaryAmount}">
+													<f:facet name="header">
+														<h:outputText value="Monetary Amount" />
+													</f:facet>
+													<h:outputText value="#{x.monetaryAmount}" />
+												</p:column>
+
+
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.transactionRefNumber}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.transactionRefNumber}">
+													<f:facet name="header">
+														<h:outputText value="Trans Ref #" />
+													</f:facet>
+													<h:outputText value="#{x.transactionRefNumber}" />
+												</p:column>
+
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.lineDescription}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.lineDescription}">
+													<f:facet name="header">
+														<h:outputText value="Line Description" />
+													</f:facet>
+													<h:outputText value="#{x.lineDescription}" />
+												</p:column>
+
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.resourceType}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.resourceType}">
+													<f:facet name="header">
+														<h:outputText value="Resource Type" />
+													</f:facet>
+													<h:outputText value="#{x.resourceType}" />
+												</p:column>
+
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.resourceCategory}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.resourceCategory}">
+													<f:facet name="header">
+														<h:outputText value="Resource Category" />
+													</f:facet>
+													<h:outputText value="#{x.resourceCategory}" />
+												</p:column>
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.analysisType}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.analysisType}">
+													<f:facet name="header">
+														<h:outputText value="Analysis Type" />
+													</f:facet>
+													<h:outputText value="#{x.analysisType}" />
+												</p:column>
+
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.journalLineRef_VoucherId}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.journalLineRef_VoucherId}">
+													<f:facet name="header">
+														<h:outputText value="Voucher Id" />
+													</f:facet>
+													<h:outputText value="#{x.journalLineRef_VoucherId}" />
+												</p:column>
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.journalLineSource}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.journalLineSource}">
+													<f:facet name="header">
+														<h:outputText value="Line Source" />
+													</f:facet>
+													<h:outputText value="#{x.journalLineSource}" />
+												</p:column>
+
+												<p:column width="200" filterStyle="display:none"
+													filterBy="#{x.journalDescription}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.journalDescription}">
+													<f:facet name="header">
+														<h:outputText value="Journal Description" />
+													</f:facet>
+													<h:outputText value="#{x.journalDescription}" />
+												</p:column>
+												-->
+												
+											
+												<p:column headerText="Project ID" width="200" sortBy="#{x.projectId}" filterBy="#{x.projectId}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.projectId}" />
+           										</p:column>												
+
+												<p:column headerText="Journal ID" width="130" sortBy="#{x.journalId}" filterBy="#{x.journalId}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.journalId}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Location" width="130" sortBy="#{x.chartField1}" filterBy="#{x.chartField1}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.chartField1}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Type" width="70" sortBy="#{x.systemSource}" filterBy="#{x.systemSource}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.systemSource}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Account" width="130" sortBy="#{x.account}" filterBy="#{x.account}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.account}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Monetary Amount" width="170" sortBy="#{x.monetaryAmount}" filterBy="#{x.monetaryAmount}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.monetaryAmount}" />
+           										</p:column>												
+
+
+												
+												<p:column headerText="Trans Ref #" width="170" sortBy="#{x.transactionRefNumber}" filterBy="#{x.transactionRefNumber}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.transactionRefNumber}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Line Description" width="170" sortBy="#{x.lineDescription}" filterBy="#{x.lineDescription}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.lineDescription}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Resource Type" width="170" sortBy="#{x.resourceType}" filterBy="#{x.resourceType}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.resourceType}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Resource Category" width="170" sortBy="#{x.resourceCategory}" filterBy="#{x.resourceCategory}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.resourceCategory}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Analysis Type" width="170" sortBy="#{x.analysisType}" filterBy="#{x.analysisType}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.analysisType}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Voucher Id" width="170" sortBy="#{x.journalLineRef_VoucherId}" filterBy="#{x.journalLineRef_VoucherId}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.journalLineRef_VoucherId}" />
+           										</p:column>												
+
+												
+												<p:column headerText="Line Source" width="170" sortBy="#{x.journalLineSource}" filterBy="#{x.journalLineSource}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.journalLineSource}" />
+           										</p:column>												
+
+																						
+												<p:column headerText="Journal Description" width="200" sortBy="#{x.journalDescription}" filterBy="#{x.journalDescription}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.journalDescription}" />
+           										</p:column>												
+	<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->
+											</p:dataTable>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</h:form>
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		function clickButton() {
+			//val = document.getElementById("dataTableForm:completeFilePath").value;
+			document.getElementById("dataTableForm:downlodButton").click();
+			//alert(val);
+		}
+
+		function initializeComponents() {
+			$('.select2').select2();
+
+			$('#filterForm\\:submissionEntryDate').datepicker({
+				autoclose : true
+			})
+		}
+
+		$(document).ready(function() {
+			initializeComponents();
+		});
+	</script>
+
+</body>
+
+</html>

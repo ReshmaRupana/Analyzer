@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Analyzer Work Site Location</h1>
+			</section>
+			<!-- Main content -->
+			<section class="content">
+
+				<div class="row even">
+					<div class="col-xs-12"></div>
+				</div>
+
+				<div class="row even">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<div class="box">
+							<!-- /.box-header -->
+							<h:form role="form" name="analyserWorkSiteLocationForm"
+								id="analyserWorkSiteLocationForm">
+								<div class="box-body">
+
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Client Company" />
+											</div>
+										</div>
+										<div class="col-md-9">
+											<div class="form-group">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.clientId}"
+													id="clientCompany">
+													<f:selectItems
+														value="#{analyserWorkSiteLocationBean.clientCompany}"
+														var="r" itemLabel="#{r.label}" itemValue="#{r.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Manager Last Name" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:inputText styleClass="form-control input-sm"
+													id="managerLastName"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.lastName}" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Manager First Name" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:inputText styleClass="form-control input-sm"
+													id="managerFirstName"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.managerName}" />
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Address1" />
+											</div>
+										</div>
+										<div class="col-md-9">
+											<div class="form-group">
+												<h:inputText styleClass="form-control input-sm"
+													id="address1"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.address1}" />
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Address 2" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:inputText styleClass="form-control input-sm"
+													id="address2"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.address2}" />
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Phone" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm" id="phone"
+														readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+														value="#{analyserWorkSiteLocationBean.analyserClientSite.telephone}"
+														mask="(999) 999-9999" autoClear="true"
+														placeholder="(999) 999-9999" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="City" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:inputText styleClass="form-control input-sm" id="city"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.city}" />
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="State" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.state}"
+													id="state">
+													<f:selectItems
+														value="#{analyserWorkSiteLocationBean.uSAStates}" var="r"
+														itemLabel="#{r.label}" itemValue="#{r.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+									</div>
+
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Zip Code" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<p:inputMask styleClass="form-control input-sm" id="zipCode"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.zipCode}"
+													mask="*****-?****" autoClear="true" placeholder="12345-1234" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Country" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.country}"
+													id="country">
+													<f:selectItems
+														value="#{analyserWorkSiteLocationBean.countryNames}"
+														var="r" itemLabel="#{r.label}" itemValue="#{r.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Fax" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<p:inputMask styleClass="form-control input-sm" id="fax"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.fax}"
+													mask="(999) 999-9999" autoClear="true"
+													placeholder="(999) 999-9999" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<h:outputLabel value="Email" />
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<p:inputText id="email" styleClass="form-control input-sm"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.email}">
+													<p:keyFilter regEx="/[a-z0-9_\.\-@]/i" />
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									<p:inputText type="hidden" id="action"
+										value="#{analyserWorkSiteLocationBean.action}" />
+									<div class="box-footer" id="buttonsDiv"
+										style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+										<h:commandButton value="Update"
+											styleClass="btn btn-md btn-primary btn-info" id="actualUpdateButton"
+											action="#{analyserWorkSiteLocationBean.updateAnalyserWorkSite}"
+											rendered="#{analyserWorkSiteLocationBean.showUpdateButton}" />
+											
+										<h:commandButton rendered="#{analyserWorkSiteLocationBean.showUpdateButton}"
+											id="discardButton" value="Discard Changes" immediate="true"
+											action="#{analyserWorkSiteLocationBean.discardChanges}"
+											styleClass="btn btn-md btn-primary" />	
+
+									</div>
+
+								</div>
+							</h:form>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+			</section>
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		function initializeComponents() {
+			$('.select2').select2();
+		}
+
+		function bindCheckboxes() {
+			$('input[type="checkbox"].minimal').iCheck({
+				checkboxClass : 'icheckbox_flat-blue'
+			})
+		}
+
+		$(document).ready(
+				function() {
+					initializeComponents();
+					bindCheckboxes();
+					/* var val = $("#inputForm\\:test").val();
+					if (val == "true") {
+						$("#passwordDiv").attr("style", "display:none");
+						$("#inputForm\\:userId").prop("readonly", true);
+					} */
+					var screen = $("#analyserWorkSiteLocationForm\\:action")
+							.val();
+					if (screen == "Modify" || screen == "View") {
+						disableFields();
+					}
+
+				});
+		
+		function disableDropDownSelect(elem) {
+			var e = '#analyserWorkSiteLocationForm\\:' + elem;
+			$(e).select2().on('select2:selecting', function(e) {
+				e.preventDefault();
+				$(this).select2('close');
+			});
+			$(e).select2('enable', false);
+		}
+
+		function disableFields() {
+			disableDropDownSelect('clientCompany');
+			disableDropDownSelect('state');
+			disableDropDownSelect('country');
+		}
+	</script>
+
+</body>
+
+</html>

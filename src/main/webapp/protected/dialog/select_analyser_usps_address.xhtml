@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<title>Analyzer USPS Address</title>
+	<style type="text/css">
+.ui-widget {
+	font-size: 90%;
+}
+
+.odd {
+	background: aliceblue;
+	padding: 0px 15px;
+}
+
+.even {
+	background: alicegrey;
+	padding: 0px 15px;
+}
+
+.title {
+	background: #99d9f7;
+	padding-top: 5px;
+	text-transform: uppercase;
+	font-size: 16px;
+	text-align: center !important;
+	margin-bottom: 0px;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+}
+
+
+   .ui-datatable,
+   .ui-datatable .ui-datatable-tablewrapper table {
+        font-size: 12px !important;
+   }
+            
+   /* For Paginator */
+   .ui-datatable .ui-paginator .ui-paginator-first, 
+   .ui-datatable .ui-paginator .ui-paginator-prev, 
+   .ui-datatable .ui-paginator .ui-paginator-pages .ui-paginator-page, 
+   .ui-datatable .ui-paginator .ui-paginator-next, 
+   .ui-datatable .ui-paginator .ui-paginator-last, 
+   .ui-datatable .ui-paginator .ui-paginator-rpp-options {
+        font-size: 10px !important;
+   }
+            
+   .ui-datatable .ui-paginator .ui-paginator-current {
+       font-size: 10px !important;
+   }
+</style>
+</h:head>
+
+<h:body class="hold-transition skin-blue">
+	<div class="content-wrapper" style="margin-left: 0px !important;">
+
+		<!-- Main content -->
+		<section class="content">
+			<h:form>
+				<div class="row title">
+					<div class="col-xs-12">
+						<div class="form-group" style="font-weight: bold;">You Entered</div>
+					</div>
+				</div>
+				
+				<p:dataTable var="analyserUspsAddress" rowIndexVar="rowIndex"
+					value="#{analyserUSPSAddressBean.oldAddress}">
+
+
+					<p:column headerText="Address 1">
+						<h:outputText value="#{analyserUspsAddress.address1}" />
+					</p:column>
+
+					<p:column headerText="Address 2">
+						<h:outputText value="#{analyserUspsAddress.address2}" />
+					</p:column>
+
+					<p:column headerText="City">
+						<h:outputText value="#{analyserUspsAddress.city}" />
+					</p:column>
+
+					<p:column headerText="State">
+						<h:outputText value="#{analyserUspsAddress.state}" />
+					</p:column>
+
+					<p:column headerText="Zip Code">
+						<h:outputText value="#{analyserUspsAddress.zipCode}" />
+					</p:column>
+
+					<p:column style="width:32px;text-align: center">
+						<p:commandButton icon="ui-icon-search"
+							actionListener="#{analyserUSPSAddressBean.selectAnalyserUspsAddressFromDialog(analyserUspsAddress)}"
+							immediate="true" title="Select" />
+					</p:column>
+
+				</p:dataTable>
+				
+				<hr />
+
+				<div class="row title">
+					<div class="col-xs-12">
+						<div class="form-group" style="font-weight: bold;">USPS Validated</div>
+					</div>
+				</div>
+				<p:dataTable var="analyserUspsAddress" rowIndexVar="rowIndex"
+					value="#{analyserUSPSAddressBean.newAddress}">
+					
+					<p:column style="width:32px;text-align: center">
+						<p:commandButton icon="ui-icon-search"
+							actionListener="#{analyserUSPSAddressBean.selectAnalyserUspsAddressFromDialog(analyserUspsAddress)}"
+							immediate="true" title="select"/>
+					</p:column>
+
+					<p:column headerText="Address 1">
+						<h:outputText value="#{analyserUspsAddress.address1}" />
+					</p:column>
+
+					<p:column headerText="Address 2">
+						<h:outputText value="#{analyserUspsAddress.address2}" />
+					</p:column>
+
+					<p:column headerText="City">
+						<h:outputText value="#{analyserUspsAddress.city}" />
+					</p:column>
+
+					<p:column headerText="State">
+						<h:outputText value="#{analyserUspsAddress.state}" />
+					</p:column>
+
+					<p:column headerText="Zip Code">
+						<h:outputText value="#{analyserUspsAddress.zipCode}" />
+					</p:column>
+
+				</p:dataTable>
+			</h:form>
+		</section>
+	</div>
+</h:body>
+
+</html>

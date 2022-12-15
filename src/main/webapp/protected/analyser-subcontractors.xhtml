@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Left side column. contains the logo and sidebar -->
+		<!-- <ui:include src="includes/side-navigation.xhtml"></ui:include> -->
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				responsive="true" header="Messages">
+				<p:messages id="messagesInDialog" showDetail="true" />
+				<!-- <p:button value="OK" onclick="messageDialog.hide()" /> -->
+			</p:dialog>
+		</p:outputPanel>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Analyzer Subcontractors</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+
+									<!-- <div class="col-xs-4">
+										<div class="form-group">
+											<h:inputText id="name" styleClass="form-control input-sm"
+												style="height: 35px;"
+												value="#{analyserSubcontractorsListBean.searchString}" />
+										</div>
+									</div> -->
+
+									<div class="col-xs-4">
+										<div class="form-group">
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{analyserSubcontractorsListBean.status}" id="status">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{analyserSubcontractorsListBean.recordStatus}"
+													var="vertical" itemLabel="#{vertical.label}"
+													itemValue="#{vertical.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<h:selectOneMenu id="compCode"
+													styleClass="form-control input-sm select2"
+													value="#{analyserSubcontractorsListBean.companyCode}">
+													<f:selectItem itemLabel="ALL" itemValue="ALL" />
+													<f:selectItems
+														value="#{companyBean.getCompanies()}"
+														var="compCode" itemLabel="#{compCode.label}"
+														itemValue="#{compCode.value}" />
+												</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Filter</span>
+											<f:ajax event="click"
+												listener="#{analyserSubcontractorsListBean.filter}"
+												execute="@form" render="dataTableForm" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<f:ajax event="click"
+												listener="#{analyserSubcontractorsListBean.eraseFilter}"
+												execute="@form" render="filterForm dataTableForm" />
+										</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<p:dataTable id="crudDataTable"
+										value="#{analyserSubcontractorsListBean.list}" var="x"
+										rows="10" paginator="true"
+										paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										rowsPerPageTemplate="10,20,50,100" scrollable="false"
+										scrollHeight="350" scrollWidth="100%" widgetVar="dataTable"
+										emptyMessage="No data found with given criteria">
+
+										<f:facet name="header">
+											<p:outputPanel>
+												<h:outputText value="Search all fields:" />
+												<p:inputText id="globalFilter"
+													onchange="PF('dataTable').filter()" style="width:150px"
+													placeholder="Enter keyword" />
+											</p:outputPanel>
+										</f:facet>
+
+										<p:column width="250">
+											<f:facet name="header">
+												<h:outputText value="Actions" />
+											</f:facet>
+											
+											<p:link outcome="modify-subcontractor-info" value="Modify"
+												styleClass="btn btn-xs bg-navy active">
+												<i class="glyphicon glyphicon-pencil" />
+												<f:param name="contractorId" value="#{x.contractorId}" />
+												<f:param name="action" value="Modify" />
+											</p:link>
+
+											<h:outputText value=" " />
+
+											<p:link outcome="analyser-subcontractor-info" value="View"
+												styleClass="btn btn-xs bg-navy active">
+												<i class="glyphicon glyphicon-pencil" />
+												<f:param name="contractorId" value="#{x.contractorId}" />
+												<f:param name="action" value="View" />
+											</p:link>
+
+											<h:outputText value=" " />
+
+											<p:commandButton id="activateButton" value="Activate"
+												styleClass="btn btn-xs bg-olive active" 
+												style="height: 24px;margin-bottom: 0px;"
+												rendered="#{x.recordStatus == 0 and !analyserSubcontractorsListBean.enableAdministrativeActions}"
+												actionListener="#{analyserSubcontractorsListBean.changeStatus}"
+												update="dataTableForm">
+												<f:param name="contractorId" value="#{x.contractorId}" />
+												<f:param name="status" value="#{x.recordStatus}" />
+											</p:commandButton>
+
+											<p:commandButton id="deActivatButton" value="De Activate"
+												styleClass="btn btn-xs bg-red active"  
+												style="height: 24px;margin-bottom: 0px;"
+												rendered="#{x.recordStatus == 1 and !analyserSubcontractorsListBean.enableAdministrativeActions}"
+												actionListener="#{analyserSubcontractorsListBean.changeStatus}"
+												update="dataTableForm">
+												<f:param name="contractorId" value="#{x.contractorId}" />
+												<f:param name="status" value="#{x.recordStatus}" />
+											</p:commandButton>
+
+											<!-- <p:link outcome="analyser-client" value="Modify Details"
+												styleClass="btn btn-xs btn-primary">
+												<i class="glyphicon glyphicon-pencil" />
+												<f:param name="clientId" value="#{x.clientId}" />
+												<f:param name="action" value="Modify" />
+											</p:link>
+											<h:outputText value=" " />
+											<p:link outcome="analyser-client" value="View"
+												styleClass="btn btn-xs btn-primary">
+												<i class="glyphicon glyphicon-pencil" />
+												<f:param name="clientId" value="#{x.clientId}" />
+												<f:param name="action" value="View" />
+											</p:link>
+											<h:outputText value=" " />
+											<p:link outcome="analyser-client-addresses"
+												value="Client Address" styleClass="btn btn-xs btn-primary">
+												<i class="glyphicon glyphicon-pencil" />
+												<f:param name="clientId" value="#{x.clientId}" />
+												<f:param name="action" value="ClientAddress" />
+											</p:link>
+											<h:outputText value=" " />
+											<p:link outcome="analyser-client-sites" value="Client Sites"
+												styleClass="btn btn-xs btn-primary">
+												<i class="glyphicon glyphicon-pencil" />
+												<f:param name="clientId" value="#{x.clientId}" />
+												<f:param name="action" value="ClientSites" />
+											</p:link>
+											<h:outputText value=" " /> -->
+											<!-- <p:commandButton id="rehireButton" value="De Activate"
+												styleClass="btn btn-xs btn-primary btn-flat"
+												actionListener="#{analyserSubcontractorsListBean.rehireAnalyser}"
+												update="@form">
+												<f:param name="analyserId" value="#{x.clientId}" />
+											</p:commandButton> -->
+
+										</p:column>
+
+										<p:column width="350" filterStyle="display:none"
+											filterBy="#{x.company}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Legal Name" />
+											</f:facet>
+											<h:outputText value="#{x.company}" />
+										</p:column>
+										
+										<p:column width="170" filterStyle="display:none"
+											filterBy="#{x.setId}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Set Id" />
+											</f:facet>
+											<h:outputText value="#{x.setId}" />
+										</p:column>
+										
+										<p:column width="170" filterStyle="display:none"
+											filterBy="#{x.companyCode}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Company Code" />
+											</f:facet>
+											<h:outputText value="#{x.companyCode}" />
+										</p:column>
+
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.pocName}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="POC name" />
+											</f:facet>
+											<h:outputText value="#{x.pocName}" />
+										</p:column>
+
+										<p:column width="120" filterStyle="display:none"
+											filterBy="#{x.fin}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="FIN" />
+											</f:facet>
+											<h:outputText value="#{x.fin}" />
+										</p:column>
+
+
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.paymentTerm}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Payment Term" />
+											</f:facet>
+											<h:outputText value="#{x.paymentTerm}" />
+										</p:column>
+
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.completeAddress}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Address" />
+											</f:facet>
+											<h:outputText value="#{x.completeAddress}" />
+										</p:column>
+
+										<p:column width="170" filterStyle="display:none"
+											filterBy="#{x.updatedBy}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Modified By User" />
+											</f:facet>
+											<h:outputText value="#{x.updatedBy}" />
+										</p:column>																			
+
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.subcontractorApprove}"
+											filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Approval Status" />
+											</f:facet>
+											<h:outputText value="Approved"
+												rendered="#{x.subcontractorApprove == 1}" />
+											<h:outputText value="Conditionally Approved"
+												rendered="#{x.subcontractorApprove == 2}" />
+											<h:outputText value="Rejected"
+												rendered="#{x.subcontractorApprove == 3}" />
+											<h:outputText value="Not Approved"
+												rendered="#{x.subcontractorApprove == 0}" />
+										</p:column>
+										
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.contractorId}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Contractor ID" />
+											</f:facet>
+											<h:outputText value="#{x.contractorId}" />
+										</p:column>
+										
+										<p:column width="170" filterStyle="display:none"
+											filterBy="#{x.PSVendorId}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="PS Vendor Id" />
+											</f:facet>
+											<h:outputText value="#{x.PSVendorId}" />
+										</p:column>
+										
+										<p:column width="170" filterStyle="display:none"
+											filterBy="#{x.updatedDate}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Modification Date" />
+											</f:facet>
+											<h:outputText value="#{x.updatedDate}" />
+										</p:column>
+										
+										
+
+									</p:dataTable>
+								</h:form>
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			initializeComponents();
+		});
+
+		function initializeComponents() {
+			$('.select2').select2();
+		}
+	</script>
+
+</body>
+
+</html>

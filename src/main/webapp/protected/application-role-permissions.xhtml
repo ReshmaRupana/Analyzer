@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<style type="text/css">
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Main content -->
+			<section class="content">
+
+				<p:messages styleClass="errorMessage" globalOnly="true" />
+				<!-- Global messages -->
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<div class="box">
+							<div class="box-header">
+								<h3 class="box-title">
+									Set Privileges For Role :
+									<h:outputLabel value="#{resourcesBean.role.roleDesc}" />
+								</h3>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form role="form" id="inputForm">
+									<p:growl id="msg" showDetail="true" escape="false" />
+
+									<p:pickList id="pojoPickList"
+										value="#{resourcesBean.resourcesList}" var="res"
+										itemLabel="#{res.resWithParentName}" itemValue="#{res}" effect="bounce"
+										showCheckbox="true" responsive="true" showSourceFilter="true"
+										showTargetFilter="true" filterMatchMode="contains"
+										converter="entityConverter">
+
+										<f:facet name="sourceCaption">Available</f:facet>
+										<f:facet name="targetCaption">Selected</f:facet>
+
+										<p:ajax event="transfer"
+											listener="#{resourcesBean.onTransfer}" update="msg, pojoPickList" />
+										<!-- <p:ajax event="select" listener="#{resourcesBean.onSelect}"
+											update="msg" />
+										<p:ajax event="unselect"
+											listener="#{resourcesBean.onUnselect}" update="msg" /> -->
+
+
+										<p:column style="width:90%;">
+											<h:outputText value="#{res.resWithParentName}" />
+										</p:column>
+									</p:pickList>
+
+									<p:commandButton id="pojoSubmit" value="Modify"
+										styleClass="btn btn-sm btn-primary"
+										actionListener="#{resourcesBean.selectedList}"
+										style="margin-top:5px" />
+
+									<p:link outcome="application-roles" value="Cancel"
+										styleClass="btn btn-sm btn-primary"
+										style="margin-top:5px">
+									</p:link>
+
+								</h:form>
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+
+				<p:dialog modal="true" showEffect="fade" hideEffect="fade"
+					widgetVar="themesDialog">
+					<h:panelGrid id="displayThemes" columns="2">
+						<h:outputText value="Source: " style="font-weight:bold" />
+						<ui:repeat value="#{resourceBean.resourcesList.source}" var="res">
+							<h:outputText value="#{res.resDesc}" style="margin-right:5px" />
+						</ui:repeat>
+
+						<h:outputText value="Target: " style="font-weight:bold" />
+						<ui:repeat value="#{resourceBean.resourcesList.target}" var="res">
+							<h:outputText value="#{res.resDesc}" style="margin-right:5px" />
+						</ui:repeat>
+					</h:panelGrid>
+				</p:dialog>
+
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

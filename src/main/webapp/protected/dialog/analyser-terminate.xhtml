@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<h:head>
+	<meta charset="utf-8"></meta>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+	<!-- Tell the browser to be responsive to screen width -->
+	<meta
+		content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+		name="viewport"></meta>
+	<!-- Bootstrap 3.3.7 -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+	<!-- <link rel="stylesheet"
+			href="../resources/" /> -->
+	<!-- Font Awesome -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/font-awesome/css/font-awesome.min.css" />
+	<!-- Ionicons -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/Ionicons/css/ionicons.min.css" />
+
+	<!-- DataTables -->
+	<!-- <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css" /> -->
+	<link rel="stylesheet" type="text/css"
+		href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+		
+	<!-- daterange picker -->
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/bower_components/bootstrap-daterangepicker/daterangepicker.css" />
+		<!-- bootstrap datepicker -->
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css"/>
+		
+		<!-- iCheck for checkboxes and radio inputs -->
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/plugins/iCheck/all.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/plugins/iCheck/square/blue.css" />
+
+		<!-- Bootstrap time Picker -->
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/plugins/timepicker/bootstrap-timepicker.min.css" />
+		
+		<!-- Select2 -->
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/bower_components/select2/dist/css/select2.min.css" />	
+
+	<!-- Theme style -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/AdminLTE.min.css" />
+
+	<!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/skins/_all-skins.min.css" />
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+	<!-- Google Font -->
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+	</link>
+
+	<style type="text/css">
+.odd {
+	background: aliceblue;
+	padding: 0px 15px;
+}
+
+.even {
+	background: alicegrey;
+	padding: 0px 15px;
+}
+
+.title {
+	background: #99d9f7;
+	padding-top: 5px;
+	text-transform: uppercase;
+	font-size: 16px;
+	text-align: center !important;
+	margin-bottom: 0px;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+}
+</style>
+
+</h:head>
+<h:outputScript name="js/analyser-terminate.js" target="head" />
+<body class="hold-transition skin-blue">
+	<!-- Content Wrapper. Contains page content -->
+	<div class="content-wrapper" style="margin-left: 0px !important;">
+
+		<!-- Main content -->
+		<section class="content">
+
+			<div class="row even">
+				<div class="col-xs-12"></div>
+			</div>
+			<div class="row even">
+				<div class="col-xs-12">
+					<!-- /.box -->
+					<div class="box">
+						<div class="box-header"
+							style="text-align: center; background: aliceblue;">
+							<h1 class="box-title" style="font-size: 30px !important;">Terminate Analyzer</h1>
+						</div>
+						<!-- /.box-header -->
+						<h:form role="form" name="analyserTerminationForm"
+							id="analyserTerminationForm">
+							<div class="box-body">
+
+								<div class="row">
+									<div class="col-md-2">
+										<div class="form-group">
+											<h:outputLabel value="Terminate Date" />
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="terminateDate"
+													value="#{analyserTerminateBean.terminateDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>									
+								</div>
+								<div class="row">
+								<div class="col-md-2">
+										<div class="form-group">
+											<h:outputLabel value="Reason" />
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="form-group">
+											<h:selectOneMenu styleClass="form-control select2"
+												value="#{analyserTerminateBean.reason}" id="reason">
+
+												<f:selectItem itemLabel="Select One" itemValue="" />
+												<f:selectItems value="#{terminationReasonBean.getTerminationReasonBeanByCompanyCodeList(analyserTerminateBean.companyCode)}"
+													var="r" itemLabel="#{r.label}" itemValue="#{r.value}" />
+
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-2">
+										<div class="form-group">
+											<h:outputLabel value="Eligible for Re-Hire" />
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<h:selectBooleanCheckbox
+												styleClass="form-control input-sm minimal"
+												id="eligibleForReHire"
+												value="#{analyserTerminateBean.eligibleForRehire}" />
+										</div>										
+									</div>
+																
+									<div class="col-md-2">
+										<div class="form-group">
+											<h:outputLabel value="Dental Insurance" />
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<h:selectBooleanCheckbox
+												styleClass="form-control input-sm minimal"
+												id="dentalInsurance"
+												value="#{analyserTerminateBean.dentalInsurance}" />
+										</div>
+									</div>
+								</div>
+								
+								<div class="row">
+									<div class="col-md-2">
+										<div class="form-group">
+											<h:outputLabel value="False Termination" />
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<h:selectBooleanCheckbox
+												styleClass="form-control input-sm minimal"
+												id="falseTermination"
+												value="#{analyserTerminateBean.falseTermination}" />
+										</div>
+									</div>
+									<div class="col-md-2">
+										<div class="form-group">
+											<h:outputLabel value="Company Code" />
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<p:inputText id="companyCode"
+													styleClass="form-control input-sm"
+													value="#{analyserTerminateBean.companyCode}" readonly="true" />
+										</div>										
+									</div>	
+								</div>	
+
+
+								<p:inputText type="hidden" id="analyserId"
+									value="#{analyserTerminateBean.analyserId}" />
+									
+								<p:inputText type="hidden" id="oldTerminateDate"
+									value="#{analyserTerminateBean.oldTerminateDate}" />
+									
+								<p:inputText type="hidden" id="startDate"
+									value="#{analyserTerminateBean.startDate}" />
+									
+								<p:inputText type="hidden" id="showUpdateButton"
+									value="#{analyserTerminateBean.showUpdateButton}" />	
+
+								<div class="box-footer" id="buttonsDiv"
+									style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+									<input id="saveButton" type="button" style="display:none;"
+										class="btn btn-md btn-primary" value="Terminate"
+										onclick="submitForm();" />
+										
+									<input id="updateButton" type="button" style="display:none;"
+										class="btn btn-md btn-primary" value="Update"
+										onclick="submitForm();" />
+									
+									<p:remoteCommand name="rc"
+										actionListener="#{analyserTerminateBean.terminateAnalyser}" />
+									<p:commandButton type="button"
+									 	style="display:none;"
+										styleClass="btn btn-xs btn-primary btn-info" 
+										onclick="rc()"
+										id="actualSaveButton"/>
+										
+									<p:remoteCommand name="rc1"
+										actionListener="#{analyserTerminateBean.updateTerminateAnalyser}" />
+									<p:commandButton type="button"
+									 	style="display:none;"
+										styleClass="btn btn-xs btn-primary btn-info" 
+										onclick="rc1()"
+										id="actualUpdateButton"/>	
+										
+									
+								</div>
+
+							</div>
+						</h:form>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+				</div>
+				<!-- /.col -->
+			</div>
+			<!-- /.row -->
+		</section>
+		<!-- /.content -->
+	</div>
+
+	<ui:include src="../includes/dialog-scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		function initializeDialogComponents() {
+			$('.select2').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			});
+			//Date picker
+			$('#analyserTerminationForm\\:terminateDate').datepicker({
+				autoclose : true,
+				useCurrent : false,
+				defaultDate : new Date(),
+				dateFormat: 'dd/mm/yyyy',//check change
+			    changeMonth: true,
+			    changeYear: true
+			})
+			
+			$('input[type="checkbox"].minimal').iCheck({
+		      checkboxClass: 'icheckbox_flat-blue'
+		    })
+		    
+		    var showUpdateButton = $('#analyserTerminationForm\\:showUpdateButton').val();
+		    if (showUpdateButton == "false") {
+				$("#saveButton").show();
+				$("#updateButton").hide();
+			}else{
+				$("#saveButton").hide();
+				$("#updateButton").show();
+			}
+		}
+
+		$(document).ready(function() {
+			initializeDialogComponents();
+			getOldTermDateValue();
+			//var screen = "View";
+		});
+	</script>
+
+</body>
+
+</html>

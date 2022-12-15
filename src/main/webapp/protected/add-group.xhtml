@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+<style type="text/css">
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+
+.center {
+	text-align: center;
+}
+
+.center {
+	text-align: left;
+}
+</style>
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Group Management</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<h:form id="form1">
+							<p:growl showDetail="true" id="msgs" />
+							<div class="box">
+								<!-- /.box-header -->
+								<div class="box-body">
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel value="Group Description" />
+										</div>
+										<div class="col-sm-10">
+											<p:inputText id="groupDescription"
+												placeholder="Group Description"
+												value="#{groupsBean.group.groupDescription}"
+												styleClass="form-control" required="true" />
+										</div>
+									</div>
+								</div>
+								<!-- /.box-body -->
+
+								<!-- <div class="box-footer"> -->
+								<div class="box-body">
+									<div class="form-group">
+										<div class="col-sm-2 control-label" />
+										<div class="col-sm-3 control-label">
+											<p:commandButton value="Save" id="btnSave"
+												update="form1 dataTableForm"
+												rendered="#{!groupsBean.showUpdateButton}"
+												styleClass="btn btn-primary btn-sm" icon="ui-icon-check"
+												actionListener="#{groupsBean.saveGroup}">
+											</p:commandButton>
+
+											<p:commandButton value="Update" id="btnUpdate"
+												update="form1 dataTableForm:crudDataTable"
+												rendered="#{groupsBean.showUpdateButton}"
+												styleClass="btn btn-primary btn-sm" icon="ui-icon-check"
+												actionListener="#{groupsBean.updateGroup}">
+											</p:commandButton>
+
+											<p:commandButton value="Clear" id="btnClear"
+												styleClass="btn btn-default btn-sm" icon="fa fa-refresh"
+												actionListener="#{groupsBean.clearForm}" immediate="true"
+												partialSubmit="true" update="form1" process="@this">
+												<f:ajax execute="@this"></f:ajax>
+											</p:commandButton>
+										</div>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable" value="#{groupsBean.list}"
+												var="x" rows="10" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,20,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%">
+												<!-- <h:column>
+													<f:facet name="header">
+														<h:outputText value="Group ID" />
+													</f:facet>
+													<h:outputText value="#{x.groupId}" />
+												</h:column> -->
+
+												<p:column width="500" headerClass="left">
+													<f:facet name="header">
+														<h:outputText value="Group Description" />
+													</f:facet>
+													<h:outputText value="#{x.groupDescription}" />
+												</p:column>
+
+												<p:column width="160" headerClass="center">
+													<f:facet name="header">
+														<h:outputText value="Action" />
+													</f:facet>
+
+													<h:commandLink title="Edit" Value="Edit"
+														styleClass="btn btn-xs btn-primary" role="button">
+														<i class="glyphicon glyphicon-pencil" />
+														<f:ajax listener="#{groupsBean.editGroup}" execute="@this"
+															render=":form1" />
+														<f:param value="#{x.groupId}" name="selectedGroupId" />
+													</h:commandLink>
+													<h:outputText value=" " />
+													<h:commandLink title="Delete" Value="Delete" disabled="true"
+														styleClass="btn btn-xs btn-danger btn-primary"
+														role="button">
+														<i class="glyphicon glyphicon-remove" />
+
+														<f:ajax listener="#{groupsBean.deleteGroup}"
+															execute="@this" render="form1 dataTableForm" />
+														<f:param value="#{x.groupId}" name="selectedGroupId" />
+
+													</h:commandLink>
+													<h:outputText value=" " />
+													<p:link outcome="assign-to-group" title="Assign Users"
+														styleClass="btn btn-xs btn-primary btn-flat">
+														<i class="fa fa-user-plus" />
+														<f:param name="groupId" value="#{x.groupId}" />
+														<f:param name="action" value="Assign" />
+														<f:param name="userType" value="User" />
+													</p:link>
+													<h:outputText value=" " />
+													<p:link outcome="assign-to-group" title="Deassign Users"
+														styleClass="btn btn-xs btn-primary btn-flat">
+														<i class="fa fa-user-times" />
+														<f:param name="groupId" value="#{x.groupId}" />
+														<f:param name="action" value="Deassign" />
+														<f:param name="userType" value="User" />
+													</p:link>
+													<h:outputText value=" " />
+													<p:link outcome="assign-to-group" title="Assign Managers"
+														styleClass="btn btn-xs btn-primary btn-flat">
+														<i class="fa fa-user-circle" />
+														<f:param name="groupId" value="#{x.groupId}" />
+														<f:param name="action" value="Assign" />
+														<f:param name="userType" value="Manager" />
+													</p:link>
+													<h:outputText value=" " />
+													<p:link outcome="assign-to-group" title="Deassign Managers"
+														styleClass="btn btn-xs btn-primary btn-flat">
+														<i class="fa fa-user-circle-o" />
+														<f:param name="groupId" value="#{x.groupId}" />
+														<f:param name="action" value="Deassign" />
+														<f:param name="userType" value="Manager" />
+													</p:link>
+
+												</p:column>
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

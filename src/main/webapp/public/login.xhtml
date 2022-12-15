@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<style type="text/css">
+.error {
+	padding: 15px;
+	margin-bottom: 20px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	color: #a94442;
+	background-color: #f2dede;
+	border-color: #ebccd1;
+}
+</style>
+
+<h:body class="hold-transition login-page">
+<script>
+		function removeDisys(){
+			var username = document.getElementById("username").value; 
+			var regEx = new RegExp("@disys.com", "ig");	
+			document.getElementById("username").value = username.replace(regEx, "");
+			return true;
+		}
+</script>
+	<div class="login-box">
+		<div class="login-logo">
+			<b><p:graphicImage url="../resources/images/logo.png"/> </b>
+		</div>
+		<!-- /.login-logo -->
+		<div class="login-box-body">
+			<p class="login-box-msg" style="text-transform: uppercase;">Welcome to Disys Analyzer</p>
+			
+			<p:outputPanel autoUpdate="true">
+				<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+					appendToBody="true" visible="#{not empty facesContext.messageList}"
+					responsive="true" header="Messages">
+					<p:messages id="messagesInDialog" />
+					<!-- <p:button value="OK" onclick="messageDialog.hide()" /> -->
+				</p:dialog>
+			</p:outputPanel>
+			
+			<p:outputLabel value="Invalid user name or password!" styleClass="error"
+        			rendered="${!empty param['error']}" />
+
+			<h:form id="loginForm" prependId="false" onsubmit="return removeDisys()">
+				<div class="form-group has-feedback">
+
+					<p:outputLabel for="username" value="Username" styleClass="sr-only" />
+					<p:inputText id="username" styleClass="form-control"
+						required="true" placeholder="username" a:autofocus="autofocus">
+						<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+					</p:inputText>
+				</div>
+				<div class="form-group has-feedback">
+					<!-- PASSWORD -->
+					<p:outputLabel for="password" value="Password" styleClass="sr-only" />
+					<p:inputText type="password" id="password"
+						styleClass="form-control" required="true" placeholder="password"
+						a:autofocus="autofocus">
+						<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+					</p:inputText>
+				</div>
+				<div class="row">
+					<div class="col-xs-8">
+						<!-- <div class="checkbox icheck">
+							<label> <input type="checkbox"> Remember Me </input></label>
+						</div> -->
+					</div>
+					<!-- /.col -->
+					<div class="col-xs-4">
+						<h:commandButton id="signin" value="Sign In"
+							styleClass="btn btn-primary btn-block btn-flat" />
+					</div>
+					<!-- /.col -->
+				</div>
+			</h:form>
+
+			<div class="row">
+				<div class="col-xs-12">
+					Digital Intelligence Systems, LLC (DISYS)
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-12">
+					Phone: (703) 752.7900
+				</div>
+			</div>		
+
+			<!-- 
+			<a href="forgot-password.xhtml">I forgot my password</a>
+			-->
+			 
+		</div>
+		<!-- /.login-box-body -->
+	</div>
+	<!-- /.login-box -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+</h:body>
+</html>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<h:head>
+	<meta charset="utf-8"></meta>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+	<title><ui:insert name="title">Analyzer Clients Invoice Address</ui:insert></title>
+	<!-- Tell the browser to be responsive to screen width -->
+	<meta
+		content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+		name="viewport"></meta>
+	<!-- Bootstrap 3.3.7 -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+	<!-- <link rel="stylesheet"
+			href="../resources/" /> -->
+	<!-- Font Awesome -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/font-awesome/css/font-awesome.min.css" />
+	<!-- Ionicons -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/Ionicons/css/ionicons.min.css" />
+
+	<!-- DataTables -->
+	<!-- <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css" /> -->
+	<link rel="stylesheet" type="text/css"
+		href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+
+	<!-- Theme style -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/AdminLTE.min.css" />
+
+	<!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/skins/_all-skins.min.css" />
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+	<!-- Google Font -->
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+	</link>
+
+	<style type="text/css">
+.ui-datatable, .ui-datatable .ui-datatable-tablewrapper table {
+	font-size: 12px !important;
+}
+
+/* For Paginator */
+.ui-datatable .ui-paginator .ui-paginator-first, .ui-datatable .ui-paginator .ui-paginator-prev,
+	.ui-datatable .ui-paginator .ui-paginator-pages .ui-paginator-page,
+	.ui-datatable .ui-paginator .ui-paginator-next, .ui-datatable .ui-paginator .ui-paginator-last,
+	.ui-datatable .ui-paginator .ui-paginator-rpp-options {
+	font-size: 10px !important;
+}
+
+.ui-datatable .ui-paginator .ui-paginator-current {
+	font-size: 10px !important;
+}
+</style>
+</h:head>
+<body class="hold-transition skin-blue">
+	<!-- Content Wrapper. Contains page content -->
+	<div class="content-wrapper" style="margin-left: 0px !important;">
+
+		<!-- Main content -->
+		<section class="content">
+
+			<div class="row">
+				<div class="col-xs-12">NOTE: If you cannot find the correct
+					invoice address from the look up options, please select one to
+					complete the record. Then create a JIRA ticket in Billing (BILL)
+					Project for billing team to change or create the correct invoice
+					address in Analyzer &amp; PS.</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<!-- /.box -->
+					<div class="box">
+						<!-- /.box-header -->
+						<div class="box-body">
+							<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+								<p:growl id="growl" showDetail="true"></p:growl>
+								<p:dataTable id="crudDataTable"
+									value="#{analyserClientBean.invoiceList}" var="x" rows="10"
+									paginator="true"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,20,50,100" scrollable="false"
+									scrollHeight="350" scrollWidth="100%" widgetVar="dataTable"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{analyserClientBean.filteredInvoiceList}">
+
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onchange="PF('dataTable').filter()" style="width:150px"
+												placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>
+
+									<p:column width="80">
+										<f:facet name="header">
+											<h:outputText value="Select" />
+										</f:facet>
+										<div class="btn-group" role="group">
+											<p:commandButton icon="fa fa-circle-thin"
+												styleClass="btn btn-xs"
+												actionListener="#{analyserClientBean.selectAnalyserClientFromDialog(x)}"
+												immediate="true" />
+										</div>
+									</p:column>
+
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.addressId}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Address ID" />
+										</f:facet>
+										<h:outputText value="#{x.addressId}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.verticalDescription}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Vertical" />
+										</f:facet>
+										<h:outputText value="#{x.verticalDescription}" />
+									</p:column>
+									<p:column width="120" filterStyle="display:none"
+										filterBy="#{x.productDescription}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Product" />
+										</f:facet>
+										<h:outputText value="#{x.productDescription}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.pSBillingTypeLongName}"
+										filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Billing Type" />
+										</f:facet>
+										<h:outputText value="#{x.pSBillingTypeLongName}" />
+									</p:column>
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.pSServiceAreaLongName}"
+										filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Service Area" />
+										</f:facet>
+										<h:outputText value="#{x.pSServiceAreaLongName}" />
+									</p:column>
+									<p:column width="180" filterStyle="display:none"
+										filterBy="#{x.pSSalesForceClientName}"
+										filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Salesforce Client" />
+										</f:facet>
+										<h:outputText value="#{x.pSSalesForceClientName}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.company}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Company" />
+										</f:facet>
+										<h:outputText value="#{x.company}" />
+									</p:column>
+									
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.totalDiscount}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Total Discount %" />
+										</f:facet>
+										<h:outputText value="#{x.totalDiscount}" />
+									</p:column>
+
+									<p:column width="140" filterStyle="display:none"
+										filterBy="#{x.distributionMethod}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Distribution Method" />
+										</f:facet>
+										<h:outputText value="#{x.distributionMethod}" />
+									</p:column>
+
+									<p:column width="160" filterStyle="display:none"
+										filterBy="#{x.dysBillType}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Address Billing Type" />
+										</f:facet>
+										<h:outputText value="#{x.dysBillType}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.dysDeliveryType}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Delivery Type" />
+										</f:facet>
+										<h:outputText value="#{x.dysDeliveryType}" />
+									</p:column>
+									<p:column width="140" filterStyle="display:none"
+										filterBy="#{x.dysPracticeArea}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Practice Area" />
+										</f:facet>
+										<h:outputText value="#{x.dysPracticeArea}" />
+									</p:column>
+									<p:column width="450" filterStyle="display:none"
+										filterBy="#{x.address}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Address" />
+										</f:facet>
+										<h:outputText value="#{x.address}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.contactName}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Contact" />
+										</f:facet>
+										<h:outputText value="#{x.contactName}" />
+									</p:column>
+
+									<p:column width="110" filterStyle="display:none" filterBy="#{x.adminFee}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Admin Fee" />
+										</f:facet>
+										<h:outputText value="#{x.adminFee}" />
+									</p:column>
+									
+									<p:column width="110" filterStyle="display:none" filterBy="#{x.volumeDiscount}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Volume Discount" />
+										</f:facet>
+										<h:outputText value="#{x.volumeDiscount}" />
+									</p:column>
+									
+									<p:column width="110" filterStyle="display:none" filterBy="#{x.paymentDiscount}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Payment Discount" />
+										</f:facet>
+										<h:outputText value="#{x.paymentDiscount}" />
+									</p:column>
+
+									<p:column width="110" filterStyle="display:none" filterBy="#{x.otherDiscount}" filterMatchMode="contains">
+										<f:facet name="header">
+											<h:outputText value="Other Discount" />
+										</f:facet>
+										<h:outputText value="#{x.otherDiscount}" />
+									</p:column>
+
+								</p:dataTable>
+							</h:form>
+
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+				</div>
+				<!-- /.col -->
+			</div>
+			<!-- /.row -->
+		</section>
+		<!-- /.content -->
+	</div>
+
+	<ui:include src="../includes/dialog-scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

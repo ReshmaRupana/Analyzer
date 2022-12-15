@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				responsive="true" header="Messages">
+				<p:messages id="messagesInDialog" showDetail="true" />
+				<!-- <p:button value="OK" onclick="messageDialog.hide()" /> -->
+			</p:dialog>
+		</p:outputPanel>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Analyzer Client Addresses</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+				<!-- TOOLBAR NAV -->
+				<nav class="navbar navbar-default">
+					<div class="container-fluid">
+						<h:form id="buttonsForm">
+							<div class="nav navbar-nav navbar-left">
+								<h:outputLink value="#" title="New"
+									onclick="addClientAddress();"
+									rendered="#{!analyserClientAddressListBean.enableAdministrativeActions}"
+									styleClass="btn btn-sm btn-default navbar-btn" role="button">
+									<i class="glyphicon glyphicon-plus"></i>
+									<span>New</span>
+								</h:outputLink>
+								<p:commandButton process="@form" style="display:none;"
+									actionListener="#{analyserClientAddressListBean.chooseAnalyserClientAddress}"
+									id="addClientAddressButton">
+									<p:ajax event="dialogReturn"
+										listener="#{analyserClientAddressListBean.onClientAddressAdded}"
+										update="@form :dataTableForm" />
+								</p:commandButton>
+							</div>
+						</h:form>
+					</div>
+				</nav>
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<p:dataTable id="crudDataTable"
+										value="#{analyserClientAddressListBean.reportData}" var="x"
+										rows="10" paginator="true"
+										paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										rowsPerPageTemplate="10,20,50,100" scrollable="false"
+										scrollHeight="350" scrollWidth="100%" widgetVar="dataTable"
+										emptyMessage="No data found with given criteria"
+										filteredValue="#{analyserClientAddressListBean.filteredList}">
+
+										<f:facet name="header">
+											<p:outputPanel>
+												<h:outputText value="Search all fields:" />
+												<p:inputText id="globalFilter"
+													onchange="PF('dataTable').filter()" style="width:150px"
+													placeholder="Enter keyword" />
+											</p:outputPanel>
+										</f:facet>
+										
+										<p:column width="220">
+											<f:facet name="header">
+												<h:outputText value="Actions" />
+											</f:facet>
+											<div align="center">
+												
+												<p:link outcome="analyser-client-address" value="Modify"
+													rendered="#{!analyserClientAddressListBean.enableAdministrativeActions}"
+													styleClass="btn btn-xs btn-primary">
+													<i class="glyphicon glyphicon-pencil" />
+													<f:param name="analyserAddressId" value="#{x.get('ADDRESS_ID')}" />
+													<f:param name="action" value="Modify" />
+												</p:link>
+												<h:outputText value=" " />
+												<p:link outcome="analyser-client-address" value="View"
+													styleClass="btn btn-xs btn-primary">
+													<i class="glyphicon glyphicon-pencil" />
+													<f:param name="analyserAddressId"
+														value="#{x.get('ADDRESS_ID')}" />
+													<f:param name="action" value="View" />
+												</p:link>
+												<h:outputText value=" " />
+												<p:commandButton id="activateButton" value="Activate"
+													styleClass="btn btn-xs bg-olive active"
+													 style="height: 24px;margin-bottom: 0px;" 
+													rendered="#{x.get('STATUS') == 0 and !analyserClientAddressListBean.enableAdministrativeActions}"
+													actionListener="#{analyserClientAddressListBean.changeStatus}"
+													update="@form">
+													<f:param name="analyserAddressId" value="#{x.get('ADDRESS_ID')}" />
+													<f:param name="status" value="#{x.get('STATUS')}" />
+												</p:commandButton>
+												<p:commandButton id="deActivateButton" value="De Activate"
+													styleClass="btn btn-xs bg-red active" 
+													 style="height: 24px;margin-bottom: 0px;"
+													rendered="#{x.get('STATUS') == 1 and !analyserClientAddressListBean.enableAdministrativeActions}"
+													actionListener="#{analyserClientAddressListBean.changeStatus}"
+													update="@form">
+													<f:param name="analyserAddressId" value="#{x.get('ADDRESS_ID')}" />
+													<f:param name="status" value="#{x.get('STATUS')}" />
+												</p:commandButton>
+											</div>
+										</p:column>
+										
+										<p:column width="350" filterStyle="display:none"
+											filterBy="#{x.get('COMPANY')}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Company" />
+											</f:facet>
+											<h:outputText value="#{x.get('COMPANY')}" />
+										</p:column>
+
+										<p:column width="350" filterStyle="display:none"
+											filterBy="#{x.get('ADDRESS')}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Address" />
+											</f:facet>
+											<h:outputText value="#{x.get('ADDRESS')}" />
+										</p:column>
+
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.get('UPDATED_BY')}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Modified By User" />
+											</f:facet>
+											<h:outputText value="#{x.get('UPDATED_BY')}" />
+										</p:column>
+										
+
+									</p:dataTable>
+
+								</h:form>
+
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+	<SCRIPT type="text/javascript">
+		function addClientAddress() {
+			$("#buttonsForm\\:addClientAddressButton").click();
+		}
+	</SCRIPT>
+</body>
+
+</html>

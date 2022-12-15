@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Consultants with Health Benefits</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{consultantsWithHealthBenefitsReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{consultantsWithHealthBenefitsReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{consultantsWithHealthBenefitsReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{consultantsWithHealthBenefitsReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{consultantsWithHealthBenefitsReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable"
+												value="#{consultantsWithHealthBenefitsReportsBean.reportData}"
+												var="x" rows="10" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,20,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{consultantsWithHealthBenefitsReportsBean.filteredList}">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.get('LNAME')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('LNAME')}">
+													<f:facet name="header">
+														<h:outputText value="Last Name" />
+													</f:facet>
+													<h:outputText value="#{x.get('LNAME')}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.get('FNAME')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('FNAME')}">
+													<f:facet name="header">
+														<h:outputText value="First Name" />
+													</f:facet>
+													<h:outputText value="#{x.get('FNAME')}" />
+												</p:column>
+
+												<p:column width="200" filterStyle="display:none"
+													filterBy="#{x.get('BRANCH')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('BRANCH')}">
+													<f:facet name="header">
+														<h:outputText value="Branch" />
+													</f:facet>
+													<h:outputText value="#{x.get('BRANCH')}" />
+												</p:column>
+
+												<p:column width="200" filterStyle="display:none"
+													filterBy="#{x.get('LIAISONNAME')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('LIAISONNAME')}">
+													<f:facet name="header">
+														<h:outputText value="Liaison Name" />
+													</f:facet>
+													<h:outputText value="#{x.get('LIAISONNAME')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('STARTDATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('STARTDATE')}">
+													<f:facet name="header">
+														<h:outputText value="Start Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('STARTDATE')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('EMAIL')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('EMAIL')}">
+													<f:facet name="header">
+														<h:outputText value="Email" />
+													</f:facet>
+													<h:outputText value="#{x.get('EMAIL')}" />
+												</p:column>
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

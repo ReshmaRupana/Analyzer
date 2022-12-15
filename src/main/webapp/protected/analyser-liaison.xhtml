@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<style type="text/css">
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+
+.headerCenter {
+	text-align: center;
+}
+
+.headerRight {
+	text-align: right;
+}
+
+.headerLeft {
+	text-align: left;
+}
+
+</style>
+
+
+<body class="hold-transition skin-blue sidebar-mini">
+<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<p:messages id="messages"></p:messages>
+			<p:growl id="growl"></p:growl>
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Analyzer Liaison</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<div class="box">
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form id="inputForm">
+								<div class="row">
+								<div class="col-xs-4">
+										<div class="form-group">
+											<h:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{analyserLiaisonBean.companyCode}" id="compCode">
+												<p:ajax event="change" listener="#{analyserLiaisonBean.onCompanyCodeChange}" update="personName"/>												
+												
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems value="#{companyBean.companies}"
+													var="compCode" itemLabel="#{compCode.label}"
+													itemValue="#{compCode.value}" />													
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<h:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{analyserLiaisonBean.selectedAnalyserLiaison.liaisonName}"  id="personName" >
+												<f:selectItem itemLabel="" itemValue="" />
+												<f:selectItems
+													value="#{analyserLiaisonBean.initActiveUserList()}"
+													var="res" itemLabel="#{res.name}"
+													itemValue="#{res.userId}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<p:commandButton value="#{analyserLiaisonBean.buttonTitle}"
+												id="saveButton" update="growl :dataTableForm personName"
+												icon="fa fa-check" 
+												actionListener="#{analyserLiaisonBean.save}"
+												styleClass="btn btn-sm btn-primary" />
+
+											<h:outputText value="&#160;" />
+
+											<p:commandButton value="Clear"
+												actionListener="#{analyserLiaisonBean.clearInputForm}"
+												process="@this" update=":inputForm"
+												 icon="fa fa-check" 
+												styleClass="btn btn-sm btn-default" immediate="true">
+												<p:resetInput target="inputForm" />
+											</p:commandButton>
+
+										</div>
+									</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- TOOLBAR NAV -->
+				<nav class="navbar navbar-default">
+					<div class="container-fluid">
+						<div class="nav navbar-nav navbar-left">
+							<!-- <h:outputLink value="country-edit.xhtml" title="New"
+						styleClass="btn btn-sm btn-default navbar-btn" role="button">
+						<i class="glyphicon glyphicon-plus"></i>
+						<span>New</span>
+					</h:outputLink> -->
+							<button type="button" title="Find"
+								class="btn btn-sm btn-default navbar-btn" data-toggle="collapse"
+								data-target="div#filterCollapsible" aria-expanded="false">
+								<i class="glyphicon glyphicon-search"></i> <span>Find</span>
+							</button>
+						</div>
+					</div>
+				</nav>
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="collapse">
+					<h:form id="filterForm">
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<h:outputLabel for="liaisonName" value="Liaison Name" />
+											<h:inputText id="liaisonName"
+												styleClass="form-control input-sm"
+												value="#{analyserLiaisonBean.searchString}" />
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<h:outputLabel for="companyCodeSearch" value="Company Code" />
+											<h:selectOneMenu id="compCode"
+													styleClass="form-control input-sm select2"
+													value="#{analyserLiaisonBean.companyCode}">
+													<f:selectItem itemLabel="ALL" itemValue="ALL" />
+													<f:selectItems
+														value="#{companyBean.getCompanies()}"
+														var="compCode" itemLabel="#{compCode.label}"
+														itemValue="#{compCode.value}" />
+												</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Filter</span>
+											<f:ajax event="click"
+												listener="#{analyserLiaisonBean.filter}" execute="@form"
+												render=":paginationForm :dataTableForm" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<f:ajax event="click"
+												listener="#{analyserLiaisonBean.eraseFilter}"
+												execute="@form"
+												render=":filterForm :paginationForm :dataTableForm" />
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+
+									<p:dataTable id="crudDataTable"
+										value="#{analyserLiaisonBean.analyserLiaisonList}" var="x" rows="10" rowKey="#{x.liaisonID}"
+										paginator="true"
+										paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										rowsPerPageTemplate="10,20,50,100" scrollable="false"
+										scrollHeight="350" scrollWidth="100%" widgetVar="dataTable"
+										emptyMessage="No data found with given criteria"
+										filteredValue="#{analyserLiaisonBean.analyserLiaisonFilterList}">
+
+										<f:facet name="header">
+											<p:outputPanel>
+												<h:outputText value="Search all fields:" />
+												<p:inputText id="globalFilter"
+													onchange="PF('dataTable').filter()" style="width:150px"
+													placeholder="Enter keyword" />
+											</p:outputPanel>
+										</f:facet>
+
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.liaisonID}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Liaison ID" />
+											</f:facet>
+											<h:outputText value="#{x.liaisonID}" />
+										</p:column>
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.liaisonName}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Liaison Name" />
+											</f:facet>
+											<h:outputText value="#{x.liaisonName}" />
+										</p:column>
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.updatedBy}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Updated By" />
+											</f:facet>
+											<h:outputText value="#{x.updatedBy}" />
+										</p:column>
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.status}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Status" />
+											</f:facet>
+											<h:outputText value="#{x.status}" />
+										</p:column>
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.companyCode}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Company Code" />
+											</f:facet>
+											<h:outputText value="#{x.companyCode}" />
+										</p:column>
+										<p:column width="230" headerClass="headerRight">
+											<f:facet name="header">
+												<h:outputText value="Actions" />
+											</f:facet>
+											<div align="center">
+												<!-- <h:commandLink title="Edit"
+													styleClass="btn btn-xs btn-primary" role="button">
+													<i class="glyphicon glyphicon-pencil" />
+													<p:ajax listener="#{analyserLiaisonBean.update}"
+														process="@this" update="inputForm" />
+													<f:setPropertyActionListener value="#{x}"
+														target="#{analyserLiaisonBean.selectedAnalyserLiaison}" />
+												</h:commandLink>
+												<h:outputText value=" "/> -->
+												<h:commandLink title="Remove" style="display:none;"
+													styleClass="btn btn-xs btn-danger" role="button">
+													<i class="glyphicon glyphicon-remove" />
+													<f:ajax execute="@form" render=":removeModalForm"
+														onevent="function(event) { if (event.status == 'success') { $('#removeModal').modal('show'); } }" />
+													<f:setPropertyActionListener value="#{x}"
+														target="#{analyserLiaisonBean.selectedAnalyserLiaison}" />
+												</h:commandLink>
+												<h:outputText value=" "/>
+												<p:commandButton id="activateButton" value="Activate"
+													styleClass="btn btn-xs bg-olive active"
+													style="height: 24px;margin-bottom: 0px;"
+													rendered="#{x.status == 0}"
+													actionListener="#{analyserLiaisonBean.changeStatus}"
+													update="crudDataTable">
+													<f:param name="liaisonID" value="#{x.liaisonID}" />
+													<f:param name="status" value="#{x.status}" />
+												</p:commandButton>
+
+												<p:commandButton id="deActivatButton" value="De Activate"
+													styleClass="btn btn-xs bg-red active" 
+													style="height: 24px;margin-bottom: 0px;"
+													rendered="#{x.status == 1}"
+													actionListener="#{analyserLiaisonBean.changeStatus}"
+													update="crudDataTable">
+													<f:param name="liaisonID" value="#{x.liaisonID}" />
+													<f:param name="status" value="#{x.status}" />
+												</p:commandButton>
+											</div>
+										</p:column>
+
+									</p:dataTable>
+
+								</h:form>
+
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+			</section>
+
+
+			<!-- REMOVE MODAL -->
+			<div class="modal fade" id="removeModal" tabindex="-1" role="dialog"
+				aria-labelledby="removeModalLabel">
+				<div class="modal-dialog modal-sm" role="document">
+					<h:form id="removeModalForm">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<i class="glyphicon glyphicon-remove"></i>
+								</button>
+								<h4 class="modal-title" id="removeModalLabel">Remove</h4>
+							</div>
+							<div class="modal-body">
+								<h:outputFormat value="Are you sure you want to remove">
+									<f:param
+										value="#{analyserLiaisonBean.selectedAnalyserLiaison.liaisonName}" />
+								</h:outputFormat>
+							</div>
+							<div class="modal-footer">
+								<button jsf:id="saveButton" type="submit"
+									class="btn btn-sm btn-danger">
+									<i class="glyphicon glyphicon-ok" /> <span>Remove</span>
+									<f:ajax execute="@form"
+										listener="#{analyserLiaisonBean.remove}"
+										render="growl dataTableForm:crudDataTable inputForm:personName"
+										onevent="function(event) { if (event.status == 'success') { select(); $('#removeModal').modal('hide');  } }" />
+								</button>
+								<button type="button" class="btn btn-sm btn-default"
+									data-dismiss="modal">
+									<i class="glyphicon glyphicon-remove" /> <span>Cancel</span>
+								</button>
+							</div>
+						</div>
+					</h:form>
+				</div>
+			</div>
+
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+
+	<script type="text/javascript">
+		/* $(document).ready(function() {
+			$('#inputForm\\:personName').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			});
+			//select();
+		}) */
+
+		function select(){
+			console.log("Charging");
+			/* $('#inputForm\\:personName').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			}); */
+			
+			if($('.select2.select2-container.select2-container--default.select2-container--below.select2-container--below').length){
+				console.log("Below to be deleted");
+				$('.select2.select2-container.select2-container--default.select2-container--below.select2-container--below').remove();
+				
+			} else if($('.select2.select2-container.select2-container--default.select2-container--below.select2-container--open').length){
+				console.log("Open to be deleted");
+				$('.select2.select2-container.select2-container--default.select2-container--below.select2-container--open').remove();
+				
+			} else if($('.select2.select2-container.select2-container--default.select2-container--below.select2-container--focus').length){
+				console.log("Focus to be deleted");
+				$('.select2.select2-container.select2-container--default.select2-container--below.select2-container--focus').remove();
+				
+			} else if($('.select2.select2-container.select2-container--default').length){
+				console.log('Default');
+				
+				$('.select2.select2-container.select2-container--default').remove();
+				/* $('#inputForm\\:personName').select2({
+					allowClear : true,
+					placeholder : 'Select...'
+				}); */
+			}
+		}
+	</script>
+</body>
+
+</html>

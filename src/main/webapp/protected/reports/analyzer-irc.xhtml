@@ -1,0 +1,926 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+		
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				header="Validation Messages" width="400px;" height="400px;"
+				closeOnEscape="true" closable="true">
+				<p:messages id="messagesInDialog" showDetail="true"
+					rendered="#{facesContext.postback or facesContext.validationFailed}" />
+			</p:dialog>
+		</p:outputPanel>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Analyzer Historical Data</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<h:form id="filterForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+					<!-- FILTER -->
+					<div id="filterCollapsible" class="expand">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-6 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Search String" />
+											<h:inputText id="searchString"
+												styleClass="form-control input-sm"
+												value="#{analyzerIRCReportsBean.searchString}" />
+										</div>
+									</div>
+
+									<div class="col-xs-6 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Period" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{analyzerIRCReportsBean.period}" id="period">
+												<f:selectItems
+													value="#{analyzerIRCReportsBean.reportPeriod}" var="per"
+													itemLabel="#{per.label}" itemValue="#{per.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="status" value="Status" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{analyzerIRCReportsBean.status}" id="status">
+												<f:selectItem itemLabel="Active" itemValue="Active" />
+												<f:selectItem itemLabel="Terminated" itemValue="Terminated" />
+												<f:selectItem itemLabel="All" itemValue="ALL" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-6 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="history" value="History" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{analyzerIRCReportsBean.history}" id="history">
+												<f:selectItem itemLabel="Active" itemValue="Active" />
+												<f:selectItem itemLabel="All" itemValue="ALL" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate Report</span>
+											<f:ajax event="click"
+												listener="#{analyzerIRCReportsBean.generateReport}"
+												execute="@form"
+												render="crudDataTable"/>
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{analyzerIRCReportsBean.eraseFilter}" process="@form"
+												execute="@form" oncomplete="resetEntirePage();" />
+										</button>
+
+										<h:commandButton value="Reset p:ajax" style="display:none;"
+											id="resetButton">
+											<p:ajax update="@form" resetValues="true"
+												oncomplete="initializePageComponents();" />
+										</h:commandButton>
+										
+										<button jsf:id="DownloadExcelFile" type="submit" title="#{analyzerIRCReportsBean.enableExportButton == true ? 'Active only after [8 AM to 7PM]' : 'Active'}"
+											class="btn btn-sm btn-primary" rendered="#{analyzerIRCReportsBean.enableAdministrativeActions == true ? 'true': 'false'}"
+											>
+											<i class="fa fa-file-excel-o"></i> 
+											<!-- <span>Historical Data As Of #{analyzerIRCReportsBean.monthlyReportDate}</span> -->
+											<span>Historical Data Report</span>
+											<f:ajax event="click"
+												listener="#{analyzerIRCReportsBean.downloadMonthlyDataDumpFile}"
+												execute="@form"
+												onevent="function(data) { if (data.status === 'success') { 
+  														invokeDownload(data.responseText);
+  													} 
+  												}" />
+										</button>
+										<h:commandLink id="downlodMonthlyExcelButton"
+											title="Download Monthly Excel"
+											rendered="#{analyzerIRCReportsBean.enableAdministrativeActions}"
+											actionListener="#{analyzerIRCReportsBean.downloadMonthlyDataDumpFile}">
+											<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+											<p:fileDownload
+												value="#{analyzerIRCReportsBean.generatedExcelFile}" />
+										</h:commandLink>
+										
+										
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="box">
+								<div class="box-body">
+										<div class="row">
+											<div class="col-xs-4">
+												<!-- <h:outputText id="recordTotal"
+												rendered="#{fn:length(analyzerIRCReportsBean.reportData) != 0 }"
+												value="Total records : #{fn:length(analyzerIRCReportsBean.reportData)}" />
+
+											<h:outputText id="recordTotalZero"
+												rendered="#{fn:length(analyzerIRCReportsBean.reportData) == 0 }"
+												value="No record found" /> -->
+											</div>
+											<div class="col-xs-8" style="text-align: right;">
+												<button jsf:id="excelButton" type="submit" title="#{analyzerIRCReportsBean.enableExportButton == true ? 'Active only between [8 AM to 7PM]' : ''}"
+													class="btn btn-sm btn-primary">
+													<i class="fa fa-file-excel-o"></i> <span>Export to Excel</span>
+													<f:ajax event="click"
+														listener="#{analyzerIRCReportsBean.exportToExcel}"
+														execute="@form"
+														onevent="function(data) { if (data.status === 'success') { 
+    														parseHistoricalDataMessage(data);
+    													} 
+    												}" />
+												</button>
+
+												<h:commandLink id="downlodButton" title="Download"
+													style="display:none;"
+													actionListener="#{analyzerIRCReportsBean.downloadExcelFile('')}">
+													<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+													<f:attribute name="fileName"
+														value="#{analyzerIRCReportsBean.newFileName}" />
+													<p:fileDownload
+														value="#{analyzerIRCReportsBean.generatedExcelFile}" />
+												</h:commandLink>
+
+												<h:inputHidden id="completeFilePath" name="completeFilePath"
+													value="#{analyzerIRCReportsBean.newFileName}" />
+
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-xs-12">
+
+												<p:dataTable id="crudDataTable"
+													value="#{analyzerIRCReportsBean.reportData}" var="x"
+													rows="15" paginator="true"
+													paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+													rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+													scrollHeight="380" scrollWidth="96%" widgetVar="dataTable"
+													emptyMessage="No data found with given criteria"
+													filteredValue="#{analyzerIRCReportsBean.filteredList}" filterEvent="enter">
+
+													<f:facet name="header">
+														<p:outputPanel>
+															<h:outputText value="Search all fields:" />
+															<p:inputText id="globalFilter"
+																onchange="PF('dataTable').filter()" style="width:150px"
+																placeholder="Enter keyword" />
+														</p:outputPanel>
+													</f:facet>
+													<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay value newly added-->
+													
+													<p:column headerText="Account Executive 1 / Account Executive 2" width="300" 
+													sortBy="#{x.get('AE')} / #{x.get('AE2')}" filterBy="#{x.get('AE')} / #{x.get('AE2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('AE')} / #{x.get('AE2')}" />
+	           										</p:column>													
+
+													<p:column headerText="Address" width="200" sortBy="#{x.get('ADDRESS1')} #{x.get('ADDRESS2')}" 
+													filterBy="#{x.get('ADDRESS1')} #{x.get('ADDRESS2')}" 
+													filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ADDRESS1')} #{x.get('ADDRESS2')}" />
+	           										</p:column>													
+	
+													<p:column headerText="Analyser ID" width="200" sortBy="#{x.get('ANALYSERID')}" filterBy="#{x.get('ANALYSERID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ANALYSERID')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Analyzer Category 2" width="200" sortBy="#{x.get('ANALYZERCATEGORY2')}" filterBy="#{x.get('ANALYZERCATEGORY2')}" 
+													filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ANALYZERCATEGORY2')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Annual Pay" width="200" sortBy="#{x.get('ANNUALPAY')}" filterBy="#{x.get('ANNUALPAY')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ANNUALPAY')}" />
+	           										</p:column>													
+										
+													<p:column headerText="Approval Date" width="200" sortBy="#{x.get('APPROVALDATE')}" filterBy="#{x.get('APPROVALDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('APPROVALDATE')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Approved By Manager" width="200" sortBy="#{x.get('APPROVED_BY_MANAGER')}" 
+													filterBy="#{x.get('APPROVED_BY_MANAGER')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('APPROVED_BY_MANAGER')}" />
+	           										</p:column>													
+											
+													<p:column headerText="BDE" width="200" sortBy="#{x.get('BDE')}" filterBy="#{x.get('BDE')}" 
+													filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BDE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="BDE_A" width="200" sortBy="#{x.get('BDE_A')}" filterBy="#{x.get('BDE_A')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BDE_A')}" />
+	           										</p:column>													
+									
+													<p:column headerText="BDE_P" width="200" sortBy="#{x.get('BDE_P')}" filterBy="#{x.get('BDE_P')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BDE_P')}" />
+	           										</p:column>													
+											
+													<p:column headerText="Billable Cost" width="200" sortBy="#{x.get('BILLABLECOST')}" filterBy="#{x.get('BILLABLECOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BILLABLECOST')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Billable Holidays" width="200" sortBy="#{x.get('BILLABLEHOLIDAYS')}" filterBy="#{x.get('BILLABLEHOLIDAYS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BILLABLEHOLIDAYS')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Billable Holidays Cost" width="200" sortBy="#{x.get('BILLABLEHOLIDAYSCOST')}" filterBy="#{x.get('BILLABLEHOLIDAYSCOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BILLABLEHOLIDAYSCOST')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Billable PTO" width="200" sortBy="#{x.get('BILLABLEPTO')}" filterBy="#{x.get('BILLABLEPTO')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BILLABLEPTO')}" />
+	           										</p:column>													
+											
+													<p:column headerText="Billable PTO Cost" width="200" sortBy="#{x.get('BILLABLEPTOCOST')}" filterBy="#{x.get('BILLABLEPTOCOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BILLABLEPTOCOST')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Bill Rate" width="200" sortBy="#{x.get('BILLRATE')}" filterBy="#{x.get('BILLRATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BILLRATE')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Pay Rate" width="200" sortBy="#{x.get('PAYRATE')}" filterBy="#{x.get('PAYRATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PAYRATE')}" />
+	           										</p:column>													
+										
+													<p:column headerText="Bonus Amount" width="200" sortBy="#{x.get('BONUSAMOUNT')}" filterBy="#{x.get('BONUSAMOUNT')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BONUSAMOUNT')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Bonus Percentage" width="200" sortBy="#{x.get('BONUSPERCENTAGE')}" filterBy="#{x.get('BONUSPERCENTAGE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('BONUSPERCENTAGE')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Candidate Name" width="200" sortBy="#{x.get('CANDIDATE_NAME')}" filterBy="#{x.get('CANDIDATE_NAME')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('CANDIDATE_NAME')}" />
+	           										</p:column>													
+													
+													<p:column headerText="City" width="200" sortBy="#{x.get('CITY')}" filterBy="#{x.get('CITY')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('CITY')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Client Address ID" width="200" sortBy="#{x.get('CLIENTADDRESSID')}" filterBy="#{x.get('CLIENTADDRESSID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('CLIENTADDRESSID')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Client ID" width="200" sortBy="#{x.get('CLIENTID')}" filterBy="#{x.get('CLIENTID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('CLIENTID')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Client Name" width="400" sortBy="#{x.get('CLIENTNAME')}" filterBy="#{x.get('CLIENTNAME')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('CLIENTNAME')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission Effective Date" width="200" sortBy="#{x.get('COMMEFFDATE')}" filterBy="#{x.get('COMMEFFDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMEFFDATE')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission 1" width="200" sortBy="#{x.get('COMMISION1')}" filterBy="#{x.get('COMMISION1')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISION1')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Commission 2" width="200" sortBy="#{x.get('COMMISION2')}" filterBy="#{x.get('COMMISION2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISION2')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission 3" width="200" sortBy="#{x.get('COMMISION3')}" filterBy="#{x.get('COMMISION3')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISION3')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission 4" width="160" sortBy="#{x.get('COMMISION4')}" filterBy="#{x.get('COMMISION4')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISION4')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Commission percentage 1" width="200" sortBy="#{x.get('COMMISION_PERCENT1')}" filterBy="#{x.get('COMMISION_PERCENT1')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISION_PERCENT1')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission percentage 2" width="200" sortBy="#{x.get('COMMISION_PERCENT2')}" filterBy="#{x.get('COMMISION_PERCENT2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISION_PERCENT2')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Commission percentage 3" width="200" sortBy="#{x.get('COMMISION_PERCENT3')}" filterBy="#{x.get('COMMISION_PERCENT3')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISION_PERCENT3')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Commission percentage 4" width="200" sortBy="#{x.get('COMMISION_PERCENT4')}" filterBy="#{x.get('COMMISION_PERCENT4')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISION_PERCENT4')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission" width="200" sortBy="#{x.get('COMMISSION')}" filterBy="#{x.get('COMMISSION')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSION')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Commissionable Profit" width="200" sortBy="#{x.get('COMMISSIONABLEPROFIT')}" filterBy="#{x.get('COMMISSIONABLEPROFIT')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONABLEPROFIT')}" />
+	           										</p:column>													
+													
+													<p:column headerText="COMMISSIONMODEL1" width="200" sortBy="#{x.get('COMMISSIONMODEL1')}" filterBy="#{x.get('COMMISSIONMODEL1')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONMODEL1')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission Model 2" width="200" sortBy="#{x.get('COMMISSIONMODEL2')}" filterBy="#{x.get('COMMISSIONMODEL2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONMODEL2')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission Model 3" width="200" sortBy="#{x.get('COMMISSIONMODEL3')}" filterBy="#{x.get('COMMISSIONMODEL3')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONMODEL3')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Commission Model 4" width="200" sortBy="#{x.get('COMMISSIONMODEL4')}" filterBy="#{x.get('COMMISSIONMODEL4')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONMODEL4')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Commission Person Grade 1" width="220" sortBy="#{x.get('COMMISSIONPERSONGRADE1')}" filterBy="#{x.get('COMMISSIONPERSONGRADE1')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONPERSONGRADE1')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Commission Person Grade 2" width="220" sortBy="#{x.get('COMMISSIONPERSONGRADE2')}" filterBy="#{x.get('COMMISSIONPERSONGRADE2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONPERSONGRADE2')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Commission Person Grade 3" width="220" sortBy="#{x.get('COMMISSIONPERSONGRADE3')}" filterBy="#{x.get('COMMISSIONPERSONGRADE3')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONPERSONGRADE3')}" />
+	           										</p:column>													
+											
+													<p:column headerText="Commission Person Grade 4" width="220" sortBy="#{x.get('COMMISSIONPERSONGRADE4')}" filterBy="#{x.get('COMMISSIONPERSONGRADE4')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMMISSIONPERSONGRADE4')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Consultant Job Board" width="200" sortBy="#{x.get('CONSULTANTJOBBOARD')}" filterBy="#{x.get('CONSULTANTJOBBOARD')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('CONSULTANTJOBBOARD')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Custom 1" width="200" sortBy="#{x.get('CUSTOM1')}" filterBy="#{x.get('CUSTOM1')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('CUSTOM1')}" />
+	           										</p:column>													
+										
+													<p:column headerText="Custom 2" width="200" sortBy="#{x.get('CUSTOM2')}" filterBy="#{x.get('CUSTOM2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('CUSTOM2')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Deal Type" width="200" sortBy="#{x.get('DEALTYPE')}" filterBy="#{x.get('DEALTYPE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DEALTYPE')}" />
+	           										</p:column>													
+												
+													<p:column headerText="DELIV" width="200" sortBy="#{x.get('DELIV')}" filterBy="#{x.get('DELIV')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DELIV')}" />
+	           										</p:column>													
+											
+													<p:column headerText="DELIV_A" width="200" sortBy="#{x.get('DELIV_A')}" filterBy="#{x.get('DELIV_A')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DELIV_A')}" />
+	           										</p:column>													
+													
+													<p:column headerText="DELIV_P" width="200" sortBy="#{x.get('DELIV_P')}" filterBy="#{x.get('DELIV_P')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DELIV_P')}" />
+	           										</p:column>													
+												
+													<p:column headerText="Discount" width="200" sortBy="#{x.get('DISCOUNT')}" filterBy="#{x.get('DISCOUNT')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DISCOUNT')}" />
+	           										</p:column>													
+										
+													<p:column headerText="Discount Rate" width="200" sortBy="#{x.get('DISCOUNTRATE')}" filterBy="#{x.get('DISCOUNTRATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DISCOUNTRATE')}" />
+	           										</p:column>													
+											
+													<p:column headerText="Distance From Worksite" width="200" sortBy="#{x.get('DISTANCEFROMWORKSITE')}" filterBy="#{x.get('DISTANCEFROMWORKSITE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DISTANCEFROMWORKSITE')}" />
+	           										</p:column>													
+										
+													<p:column headerText="Date of Birth" width="200" sortBy="#{x.get('DOB')}" filterBy="#{x.get('DOB')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DOB')}" />
+	           										</p:column>													
+											
+													<p:column headerText="Double time" width="200" sortBy="#{x.get('DOUBLETIME')}" filterBy="#{x.get('DOUBLETIME')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DOUBLETIME')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Double time bill" width="200" sortBy="#{x.get('DOUBLETIMEBILL')}" filterBy="#{x.get('DOUBLETIMEBILL')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('DOUBLETIMEBILL')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Effective Date" width="200" sortBy="#{x.get('EFFECTIVEDATE')}" filterBy="#{x.get('EFFECTIVEDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('EFFECTIVEDATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Email" width="230" sortBy="#{x.get('EMAIL')}" filterBy="#{x.get('EMAIL')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('EMAIL')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Employee Class" width="200" sortBy="#{x.get('EMPLOYEECLASS')}" filterBy="#{x.get('EMPLOYEECLASS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('EMPLOYEECLASS')}" />
+	           										</p:column>													
+											
+													<p:column headerText="Employee Veteran" width="200" sortBy="#{x.get('EMPLOYEEVETERAN')}" filterBy="#{x.get('EMPLOYEEVETERAN')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('EMPLOYEEVETERAN')}" />
+	           										</p:column>													
+										
+													<p:column headerText="Employee Type" width="200" sortBy="#{x.get('EMPTYPE')}" filterBy="#{x.get('EMPTYPE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('EMPTYPE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="End Date" width="200" sortBy="#{x.get('ENDDATE')}" filterBy="#{x.get('ENDDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ENDDATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Equipment Cost" width="200" sortBy="#{x.get('EQUIPMENTCOST')}" filterBy="#{x.get('EQUIPMENTCOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('EQUIPMENTCOST')}" />
+	           										</p:column>													
+
+													<p:column headerText="Exec Orphan" width="200" sortBy="#{x.get('EXECORPHAN')}" filterBy="#{x.get('EXECORPHAN')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('EXECORPHAN')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Employee Category" width="200" sortBy="#{x.get('EmployeeCategory')}" filterBy="#{x.get('EmployeeCategory')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('EmployeeCategory')}" />
+	           										</p:column>													
+													
+													<p:column headerText="False Termination" width="200" sortBy="#{x.get('FALSETERMINATION')}" filterBy="#{x.get('FALSETERMINATION')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('FALSETERMINATION')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Flsa Reference" width="200" sortBy="#{x.get('FLSAREFERANCE')}" filterBy="#{x.get('FLSAREFERANCE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('FLSAREFERANCE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Flsa Status" width="200" sortBy="#{x.get('FLSASTATUS')}" filterBy="#{x.get('FLSASTATUS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('FLSASTATUS')}" />
+	           										</p:column>													
+													
+													<p:column headerText="First Name" width="200" sortBy="#{x.get('FNAME')}" filterBy="#{x.get('FNAME')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('FNAME')}" />
+	           										</p:column>													
+													
+													<p:column headerText="GA" width="200" sortBy="#{x.get('GA')}" filterBy="#{x.get('GA')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('GA')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Gender" width="200" sortBy="#{x.get('GENDER')}" filterBy="#{x.get('GENDER')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('GENDER')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Gross Profit" width="200" sortBy="#{x.get('GROSSPROFIT')}" filterBy="#{x.get('GROSSPROFIT')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('GROSSPROFIT')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Gross Profit Percentage" width="200" sortBy="#{x.get('GROSSPROFITPERCENTAGE')}" filterBy="#{x.get('GROSSPROFITPERCENTAGE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('GROSSPROFITPERCENTAGE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Liaison Name" width="200" sortBy="#{x.get('HRBP')}" filterBy="#{x.get('HRBP')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('HRBP')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Immigration Cost" width="200" sortBy="#{x.get('IMMIGRATIONCOST')}" filterBy="#{x.get('IMMIGRATIONCOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('IMMIGRATIONCOST')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Industry" width="200" sortBy="#{x.get('INDUSTRY')}" filterBy="#{x.get('INDUSTRY')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('INDUSTRY')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Initial" width="200" sortBy="#{x.get('INITIAL')}" filterBy="#{x.get('INITIAL')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('INITIAL')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Is USPS Address validated" width="200" sortBy="#{x.get('ISADDRESSUSPSVALIDATED')}" filterBy="#{x.get('ISADDRESSUSPSVALIDATED')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ISADDRESSUSPSVALIDATED')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Is bonus eligible" width="200" sortBy="#{x.get('ISBONUSELIGIBLE')}" filterBy="#{x.get('ISBONUSELIGIBLE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ISBONUSELIGIBLE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Is Rehired" width="200" sortBy="#{x.get('ISREHIRED')}" filterBy="#{x.get('ISREHIRED')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ISREHIRED')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Job Category" width="200" sortBy="#{x.get('JOBCATEGORY')}" filterBy="#{x.get('JOBCATEGORY')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('JOBCATEGORY')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Job Title" width="200" sortBy="#{x.get('JOB_TITLE')}" filterBy="#{x.get('JOB_TITLE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('JOB_TITLE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Leave" width="200" sortBy="#{x.get('LEAVE')}" filterBy="#{x.get('LEAVE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('LEAVE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Last Name" width="200" sortBy="#{x.get('LNAME')}" filterBy="#{x.get('LNAME')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('LNAME')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Manager Name" width="200" sortBy="#{x.get('MANAGER_NAME')}" filterBy="#{x.get('MANAGER_NAME')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('MANAGER_NAME')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Managing Director" width="200" sortBy="#{x.get('MANAGINGDIRECTOR')}" filterBy="#{x.get('MANAGINGDIRECTOR')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('MANAGINGDIRECTOR')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Mobile/Pager" width="200" sortBy="#{x.get('MOBILE_PAGER')}" filterBy="#{x.get('MOBILE_PAGER')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('MOBILE_PAGER')}" />
+	           										</p:column>													
+													
+													<p:column headerText="New Parent Id" width="200" sortBy="#{x.get('NEWPARENTID')}" filterBy="#{x.get('NEWPARENTID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('NEWPARENTID')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Non Billable Holidays" width="200" sortBy="#{x.get('NONBILLABLEHOLIDAYS')}" filterBy="#{x.get('NONBILLABLEHOLIDAYS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('NONBILLABLEHOLIDAYS')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Non Billable Holidays Cost" width="200" sortBy="#{x.get('NONBILLABLEHOLIDAYSCOST')}" filterBy="#{x.get('NONBILLABLEHOLIDAYSCOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('NONBILLABLEHOLIDAYSCOST')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Non Billable PTO" width="200" sortBy="#{x.get('NONBILLABLEPTO')}" filterBy="#{x.get('NONBILLABLEPTO')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('NONBILLABLEPTO')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Non Billable PTO Cost" width="200" sortBy="#{x.get('NONBILLABLEPTOCOST')}" filterBy="#{x.get('NONBILLABLEPTOCOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('NONBILLABLEPTOCOST')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Office" width="200" sortBy="#{x.get('OFFICE')}" filterBy="#{x.get('OFFICE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('OFFICE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="One time bill" width="200" sortBy="#{x.get('ONETIME_BILL')}" filterBy="#{x.get('ONETIME_BILL')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ONETIME_BILL')}" />
+	           										</p:column>													
+													
+													<p:column headerText="One time pay" width="200" sortBy="#{x.get('ONETIME_PAY')}" filterBy="#{x.get('ONETIME_PAY')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ONETIME_PAY')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Other 1 Orphan" width="200" sortBy="#{x.get('OTHER1ORPHAN')}" filterBy="#{x.get('OTHER1ORPHAN')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('OTHER1ORPHAN')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Other 2 Orphan" width="200" sortBy="#{x.get('OTHER2ORPHAN')}" filterBy="#{x.get('OTHER2ORPHAN')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('OTHER2ORPHAN')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Other Amount Per Hour" width="200" sortBy="#{x.get('OTHERAMOUNT_HOUR')}" filterBy="#{x.get('OTHERAMOUNT_HOUR')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('OTHERAMOUNT_HOUR')}" />
+	           										</p:column>													
+											
+													<p:column headerText="Other Dollar" width="200" sortBy="#{x.get('OTHER_DOLLAR')}" filterBy="#{x.get('OTHER_DOLLAR')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('OTHER_DOLLAR')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Parent ID" width="200" sortBy="#{x.get('PARENTID')}" filterBy="#{x.get('PARENTID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PARENTID')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Per Diem" width="200" sortBy="#{x.get('PERDIEM')}" filterBy="#{x.get('PERDIEM')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PERDIEM')}" />
+	           										</p:column>													
+														
+													<p:column headerText="PRAC" width="200" sortBy="#{x.get('PRAC')}" filterBy="#{x.get('PRAC')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PRAC')}" />
+	           										</p:column>													
+														
+													<p:column headerText="PRAC_A" width="200" sortBy="#{x.get('PRAC_A')}" filterBy="#{x.get('PRAC_A')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PRAC_A')}" />
+	           										</p:column>													
+													
+													<p:column headerText="PRAC_P" width="200" sortBy="#{x.get('PRAC_P')}" filterBy="#{x.get('PRAC_P')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PRAC_P')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Product" width="200" sortBy="#{x.get('PRODUCT')}" filterBy="#{x.get('PRODUCT')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PRODUCT')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Profit" width="200" sortBy="#{x.get('PROFIT')}" filterBy="#{x.get('PROFIT')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PROFIT')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Project Cost" width="200" sortBy="#{x.get('PROJECTCOST')}" filterBy="#{x.get('PROJECTCOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PROJECTCOST')}" />
+	           										</p:column>													
+													
+													<p:column headerText="PROP" width="200" sortBy="#{x.get('PROP')}" filterBy="#{x.get('PROP')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PROP')}" />
+	           										</p:column>													
+														
+													<p:column headerText="PROP_A" width="200" sortBy="#{x.get('PROP_A')}" filterBy="#{x.get('PROP_A')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PROP_A')}" />
+	           										</p:column>													
+														
+													<p:column headerText="PROP_P" width="200" sortBy="#{x.get('PROP_P')}" filterBy="#{x.get('PROP_P')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PROP_P')}" />
+	           										</p:column>													
+														
+													<p:column headerText="PS Client ID" width="200" sortBy="#{x.get('PSCLIENTID')}" filterBy="#{x.get('PSCLIENTID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PSCLIENTID')}" />
+	           										</p:column>													
+													
+													<p:column headerText="PTO" width="200" sortBy="#{x.get('PTO')}" filterBy="#{x.get('PTO')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PTO')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Pto Limit to over ride sick" width="200" sortBy="#{x.get('PTOLIMITTOOVERRIDESICK')}" filterBy="#{x.get('PTOLIMITTOOVERRIDESICK')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('PTOLIMITTOOVERRIDESICK')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Reason" width="200" sortBy="#{x.get('REASON')}" filterBy="#{x.get('REASON')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('REASON')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Recruiter 1 / Recruiter 2" width="200" sortBy="#{x.get('REC')} #{x.get('REC2')}" filterBy="#{x.get('REC')} #{x.get('REC2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('REC')} #{x.get('REC2')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Record Status" width="200" sortBy="#{x.get('RECORDSTATUS')}" filterBy="#{x.get('RECORDSTATUS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('RECORDSTATUS')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Recruiter Orphan" width="200" sortBy="#{x.get('RECRUITERORPHAN')}" filterBy="#{x.get('RECRUITERORPHAN')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('RECRUITERORPHAN')}" />
+	           										</p:column>													
+														 
+													<p:column headerText="Recruiting Team" width="200" sortBy="#{x.get('RECRUITINGCLASSIFICATION')}" filterBy="#{x.get('RECRUITINGCLASSIFICATION')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('RECRUITINGCLASSIFICATION')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Referral Fee Amount" width="200" sortBy="#{x.get('REFERRALFEEAMOUNT')}" filterBy="#{x.get('REFERRALFEEAMOUNT')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('REFERRALFEEAMOUNT')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Region" width="200" sortBy="#{x.get('REGION')}" filterBy="#{x.get('REGION')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('REGION')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Rehire Date" width="200" sortBy="#{x.get('REHIREDATE')}" filterBy="#{x.get('REHIREDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('REHIREDATE')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Rejected By" width="200" sortBy="#{x.get('REJECTEDBY')}" filterBy="#{x.get('REJECTEDBY')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('REJECTEDBY')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Rejection Date" width="200" sortBy="#{x.get('REJECTIONDATE')}" filterBy="#{x.get('REJECTIONDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('REJECTIONDATE')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Rejection Status" width="200" sortBy="#{x.get('REJECTIONSTATUS')}" filterBy="#{x.get('REJECTIONSTATUS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('REJECTIONSTATUS')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Sick leave cap" width="200" sortBy="#{x.get('SICKLEAVECAP')}" filterBy="#{x.get('SICKLEAVECAP')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SICKLEAVECAP')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Sick Leave Cost" width="200" sortBy="#{x.get('SICKLEAVECOST')}" filterBy="#{x.get('SICKLEAVECOST')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SICKLEAVECOST')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Sick leave per hour rate" width="200" sortBy="#{x.get('SICKLEAVEPERHOURRATE')}" filterBy="#{x.get('SICKLEAVEPERHOURRATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SICKLEAVEPERHOURRATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Site ID" width="200" sortBy="#{x.get('SITEID')}" filterBy="#{x.get('SITEID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SITEID')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Skill Category" width="200" sortBy="#{x.get('SKILLCATEGORY')}" filterBy="#{x.get('SKILLCATEGORY')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SKILLCATEGORY')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Split Commission Percentage 1" width="230" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Split Commission Percentage 2" width="200" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" />
+	           										</p:column>													
+														
+													<p:column headerText="Split Commission Percentage 3" width="230" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Split Commission Percentage 4" width="230" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" />
+	           										</p:column>													
+										
+													<p:column headerText="Start Date" width="200" sortBy="#{x.get('STARTDATE')}" filterBy="#{x.get('STARTDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('STARTDATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="State" width="200" sortBy="#{x.get('STATE')}" filterBy="#{x.get('STATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('STATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Subcontractor ID" width="200" sortBy="#{x.get('SUBCONTRACTORID')}" filterBy="#{x.get('SUBCONTRACTORID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SUBCONTRACTORID')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Subcontractor Name" width="200" sortBy="#{x.get('SUBCONTRACTORNAME')}" filterBy="#{x.get('SUBCONTRACTORNAME')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SUBCONTRACTORNAME')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Submission Date" width="200" sortBy="#{x.get('SUBMISSIONDATE')}" filterBy="#{x.get('SUBMISSIONDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('SUBMISSIONDATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Taxes" width="200" sortBy="#{x.get('TAXES')}" filterBy="#{x.get('TAXES')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('TAXES')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Telephone" width="200" sortBy="#{x.get('TELEPHONE')}" filterBy="#{x.get('TELEPHONE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('TELEPHONE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Terminate Date" width="200" sortBy="#{x.get('TERMINATEDATE')}" filterBy="#{x.get('TERMINATEDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('TERMINATEDATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Total Hours Worked" width="200" sortBy="#{x.get('THW')}" filterBy="#{x.get('THW')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('THW')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Total Holidays" width="200" sortBy="#{x.get('TOTALHOLIDAYS')}" filterBy="#{x.get('TOTALHOLIDAYS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('TOTALHOLIDAYS')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Travel Required" width="200" sortBy="#{x.get('TELEPHOTRAVELREQUIREDNE')}" filterBy="#{x.get('TRAVELREQUIRED')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('TRAVELREQUIRED')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Unemployed For Two Months" width="200" sortBy="#{x.get('UNEMPLOYEDFORTWOMONTHS')}" filterBy="#{x.get('UNEMPLOYEDFORTWOMONTHS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('UNEMPLOYEDFORTWOMONTHS')}" />
+	           										</p:column>													
+													
+													<p:column headerText="User ID" width="200" sortBy="#{x.get('USERID')}" filterBy="#{x.get('USERID')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('USERID')}" />
+	           										</p:column>													
+													
+													<p:column headerText="USPS Address Validation Date" width="200" sortBy="#{x.get('USPSADDRESSVALIDATIONDATE')}" filterBy="#{x.get('USPSADDRESSVALIDATIONDATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('USPSADDRESSVALIDATIONDATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Vertical" width="200" sortBy="#{x.get('VERTICAL')}" filterBy="#{x.get('VERTICAL')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('VERTICAL')}" />
+	           										</p:column>													
+													
+													<p:column headerText="MSP Clinet Partner" width="200" sortBy="#{x.get('VS')}" filterBy="#{x.get('VS')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('VS')}" />
+	           										</p:column>													
+													
+													<p:column headerText="MSP_A" width="200" sortBy="#{x.get('VS_A')}" filterBy="#{x.get('VS_A')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('VS_A')}" />
+	           										</p:column>													
+													
+													<p:column headerText="MSP_P" width="200" sortBy="#{x.get('VS_P')}" filterBy="#{x.get('VS_P')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('VS_P')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work Email" width="200" sortBy="#{x.get('WORKEMAIL')}" filterBy="#{x.get('WORKEMAIL')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKEMAIL')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work phone" width="200" sortBy="#{x.get('WORKPHONE')}" filterBy="#{x.get('WORKPHONE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKPHONE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work Location" width="200" sortBy="#{x.get('WORKSITEADDRESS1')} #{x.get('WORKSITEADDRESS2')}" filterBy="#{x.get('WORKSITEADDRESS1')} #{x.get('WORKSITEADDRESS2')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKSITEADDRESS1')} #{x.get('WORKSITEADDRESS2')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work Site City" width="200" sortBy="#{x.get('WORKSITECITY')}" filterBy="#{x.get('WORKSITECITY')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKSITECITY')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work Site Fax" width="200" sortBy="#{x.get('WORKSITEFAX')}" filterBy="#{x.get('WORKSITEFAX')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKSITEFAX')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work Site State" width="200" sortBy="#{x.get('WORKSITESTATE')}" filterBy="#{x.get('WORKSITESTATE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKSITESTATE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work Site Zipcode" width="200" sortBy="#{x.get('WORKSITEZIPCODE')}" filterBy="#{x.get('WORKSITEZIPCODE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKSITEZIPCODE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work Site Email" width="200" sortBy="#{x.get('WORKSITE_EMAIL')}" filterBy="#{x.get('WORKSITE_EMAIL')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKSITE_EMAIL')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Work Site Phone" width="200" sortBy="#{x.get('WORKSITE_PHONE')}" filterBy="#{x.get('WORKSITE_PHONE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('WORKSITE_PHONE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Zipcode" width="200" sortBy="#{x.get('ZIPCODE')}" filterBy="#{x.get('ZIPCODE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('ZIPCODE')}" />
+	           										</p:column>													
+													
+													<p:column headerText="Company Code" width="200" sortBy="#{x.get('COMPANYCODE')}" filterBy="#{x.get('COMPANYCODE')}" filterMatchMode="contains">
+	               								 		<h:outputText value="#{x.get('COMPANYCODE')}" />
+	           										</p:column>													
+<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay value newly added-->													
+												</p:dataTable>
+											</div>
+										</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</h:form>
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			initializePageComponents();
+		});
+
+		function initializePageComponents() {
+			$('.select2').select2();
+		}
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,1454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+<style type="text/css">
+.row {
+	background: aliceblue;
+	/*border: 1px solid;
+	border-bottom: 1px solid;*/
+}
+/*.row>div {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}*/
+.inner {
+	background: aliceblue;
+	border-right: 1px solid blue;
+	padding: 0px 15px;
+}
+
+.inner-end {
+	/* background: aliceblue; */
+	padding: 0px 15px;
+}
+
+.title {
+	background: #99d9f7;
+	padding-top: 5px;
+	text-transform: uppercase;
+	font-size: 16px;
+	text-align: center !important;
+	margin-bottom: 0px;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+}
+
+.ui-input-invalid {
+	background-color: red
+}
+
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+
+.ui-button-icon-only .ui-button-text {
+	padding: 0.18em;
+}
+
+/*
+This property will add a border to the drop down.
+Only apply this when the value is not selected, condition css attribute apply.
+1 - Selec the child container with this class and apply attribute
+*/
+/* .select2-container--default {
+  border: 1px solid red;
+} */
+.input-sm {
+	height: 34px !important;
+}
+</style>
+
+<!-- <h:outputScript name="jsf.js" library="javax.faces" target="head" /> -->
+
+<SCRIPT type="text/javascript">
+function submitForm(){
+	var screen = $("#analyserForm\\:action")[0].value;
+	if (screen == "Add") {
+		$("#analyserForm\\:actualSaveButton").click();
+	} else if (screen == "Modify") {
+		$("#analyserForm\\:actualUpdateButton").click();
+	}	
+}
+
+
+</SCRIPT>
+
+
+<body class="hold-transition skin-blue sidebar-mini">
+
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+
+
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				header="Validation Messages" width="400px;" height="400px;"
+				closeOnEscape="true" closable="true">
+				<p:messages id="messagesInDialog" showDetail="true"
+					rendered="#{facesContext.postback or facesContext.validationFailed}" />
+			</p:dialog>
+		</p:outputPanel>
+
+		<div id="dialog" title="Alert message" style="display: none">
+			<div class="ui-dialog-content ui-widget-content">
+				<p>
+					<span class="ui-icon ui-icon-alert"
+						style="float: left; margin: 0 7px 20px 0"></span> <label
+						id="lblMessage"> </label>
+				</p>
+			</div>
+		</div>
+
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+							<div class="box-header"
+								style="text-align: center; background: aliceblue;">
+								<h1 class="box-title" style="font-size: 30px !important;">SUPPLIER</h1>
+							</div>
+							<!-- /.box-header -->
+							<h:form role="form" name="analyserForm" id="analyserForm">
+								<div class="box-body inner-end">
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Supplier Information</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="commentsDiv">
+												<h:outputLabel value="Comments" />
+												<h:inputTextarea id="comments"
+													value="#{analyserSubcontractorInfoBean.supplier.subcontractorComments}"
+													style="width: 100%; height: 70px; font-size: 14px; border: 1px solid #dddddd;"></h:inputTextarea>
+												
+											</div>
+										</div>
+										
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="approveDiv">
+												<h:outputLabel value="Approve/Reject Subcontractor Info" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserSubcontractorInfoBean.supplier.approvalStatus}"
+													id="approveSubcontractor">
+													<f:selectItem itemLabel="Approve" itemValue="1" />
+													<f:selectItem itemLabel="Conditionally Approve" itemValue="2" />
+													<f:selectItem itemLabel="Reject" itemValue="3" />
+												</h:selectOneMenu>
+												
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="supplierLegalNameDiv">
+												<h:outputLabel value="Supplier Legal Name" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.legalName}"
+													id="supplierLegalName">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="dbaNameDiv">
+												<h:outputLabel value="DBA Name" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.dbaName}"
+													id="dbaName">
+												</h:inputText>
+											</div>
+										</div>
+									</div>
+									
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-12 inner-end">
+											<div class="form-group" id="headquartersAddressDiv">
+												<h:outputLabel value="Head Quarters Address" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.headQuartersAddress}"
+													id="headQuartersAddress">
+												</h:inputText>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="paymentTermDiv">
+												<h:outputLabel value="Payment Term" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.paymentTerm}"
+													id="paymentTerm">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="countryDiv">
+												<h:outputLabel value="Country" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserSubcontractorInfoBean.supplier.country}"
+													id="country">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItem itemLabel="US" itemValue="US" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="supplierCityDiv">
+												<h:outputLabel value="Supplier City" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.headCity}"
+													id="supplierCity">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="supplierStateDiv">
+												<h:outputLabel value="Supplier State" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserSubcontractorInfoBean.supplier.headState}"
+													id="supplierState">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{productBean.uSAStates}"
+														var="states" itemLabel="#{states.label}"
+														itemValue="#{states.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="supplierZipDiv">
+												<h:outputLabel value="Supplier Zip Code" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="supplierZip"
+													value="#{analyserSubcontractorInfoBean.supplier.headZip}"
+													mask="*****-?****" placeholder="12345-1234" maxlength="10" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="supplierWebSiteDiv">
+												<h:outputLabel value="Supplier Website" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.website}"
+													id="supplierWebSite">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="supplierPhoneDiv">
+												<h:outputLabel value="Supplier Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="supplierPhone"
+														value="#{analyserSubcontractorInfoBean.supplier.headPhone}"
+														mask="(999) 999-9999" autoClear="true"
+														placeholder="(999) 999-9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="supplierFaxDiv">
+												<h:outputLabel value="Supplier Fax" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="supplierFax"
+													value="#{analyserSubcontractorInfoBean.supplier.headFax}"
+													mask="(999) 999-9999" autoClear="true"
+													placeholder="(999) 999-9999" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">									
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="insuranceFeeDiv">
+												<h:outputLabel value="Insurance Fee" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserSubcontractorInfoBean.supplier.insuranceCertificate}"
+													id="insuranceFee">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItem itemLabel="Yes" itemValue="true" />
+													<f:selectItem itemLabel="No" itemValue="false" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="amountDiv">
+												<h:outputLabel value="Amount" />
+												<p:inputText id="amount"
+													styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.discountAmount}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+	
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Financial Information</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="federalTaxIdNumberDiv">
+												<h:outputLabel value="Federal Tax Id Number" />
+												
+												<p:inputText styleClass="form-control input-sm pull-right"
+													id="federalTaxIdNumber"
+													value="#{analyserSubcontractorInfoBean.supplier.federalTaxId}" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="remittanceAddressDiv">
+												<h:outputLabel value="Remittance Address" />
+												
+												<p:inputText styleClass="form-control input-sm pull-right"
+													id="remittanceAddress"
+													value="#{analyserSubcontractorInfoBean.supplier.remitAddress}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="financialCityDiv">
+												<h:outputLabel value="Financial City" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.remitCity}"
+													id="financialCity">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="financialStateDiv">
+												<h:outputLabel value="Financial State" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserSubcontractorInfoBean.supplier.remitState}"
+													id="financialState">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItem itemLabel="NV" itemValue="NV" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="financialZipDiv">
+												<h:outputLabel value="Financial Zip Code" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="financialZip"
+													value="#{analyserSubcontractorInfoBean.supplier.remitZip}"
+													mask="*****-?****" placeholder="12345-1234" maxlength="10" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="dunasNumberDiv">
+												<h:outputLabel value="Dunas Number" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.dunsNumber}"
+													id="dunasNumber">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="invoiceEmailDiv">
+												<h:outputLabel value="Invoice Email" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.invoiceEmail}"
+													id="invoiceEmail">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="accountingContactDiv">
+												<h:outputLabel value="Accounting Contact" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="accountingContact"
+													value="#{analyserSubcontractorInfoBean.supplier.accountingContact}"
+													mask="*****-?****" placeholder="12345-1234" maxlength="10" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="financialPhoneDiv">
+												<h:outputLabel value="Financial Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="financialPhone"
+														value="#{analyserSubcontractorInfoBean.supplier.remitPhone}"
+														mask="(999) 999-9999" autoClear="true"
+														placeholder="(999) 999-9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="financialFaxDiv">
+												<h:outputLabel value="Financial Fax" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="financialFax"
+													value="#{analyserSubcontractorInfoBean.supplier.remitFax}"
+													mask="(999) 999-9999" autoClear="true"
+													placeholder="(999) 999-9999" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Primary Supplier Contact</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="primaryNameDiv">
+												<h:outputLabel value="Primary Name" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.primaryName}"
+													id="primaryName" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="primaryTitleDiv">
+												<h:outputLabel value="Primary Title" />
+												<p:inputText id="primaryTitle"
+													styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.primaryTitle}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Recruitment Contact</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="recruitmentNameDiv">
+												<h:outputLabel value="Recruitment Name" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.recruitmentName}"
+													id="recruitmentName" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="recruitmentTitleDiv">
+												<h:outputLabel value="Recruitment Title" />
+												<p:inputText id="recruitmentTitle"
+													styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.recruitmentTitle}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="recruitmentAddressDiv">
+												<h:outputLabel value="Recruitment Address" />
+												
+												<p:inputText styleClass="form-control input-sm pull-right"
+													id="recruitmentAddress"
+													value="#{analyserSubcontractorInfoBean.supplier.recruitmentAddress}" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="recruitmentCityDiv">
+												<h:outputLabel value="Recruitment City" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.recruitmentCity}"
+													id="recruitmentCity">
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="recruitmentStateDiv">
+												<h:outputLabel value="Recruitment State" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserSubcontractorInfoBean.supplier.recruitmentState}"
+													id="recruitmentState">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItem itemLabel="NV" itemValue="NV" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="recruitmentZipDiv">
+												<h:outputLabel value="Recruitment Zip Code" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="recruitmentZip"
+													value="#{analyserSubcontractorInfoBean.supplier.recruitmentZip}"
+													mask="*****-?****" placeholder="12345-1234" maxlength="10" />
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="recruitmentPhoneDiv">
+												<h:outputLabel value="Recruitment Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="recruitmentPhone"
+														value="#{analyserSubcontractorInfoBean.supplier.recruitmentPhone}"
+														mask="(999) 999-9999" autoClear="true"
+														placeholder="(999) 999-9999" />
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="recruitmentFaxDiv">
+												<h:outputLabel value="Recruitment Fax" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="recruitmentFax"
+													value="#{analyserSubcontractorInfoBean.supplier.recruitmentFax}"
+													mask="(999) 999-9999" autoClear="true"
+													placeholder="(999) 999-9999" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="recruitmentEmailDiv">
+												<h:outputLabel value="Recruitment Email" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.recruitmentEmail}"
+													id="recruitmentEmail">
+												</h:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Company Officer</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->									
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="companyofficer1NameDiv">
+												<h:outputLabel value="Name" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.officerName1}"
+													id="companyofficer1Name" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="companyofficer1TitleDiv">
+												<h:outputLabel value="Title" />
+												<p:inputText id="companyofficer1Title"
+													styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.officerTitle1}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="companyofficer2NameDiv">
+												<h:outputLabel value="Name" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.officerName2}"
+													id="companyofficer2Name" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="companyofficer2TitleDiv">
+												<h:outputLabel value="Title" />
+												<p:inputText id="companyofficer2Title"
+													styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.officerTitle2}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="companyofficer3NameDiv">
+												<h:outputLabel value="Name" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.officerName3}"
+													id="companyofficer3Name" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="companyofficer3TitleDiv">
+												<h:outputLabel value="Title" />
+												<p:inputText id="companyofficer3Title"
+													styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.officerTitle3}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="companyofficer4NameDiv">
+												<h:outputLabel value="Name" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.officerName4}"
+													id="companyofficer4Name" />
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="companyofficer4TitleDiv">
+												<h:outputLabel value="Title" />
+												<p:inputText id="companyofficer4Title"
+													styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.officerTitle4}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Business Description and classification</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="corporationDiv">
+												<h:outputLabel value="Corporation" />
+												<h:selectBooleanCheckbox id="corporation"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.corporation}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="soleProprietorshipDiv">
+												<h:outputLabel value="Sole Proprietorship" />
+												<h:selectBooleanCheckbox id="soleProprietorship"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.proprietorship}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="partenrshipDiv">
+												<h:outputLabel value="Partenrship" />
+												<h:selectBooleanCheckbox id="partenrship"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.partnership}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+																			
+									</div>
+									<!--  / end of row -->
+									
+									
+									<div class="row">
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="llcDiv">
+												<h:outputLabel value="LLC" />
+												<h:selectBooleanCheckbox id="llc"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.llc}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="other">
+												<h:outputLabel value="Other" />
+												<h:selectBooleanCheckbox id="other"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.other}">
+												</h:selectBooleanCheckbox>
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.otherDescription}"
+													id="otherDescription">
+												</p:inputText>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="numberOfEmployeesDiv">
+												<h:outputLabel value="Number Of Employees" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.employeeCount}"
+													id="numberOfEmployees">
+												</p:inputText>
+											</div>
+										</div>
+																			
+									</div>
+									
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="dateEstablishedDiv">
+												<h:outputLabel for="dateEstablished" value="Date Established" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="dateEstablished" value="#{analyserSubcontractorInfoBean.supplier.dateEstablished}"
+														mask="99/99/9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="inStateOfDiv">
+												<h:outputLabel value="In State Of" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.inState}"
+													id="inStateOf">
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-12 inner-end">
+											<div class="form-group">
+												<h:outputLabel value="Note: DISYS’ policy only approves the use of incorporated subcontractors. The use of any other type of entity must be pre-approved by contract services. A copy of the certificate of incorporation of article of association must be returned with this packet." />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										<div class="col-md-12 inner-end">
+											<div class="form-group">
+												<h:outputLabel value="States Authorized To Do Bussiness In" />
+												<p:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.statesAuthorized}"
+													id="stateAuth">
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Supplier Diversity Certification</h:outputLabel>
+											</div>
+											<div class="form-group center-align">
+												<h:outputLabel>PLEASE SEE THE FOLLOWING LINK FOR MORE INFORMATION <a href="http://nmsdc.org" target="_blank">NMSDC</a> OR 
+												<a href="https://www.sba.gov/gopher/Financial-Assistance/Defin/defi14.txt%20target=" target="_blank">SBA</a></h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="smallBusinessDiv">
+												<h:outputLabel value="Small Business" />
+												<h:selectBooleanCheckbox id="smallBusiness"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.smallBusiness}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="largeBusinessDiv">
+												<h:outputLabel value="Large Business" />
+												<h:selectBooleanCheckbox id="largeBusiness"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.largeBusiness}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="smallDisadvantagedBusinessDiv">
+												<h:outputLabel value="Small Disadvantaged Business or 8(A)" />
+												<h:selectBooleanCheckbox id="smallDisadvantagedBusiness"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.smallDisadvantaged}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+																			
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="womenOwnedDiv">
+												<h:outputLabel value="Women-Owned" />
+												<h:selectBooleanCheckbox id="womenOwned"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.womenOwned}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="veteranOwnedDiv">
+												<h:outputLabel value="Veteran-Owned or Disabled Veteran-Owned Business" />
+												<h:selectBooleanCheckbox id="veteranOwned"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.veteranOwned}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="disabledAmericanOwnedBusinessDiv">
+												<h:outputLabel value="Disabled-American Owned Business" />
+												<h:selectBooleanCheckbox id="disabledAmericanOwnedBusiness"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.disabledOwned}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+																			
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										<div class="col-md-12 inner-end">
+											<div class="form-group">
+												<h:outputLabel value="If Minority Owned, please check one of the following." />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="asianPacific">
+												<h:selectBooleanCheckbox id="asiaPacific"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.asiaPacific}">
+												</h:selectBooleanCheckbox>
+												<h:outputLabel value="ASIAN-PACIFIC OR SUBCONTINENT ASIAN AMERICAN INCLUDES: JAPAN, CHINA, KOREA, VIETNAM, LAOS, CAMBODIA, PHILIPPINES, SAMOA, GUAM, TAIWAN, BURMA, THAILAND, MALAYSIA, INDONESIA, SINGAPORE, BRUNEI, REPUBLIC OF THE MARSHALL ISLANDS, THE FEDERATED STATE OF MICRONESIA AND THE US TRUST OF THE PACIFIC NORTHERN MARIANAS." />
+											</div>
+										</div>
+										
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="africanAmerican">
+												<h:selectBooleanCheckbox id="africanAmerican"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.africanAmerican}">
+												</h:selectBooleanCheckbox>
+												<h:outputLabel value="African American" />
+											</div>
+										</div>
+																			
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="hispanicAmerican">
+												<h:selectBooleanCheckbox id="hispanicAmerican"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.hispanicAmerican}">
+												</h:selectBooleanCheckbox>
+												<h:outputLabel value="HISPANIC AMERICAN INCLUDES: SOUTH AMERICA, CENTRAL AMERICA, DOMINICAN REPUBLIC, AND PUERTO RICO." />
+											</div>
+										</div>
+										
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="nativeAmerican">
+												<h:selectBooleanCheckbox id="nativeAmerican"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.nativeAmerican}">
+												</h:selectBooleanCheckbox>
+												<h:outputLabel value="NATIVE AMERICAN INCLUDES: AMERICAN INDIAN, ESKIMO, ALEUT, AND NATIVE HAWAIIAN." />
+											</div>
+										</div>
+																			
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Naics Code</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-9 inner-end">
+											<div class="form-group" id="naicsPrimaryCodeDiv">
+												<h:outputLabel>PLEASE INDICATE YOUR COMPANY’S NORTH AMERICAN INDUSTRY CLASSIFICATION SYSTEM <a href="http://www.census.gov/epcd/www/naics.html" target="_blank">(NAICS) CODE </a> (NAICS INFO): </h:outputLabel>
+												
+											</div>
+										</div>
+										<div class="col-md-3 inner-end">
+										<h:inputText styleClass="form-control input-xs"
+													value="#{analyserSubcontractorInfoBean.supplier.naicsPrimaryCode}"
+													id="naicsPrimaryCode">
+												</h:inputText>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Insurance Information</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group title">
+												<h:outputLabel>Coverage</h:outputLabel>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group title">
+												<h:outputLabel>Expiration</h:outputLabel>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group title">
+												<h:outputLabel>Limits</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="comprehensiveGeneralLiabilityDiv">
+												<h:outputLabel value="Comprehensive General Liability" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.generalLiability}"
+													id="comprehensiveGeneralLiability" />
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="comprehensiveGeneralLiabilityDateDiv">
+												<h:outputLabel for="comprehensiveGeneralLiabilityDate" value="Comprehensive General Liability Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="comprehensiveGeneralLiabilityDate" value="#{analyserSubcontractorInfoBean.supplier.generalExpiration}"
+														mask="99/99/9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="comprehensiveGeneralLiabilityLimitsDiv">
+												<h:outputLabel value="Comprehensive General Liability Limits" />
+												<h:inputText styleClass="form-control input-sm" style="width:100px;"
+													value="#{analyserSubcontractorInfoBean.supplier.generalLimit}"
+													id="comprehensiveGeneralLiabilityLimits" />
+													
+												<h:selectOneMenu styleClass="input-md select2"
+													value="#{analyserSubcontractorInfoBean.supplier.generalType}"
+													id="comprehensiveGeneralLiabilityLimitsAggregate">
+													<f:selectItem itemLabel="Aggregate" itemValue="Aggregate" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="workersCompensationDiv">
+												<h:outputLabel value="Workers Compensation" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.workersLiability}"
+													id="workersCompensation" />
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="workersCompensationDateDiv">
+												<h:outputLabel for="comprehensiveGeneralLiabilityDate" value="Workers Compensation Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="workersCompensationDate" value="#{analyserSubcontractorInfoBean.supplier.workersExpiration}"
+														mask="99/99/9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="workersCompensationLimitsDiv">
+												<h:outputLabel value="Workers Compensation Limits" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.workersLimit}"
+													id="workersCompensationLimits" />
+													
+												<h:selectOneMenu styleClass="input-md select2"
+													value="#{analyserSubcontractorInfoBean.supplier.workersType}"
+													id="workersCompensationLimitsStatutory">
+													<f:selectItem itemLabel="Statutory" itemValue="Statutory" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="employersLiabilityDiv">
+												<h:outputLabel value="Employers Liability" />
+												<h:inputText styleClass="form-control input-sm" style="width:100px;"
+													value="#{analyserSubcontractorInfoBean.supplier.employersLiability}"
+													id="employersLiability" />
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="employersLiabilityDateDiv">
+												<h:outputLabel for="employersLiabilityDate" value="Employers Liability Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="employersLiabilityDate" value="#{analyserSubcontractorInfoBean.supplier.employersExpiration}"
+														mask="99/99/9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="employersLiabilityLimitsDiv">
+												<h:outputLabel value="Employers Liability Limits" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.employersLimit}"
+													id="employersLiabilityLimits" />
+													
+												<h:selectOneMenu styleClass="input-md select2"
+													value="#{analyserSubcontractorInfoBean.supplier.employersType}"
+													id="employersLiabilityEachAccident">
+													<f:selectItem itemLabel="E. L. Each Accident" itemValue="E. L. Each Accident" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="automobileLiabilityDiv">
+												<h:outputLabel value="Automobile Liability" />
+												<h:inputText styleClass="form-control input-sm" style="width:100px;"
+													value="#{analyserSubcontractorInfoBean.supplier.automobileLiability}"
+													id="automobileLiability" />
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="automobileLiabilityDateDiv">
+												<h:outputLabel for="automobileLiabilityDate" value="Automobile Liability Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="automobileLiabilityDate" value="#{analyserSubcontractorInfoBean.supplier.automobileExpiration}"
+														mask="99/99/9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="automobileLiabilityLimitsDiv">
+												<h:outputLabel value="Automobile Liability Limits" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.automobileLimit}"
+													id="automobileLiabilityLimits" />
+													
+												<h:selectOneMenu styleClass="input-md select2"
+													value="#{analyserSubcontractorInfoBean.supplier.automobileType}"
+													id="automobileLiabilityLimitsCombinedSingleLimit">
+													<f:selectItem itemLabel="Combined Single Limit" itemValue="Combined Single Limit" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="umbrellaLiabilityDiv">
+												<h:outputLabel value="Umbrella Liability" />
+												<h:inputText styleClass="form-control input-sm" style="width:100px;"
+													value="#{analyserSubcontractorInfoBean.supplier.umbrellaLiability}"
+													id="umbrellaLiability" />
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="umbrellaLiabilityDateDiv">
+												<h:outputLabel for="umbrellaLiabilityDate" value="Umbrella Liability Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="umbrellaLiabilityDate" value="#{analyserSubcontractorInfoBean.supplier.umbrellaExpiration}"
+														mask="99/99/9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="umbrellaLiabilityLimitsDiv">
+												<h:outputLabel value="Umbrella Liability Limits" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserSubcontractorInfoBean.supplier.umbrellaLimit}"
+													id="umbrellaLiabilityLimits" />
+												<h:selectOneMenu styleClass="input-md select2"
+													value="#{analyserSubcontractorInfoBean.supplier.umbrellaType}"
+													id="umbrellaLiabilityLimitsAggregate">
+													<f:selectItem itemLabel="Aggregate" itemValue="Aggregate" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="col-md-6 inner-end">
+										<div class="form-group" id="addInfoInsuredDiv">
+											<h:selectBooleanCheckbox id="addInfoInsured"
+												styleClass="form-control minimal"
+												value="#{analyserSubcontractorInfoBean.supplier.disysAdditionalInsured}">
+											</h:selectBooleanCheckbox>
+											<h:outputLabel value="Disys Added As Additional Insured" />
+										</div>
+									</div>
+									<!--  / end of row -->
+									
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Documents Included</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->	
+									
+									<div class="row">
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="subContractAgreementDiv">
+												<h:outputLabel value="SubContract Agreement" />
+												<h:selectBooleanCheckbox id="subContractAgreement"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.subcontractorAgreement}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="w9Div">
+												<h:outputLabel value="W9" />
+												<h:selectBooleanCheckbox id="w9"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.formW9}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="insuranceCertificateDiv">
+												<h:outputLabel value="Insurance Certificate" />
+												<h:selectBooleanCheckbox id="insuranceCertificate"
+													styleClass="form-control minimal"
+													value="#{analyserSubcontractorInfoBean.supplier.insuranceCertificate}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div>
+																			
+									</div>
+									<!--  / end of row -->	
+									
+									
+									
+									
+								</div>
+								<!-- /.box-body -->
+
+								<div class="box-footer" id="buttonsDiv"
+									style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+
+									<h:commandButton style="display:none;"
+										id="actualSaveButton" value="Save" validateClient="true"
+										action="#{analyserSubcontractorInfoBean.saveSubcontractor}" />
+									<input id="saveButton" style="display: none;" type="button"
+										class="btn btn-md btn-primary" value="Save"
+										onclick="submitForm();" />
+
+								</div>
+							</h:form>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</section>
+
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+	<script type="text/javascript">
+		var $ = jQuery.noConflict();
+	</script>
+	<script type="text/javascript">
+		function initializeComponents() {
+			$('.select2').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			});
+
+			//Date picker
+			/* $('#analyserForm\\:termStart').datepicker({
+				autoclose : true,
+				useCurrent : false,
+				defaultDate : new Date()
+			})
+
+			$('#analyserForm\\:contractLengthFrom').datepicker({
+				autoclose : true
+			})
+
+			$('#analyserForm\\:contractLengthTo').datepicker({
+				autoclose : true
+			}) */
+			
+		}
+
+
+		function checkBoxProcessing(element) {
+			if ($("#analyserForm\\:" + element).is(':checked')) {
+				$('#analyserForm\\:' + element).iCheck('check');
+			} else if ($("#analyserForm\\:" + element).not(':checked')) {
+				$('#analyserForm\\:' + element).iCheck('uncheck');
+			}
+		}
+
+		function loadPageEvents(screen) {
+			if($("#analyserForm\\:chkBackgroundAmount").is(':checked')){
+				$("#analyserForm\\:backgroundAmount").prop("readonly",false);
+			}else{
+				$("#analyserForm\\:backgroundAmount").prop("readonly",true);
+			}
+			
+			if($("#analyserForm\\:chkCreditCheckAmount").is(':checked')){
+				$("#analyserForm\\:creditCheckAmount").prop("readonly",false);
+			}else{
+				$("#analyserForm\\:creditCheckAmount").prop("readonly",true);
+			}
+			
+			if($("#analyserForm\\:chkDrugTestAmount").is(':checked')){
+				$("#analyserForm\\:drugTestAmount").prop("readonly",false);
+			}else{
+				$("#analyserForm\\:drugTestAmount").prop("readonly",true);
+			}
+			
+			if($("#analyserForm\\:tmContract").is(':checked')){
+				$("#analyserForm\\:amount").prop("readonly",false);
+			}else{
+				$("#analyserForm\\:amount").prop("readonly",true);
+			}
+			
+			/* if (screen == "Modify") {
+				
+			} else if (screen == "View") {
+				
+			}
+
+			if (screen == "Add") {
+				disableFields()
+			} */
+		}
+
+
+		$(document).ready(function() {
+			initializeComponents();
+			/* bindCheckboxes();
+			var screen = $("#analyserForm\\:action")[0].value;
+			loadPageEvents(screen);
+			commandButtons(); */
+		});
+		
+		function showTextBox(checkbox, textbox,action) {
+			if(action == "Add"){
+				if ($("#analyserForm\\:" + checkbox).is(':checked') == true) {
+					$("#analyserForm\\:" + textbox).val("0.0");
+					$("#analyserForm\\:" + textbox).prop("readonly",false);
+				} else {
+					$("#analyserForm\\:" + textbox).val("0.0");
+					$("#analyserForm\\:" + textbox).prop("readonly",true);
+				}
+			}else{
+				if ($("#analyserForm\\:" + checkbox).is(':checked') == true) {
+					//$("#analyserForm\\:" + textbox).val("0.0");
+					$("#analyserForm\\:" + textbox).prop("readonly",false);
+				} else {
+					//$("#analyserForm\\:" + textbox).val("0.0");
+					$("#analyserForm\\:" + textbox).prop("readonly",true);
+				}
+			}
+		}
+
+		function ShowCustomDialog() {
+			ShowDialogBox('Warning', 'Record updated successfully.', 'Ok', '',
+					'GoToAssetList', null);
+		}
+
+		function ShowDialogBox(title, content, btn1text, btn2text,
+				functionText, parameterList) {
+			var btn1css;
+			var btn2css;
+
+			if (btn1text == '') {
+				btn1css = "hidecss";
+			} else {
+				btn1css = "showcss";
+			}
+
+			if (btn2text == '') {
+				btn2css = "hidecss";
+			} else {
+				btn2css = "showcss";
+			}
+			$("#lblMessage").html(content);
+
+			$("#dialog").dialog({
+				resizable : false,
+				title : title,
+				modal : true,
+				width : '400px',
+				height : 'auto',
+				bgiframe : false,
+				hide : {
+					effect : 'scale',
+					duration : 400
+				},
+
+				buttons : [ {
+					text : btn1text,
+					"class" : btn1css,
+					click : function() {
+
+						$("#dialog").dialog('close');
+
+					}
+				}, {
+					text : btn2text,
+					"class" : btn2css,
+					click : function() {
+						$("#dialog").dialog('close');
+					}
+				} ]
+			});
+		}
+	</script>
+</body>
+
+</html>

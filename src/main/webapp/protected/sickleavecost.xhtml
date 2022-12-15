@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+<style type="text/css">
+.center {
+	text-align: center;
+}
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+
+.input-sm {
+	height: 34px !important;
+}
+
+select[readonly].select2+.select2-container {
+	pointer-events: none;
+	touch-action: none; . select2-selection { background : #eee;
+	box-shadow: none;
+}
+
+.select2-selection__arrow, .select2-selection__clear {
+	display: none;
+}
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Sick Leave Cost</h1>
+			</section>
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- <h:messages styleClass="errorMessage" globalOnly="true" /> -->
+				<!-- Global messages -->
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<h:form role="form" id="sickLeaveCostForm">
+							<p:growl showDetail="false" id="msgs" />
+							<div class="box">
+
+								<div class="box-body">
+									<div class="row">
+										<div class="col-md-4">
+											<div class="form-group" id="stateCodeDiv">
+												<h:outputLabel for="stateCode" value="Worksite State Code *" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{sickLeaveCostBean.sickLeaveCost.worksiteStateCode}"
+													id="stateCode">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{sickLeaveCostBean.stateList}" />
+												</h:selectOneMenu>
+
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="Zip Code *" />
+												<p:inputText id="zipCode" a:placeholder="Zip Code"
+													maxlength="5"
+													value="#{sickLeaveCostBean.sickLeaveCost.zipCode}"
+													styleClass="form-control" />
+											</div>
+										</div>
+
+										<div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="City Name *" />
+												<p:inputText id="cityName" a:placeholder="City Name"
+													value="#{sickLeaveCostBean.sickLeaveCost.cityName}"
+													styleClass="form-control" />
+											</div>
+										</div>
+									</div>
+									<div class="row">
+
+										<div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="Sick Hours Cost *" />
+												<p:inputText id="sickHoursCost"
+													a:placeholder="Sick Hours Cost"
+													value="#{sickLeaveCostBean.sickLeaveCost.sickHoursCost}"
+													styleClass="form-control" />
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="Sick Leave Cap *" />
+												<p:inputText id="sickLeaveCap"
+													a:placeholder="Sick Leave Cap"
+													value="#{sickLeaveCostBean.sickLeaveCost.annualCap}"
+													styleClass="form-control" />
+											</div>
+										</div>
+
+										<div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="Place Name" />
+												<p:inputText id="placeName" a:placeholder="Place Name"
+													value="#{sickLeaveCostBean.sickLeaveCost.placeName}"
+													styleClass="form-control" />
+											</div>
+										</div>
+									</div>
+
+									<!--  will be commented -->
+									<div class="row">
+
+										<div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="PTO Limit " />
+												<p:inputText id="ptoLimit" a:placeholder="PTO Limit"
+													value="#{sickLeaveCostBean.sickLeaveCost.ptoLimitToOverrideSick}"
+													styleClass="form-control" />
+											</div>
+										</div>
+
+										<!-- <div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="State Abbreviation" />
+												<p:inputText id="stateAbbrv"
+													a:placeholder="State Abbreviation"
+													value="#{sickLeaveCostBean.sickLeaveCost.stateAbbreviation}"
+													styleClass="form-control" />
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="Hourly Salary Rate" />
+												<p:inputText id="hourlySaleRate"
+													a:placeholder="Hourly Salary Rate"
+													value="#{sickLeaveCostBean.sickLeaveCost.hourlySalaryRate}"
+													styleClass="form-control" />
+											</div>
+										</div>
+
+										<div class="col-md-4">
+											<div class="form-group">
+												<h:outputLabel value="PTO" />
+												<p:inputText id="pto" a:placeholder="PTO"
+													value="#{sickLeaveCostBean.sickLeaveCost.pto}"
+													styleClass="form-control" />
+											</div>
+										</div>
+										
+										<div class="col-md-4">
+											<h:outputLabel value="PTO Eligible" />
+											<div class="form-group">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal"
+													id="isPTOEligible"
+													value="#{sickLeaveCostBean.sickLeaveCost.isPtoEligible}">
+												</h:selectBooleanCheckbox>
+											</div>
+										</div> -->
+									</div>
+
+								</div>
+
+								<!-- /.box-body -->
+
+								<!-- <div class="box-footer"> -->
+								<div class="box-body">
+									<div class="form-group">
+										<div class="col-sm-3 control-label">
+											<p:commandButton value="Save" id="btnSave"
+												update="sickLeaveCostForm dataTableForm"
+												rendered="#{!sickLeaveCostBean.showUpdateButton}"
+												styleClass="btn btn-primary btn-sm" icon="ui-icon-check"
+												actionListener="#{sickLeaveCostBean.addUpdateSickLeaveCost}"
+												oncomplete="resetValues();">
+											</p:commandButton>
+
+											<p:commandButton value="Update" id="btnUpdate"
+												update=":sickLeaveCostForm:msgs dataTableForm"
+												rendered="#{sickLeaveCostBean.showUpdateButton}"
+												styleClass="btn btn-primary btn-sm" icon="ui-icon-check"
+												actionListener="#{sickLeaveCostBean.addUpdateSickLeaveCost}">
+											</p:commandButton>
+
+											<p:commandButton value="Clear" id="btnClear"
+												styleClass="btn btn-default btn-sm" icon="fa fa-refresh"
+												actionListener="#{sickLeaveCostBean.clearForm}"
+												immediate="true" partialSubmit="true"
+												update="sickLeaveCostForm dataTableForm" process="@this"
+												oncomplete="resetValues();">
+											</p:commandButton>
+										</div>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<h:form role="form" id="dataTableForm">
+							<p:dataTable id="crudDataTable"
+								value="#{sickLeaveCostBean.dataList}" var="x" rows="10"
+								paginator="true"
+								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								rowsPerPageTemplate="10,20,50,100" widgetVar="dataTable"
+								emptyMessage="No data found with given criteria"
+								filteredValue="#{sickLeaveCostBean.filteredList}">
+
+								<f:facet name="header">
+									<p:outputPanel>
+										<h:outputText value="Search all fields:" />
+										<p:inputText id="globalFilter"
+											onchange="PF('dataTable').filter()" style="width:150px"
+											placeholder="Enter keyword" />
+									</p:outputPanel>
+								</f:facet>
+
+								<p:column width="110" headerText="Action"
+									style="text-align:center;">
+
+									<h:commandLink title="Edit" styleClass="btn btn-xs btn-default"
+										role="button">
+										<i class="glyphicon glyphicon-pencil" />
+										<p:ajax listener="#{sickLeaveCostBean.editSickLeaveCost(x)}"
+											process="@this" update="sickLeaveCostForm"
+											oncomplete="resetValues();" />
+									</h:commandLink>
+								</p:column>
+
+								<p:column width="220" headerText="Worksite State Code"
+									filterStyle="display:none" filterBy="#{x.worksiteStateCode}"
+									filterMatchMode="contains" sortBy="#{x.worksiteStateCode}">
+									<h:outputText value="#{x.worksiteStateCode}" />
+								</p:column>
+
+								<p:column width="110" filterStyle="display:none"
+									filterBy="#{x.zipCode}" filterMatchMode="contains"
+									headerText="Zip Code" sortBy="#{x.zipCode}">
+									<h:outputText value="#{x.zipCode}" />
+								</p:column>
+
+								<p:column width="110" filterStyle="display:none"
+									filterBy="#{x.cityName}" filterMatchMode="contains"
+									headerText="City Name" sortBy="#{x.cityName}">
+									<h:outputText value="#{x.cityName}" />
+								</p:column>
+
+								<p:column width="110" filterStyle="display:none"
+									filterBy="#{x.sickHoursCost}" filterMatchMode="contains"
+									headerText="Sick Hours Cost" sortBy="#{x.sickHoursCost}">
+									<h:outputText value="#{x.sickHoursCost}" />
+								</p:column>
+
+								<p:column width="110" filterStyle="display:none"
+									filterBy="#{x.annualCap}" filterMatchMode="contains"
+									headerText="Sick Leave Cap" sortBy="#{x.annualCap}">
+									<h:outputText value="#{x.annualCap}" />
+								</p:column>
+
+								<p:column width="110" filterStyle="display:none"
+									filterBy="#{x.placeName}" filterMatchMode="contains"
+									headerText="Place Name" sortBy="#{x.placeName}">
+									<h:outputText value="#{x.placeName}" />
+								</p:column>
+
+								<p:column width="110" filterStyle="display:none"
+									filterBy="#{x.ptoLimitToOverrideSick}"
+									filterMatchMode="contains" headerText="PTO Limit"
+									sortBy="#{x.ptoLimitToOverrideSick}">
+									<h:outputText value="#{x.ptoLimitToOverrideSick}" />
+								</p:column>
+							</p:dataTable>
+						</h:form>
+					</div>
+				</div>
+
+
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+	<script>
+		$(document).ready(function() {
+			resetValues();
+		});
+		
+		function resetValues() {
+			$('.select2').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			});
+			
+			$('.select2').on('change.select2', function(e) {
+				if (e.currentTarget.selectedIndex == 0) {
+					e.stopImmediatePropagation();
+					return false;
+				}
+			});
+		}
+	</script>
+</body>
+
+</html>

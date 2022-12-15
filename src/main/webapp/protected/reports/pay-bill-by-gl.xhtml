@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Pay Vs Bill Report</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Report Year" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{payBillByGLReportsBean.reportYear}" id="year">
+												<f:selectItems
+													value="#{payBillByGLReportsBean.yearsList}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Report Month" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{payBillByGLReportsBean.month}" id="month">
+												<f:selectItems value="#{payBillByGLReportsBean.monthsList}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Office" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{payBillByGLReportsBean.branch}" id="branch">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{payBillByGLReportsBean.branchesList}" var="branch"
+													itemLabel="#{branch.label}" itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Commission Person" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{payBillByGLReportsBean.person}"
+												id="commissionPerson" required="true">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{payBillByGLReportsBean.commissionPersons}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate
+												Report</span>
+											<f:ajax event="click"
+												listener="#{payBillByGLReportsBean.generateReport}"
+												execute="@form"
+												render=":dataTableForm :dataTableForm:recordTotal :dataTableForm:recordTotalZero" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{payBillByGLReportsBean.eraseFilter}"
+												execute="@form" render=":filterForm :dataTableForm"
+												oncomplete="initializeComponents();" />
+										</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{payBillByGLReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{payBillByGLReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{payBillByGLReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{payBillByGLReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{payBillByGLReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable"
+												value="#{payBillByGLReportsBean.reportData}" var="x"
+												rows="15" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{payBillByGLReportsBean.filteredList}">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+												<p:column width="250" filterStyle="display:none"
+													filterBy="#{x.get('COMPANY')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('COMPANY')}">
+													<f:facet name="header">
+														<h:outputText value="Company" />
+													</f:facet>
+													<h:outputText value="#{x.get('COMPANY')}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.get('LASTNAME')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('LASTNAME')}">
+													<f:facet name="header">
+														<h:outputText value="Last Name" />
+													</f:facet>
+													<h:outputText value="#{x.get('LASTNAME')}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.get('FIRSTNAME')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('FIRSTNAME')}">
+													<f:facet name="header">
+														<h:outputText value="First Name" />
+													</f:facet>
+													<h:outputText value="#{x.get('FIRSTNAME')}" />
+												</p:column>
+
+												<p:column width="200" filterStyle="display:none"
+													filterBy="#{x.get('EMAIL')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('EMAIL')}">
+													<f:facet name="header">
+														<h:outputText value="Email" />
+													</f:facet>
+													<h:outputText value="#{x.get('EMAIL')}" />
+												</p:column>
+
+												<p:column width="200" filterStyle="display:none"
+													filterBy="#{x.get('WORKEMAIL')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('WORKEMAIL')}">
+													<f:facet name="header">
+														<h:outputText value="Work Email" />
+													</f:facet>
+													<h:outputText value="#{x.get('WORKEMAIL')}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.get('HOMEPHONE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('HOMEPHONE')}">
+													<f:facet name="header">
+														<h:outputText value="Home Phone" />
+													</f:facet>
+													<h:outputText value="#{x.get('HOMEPHONE')}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.get('WORKPHONE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('WORKPHONE')}">
+													<f:facet name="header">
+														<h:outputText value="Work Phone" />
+													</f:facet>
+													<h:outputText value="#{x.get('WORKPHONE')}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.get('CELLPHONE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('CELLPHONE')}">
+													<f:facet name="header">
+														<h:outputText value="Cell Phone" />
+													</f:facet>
+													<h:outputText value="#{x.get('CELLPHONE')}" />
+												</p:column>
+
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.get('BILLRATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('BILLRATE')}">
+													<f:facet name="header">
+														<h:outputText value="Bill Rate" />
+													</f:facet>
+													<h:outputText value="$#{x.get('BILLRATE')}" />
+												</p:column>
+
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.get('PAYRATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PAYRATE')}">
+													<f:facet name="header">
+														<h:outputText value="Pay Rate" />
+													</f:facet>
+													<h:outputText value="$#{x.get('PAYRATE')}" />
+												</p:column>
+
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.get('PERDIEM')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PERDIEM')}">
+													<f:facet name="header">
+														<h:outputText value="Per Diem" />
+													</f:facet>
+													<h:outputText value="$#{x.get('PERDIEM')}" />
+												</p:column>
+
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.get('OTRATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('OTRATE')}">
+													<f:facet name="header">
+														<h:outputText value="OT Rate" />
+													</f:facet>
+													<h:outputText value="$#{x.get('OTRATE')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('AE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('AE')}">
+													<f:facet name="header">
+														<h:outputText value="AE" />
+													</f:facet>
+													<h:outputText value="#{x.get('AE')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('RECRUITER')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('RECRUITER')}">
+													<f:facet name="header">
+														<h:outputText value="Recruiter" />
+													</f:facet>
+													<h:outputText value="#{x.get('RECRUITER')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('BRANCH')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('BRANCH')}">
+													<f:facet name="header">
+														<h:outputText value="Branch" />
+													</f:facet>
+													<h:outputText value="#{x.get('BRANCH')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('SUBCOMPANY')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('SUBCOMPANY')}">
+													<f:facet name="header">
+														<h:outputText value="Subcontractor Name" />
+													</f:facet>
+													<h:outputText value="#{x.get('SUBCOMPANY')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('SUBEMAIL')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('SUBEMAIL')}">
+													<f:facet name="header">
+														<h:outputText value="Subcontractor Email" />
+													</f:facet>
+													<h:outputText value="#{x.get('SUBEMAIL')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('STARTDATEFORMATTED')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('STARTDATEFORMATTED')}">
+													<f:facet name="header">
+														<h:outputText value="Start Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('STARTDATEFORMATTED')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('ENDDATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('ENDDATE')}">
+													<f:facet name="header">
+														<h:outputText value="End Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('ENDDATE')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('EMPTYPE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('EMPTYPE')}">
+													<f:facet name="header">
+														<h:outputText value="Employee Type" />
+													</f:facet>
+													<h:outputText value="#{x.get('EMPTYPE')}" />
+												</p:column>
+
+												<p:column width="160" filterStyle="display:none"
+													filterBy="#{x.get('CL')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('CL')}">
+													<f:facet name="header">
+														<h:outputText value="Liaison" />
+													</f:facet>
+													<h:outputText value="#{x.get('CL')}" />
+												</p:column>
+
+												<p:column width="300" filterStyle="display:none"
+													filterBy="#{x.get('ADDRESS')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('ADDRESS')}">
+													<f:facet name="header">
+														<h:outputText value="Address" />
+													</f:facet>
+													<h:outputText value="#{x.get('ADDRESS')}" />
+												</p:column>
+
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		function initializeComponents() {
+			$('.select2').select2();
+		}
+
+		$(document).ready(function() {
+			initializeComponents();
+		});
+	</script>
+
+</body>
+
+</html>

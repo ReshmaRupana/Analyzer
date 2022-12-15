@@ -1,0 +1,2381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:ct="http://www.chartistjsf.org/charts">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+
+.red {
+	background: #FF4500;
+}
+
+.green {
+	background: #7CFC00;
+}
+
+.lightBlue {
+	background-color: lightblue;
+}
+</style>
+<h:head>
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/ReportStyle.css" />
+</h:head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+
+
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Bullhorn Report</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="startDate" value="Start Date" />
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="startDate" value="#{bullhornBatchProcessBean.startDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="endDate" value="End Date" />
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="endDate" value="#{bullhornBatchProcessBean.endDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>
+									
+									<div class="col-xs-4">
+										<div class="form-group">
+											<h:outputLabel for="searchString" value="Search String" />
+											<h:inputText id="searchString"
+												styleClass="form-control input-sm"
+												validatorMessage="Please enter minimum three character"
+												value="#{bullhornBatchProcessBean.searchString}">
+												<f:validateLength minimum="3" />
+											</h:inputText>
+											<p:message for="searchString" />
+										</div>
+									</div>
+								</div>
+
+
+								<div class="row">
+									<div class="col-xs-6">
+										<!-- <button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate Report</span>
+										</button> -->
+										<h:commandButton style="display:none;" id="actualSaveButton"
+											value="Save" validateClient="true">
+
+											<f:ajax event="click"
+												listener="#{bullhornBatchProcessBean.generateReport}"
+												execute="@form"
+												render=":dataTableForm :dataTableForm:recordTotal :dataTableForm:recordTotalZero"/>
+
+										</h:commandButton>
+
+										<input id="saveButton" type="button"
+											class="btn btn-md btn-primary" value="Generate Report"
+											onclick="submitForm();" />
+
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{bullhornBatchProcessBean.eraseFilter}"
+												oncomplete="resetEntirePage();" />
+										</button>
+
+										<h:commandButton value="Reset p:ajax" style="display:none;"
+											id="resetButton">
+											<p:ajax update="@form :dataTableForm" resetValues="true"
+												oncomplete="initializePageComponents();setupPageComponents(); resetDates();" />
+										</h:commandButton>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+
+
+				<!-- <div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h3>Batch Process</h3>
+							</div>
+						</div>
+					</div>
+				</div> -->
+
+				<!-- 				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body"> -->
+				<h:form id="dataTableForm"
+					onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+					<!-- <div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{analyserActivityReportsBean.exportToExcelNew}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												render=":filterForm :dataTableForm" />
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{analyserActivityReportsBean.downloadExcelFile('')}">
+												<p:graphicImage value="/resources/common/images/download.gif" alt="Download" />
+												<f:attribute name="fileName"
+													value="#{analyserActivityReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{analyserActivityReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{analyserActivityReportsBean.newFileName}" />
+										</div>
+									</div> -->
+					<h:form>
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body">
+										<h3>Batch Info</h3>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						 <div class="row">
+							<div class="col-xs-8">	
+								<div style="float: right;" >
+										<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Refresh</span>
+												<f:ajax event="click" render="batchInfoTable"
+													listener="#{bullhornBatchProcessBean.generateReport}"
+													execute="@form"/>
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+								</div>					
+								<p:dataTable id="batchInfoTable"
+									value="#{bullhornBatchProcessBean.batchInfoData}" resizableColumns="true" resizeMode="expand"
+									var="x" rows="10" paginator="true" rowIndexVar="index"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+									scrollHeight="350" scrollWidth="96%" widgetVar="batchInfoTable"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{bullhornBatchProcessBean.filteredBatchInfoList}"
+									selectionMode="single"
+									async = "true"
+									selection="#{bullhornBatchProcessBean.bullhornBatchInfoDTO}"
+									rowKey="#{x.bullhornBatchInfoId}"
+									rowStyleClass="#{null}">
+									
+									<p:ajax event="rowSelect"
+										listener="#{bullhornBatchProcessBean.onBatchInfoRowSelect}"
+										update="dataTableForm:j_idt45:batchDataProcessedTable dataTableForm:j_idt45:pieChart" />
+									<p:ajax event="rowUnselect"
+										listener="#{bullhornBatchProcessBean.onRowUnselect}"
+										update="dataTableForm:j_idt45:batchDataProcessedTable" />
+
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('batchInfoTable').filter()" style="width:150"
+												placeholder="Enter keyword" />
+										</p:outputPanel>																				
+									</f:facet>
+									<p:column width="40">
+										<f:facet name="header">
+											<h:outputText value="Sr. #" />
+										</f:facet>
+										<h:outputText value="#{index + 1}" />
+									</p:column>
+									<p:column width="100">
+											<f:facet name="header">
+												<h:outputText value="Actions" />
+											</f:facet>
+										<p:commandButton id="executeButton" value="Execute"
+										onclick="this.disabled = true" 
+											styleClass="btn btn-xs"
+											style="height: 24px;margin-bottom: 0px;"
+											rendered="#{x.batchStatus == 'U' and x.processingStatus == 'N'}"
+											actionListener="#{bullhornBatchProcessBean.executeProcess}"
+											process="@form, executeButton"
+											ajax="true"
+											async = "true">
+											<f:param name="bullhornBatchInfoId"
+												value="#{x.bullhornBatchInfoId}" />
+											<p:confirm style="margin-top:40px"
+												header="Start Process Confirmation"
+												message="Are you sure you want to Start Process?"
+												icon="ui-icon-alert" />
+											<p:confirmDialog global="true" showEffect="fade"
+												hideEffect="fade">
+												<p:commandButton value="Yes" type="button"
+													styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+												<p:commandButton value="No" type="button"
+													styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+												<p:growl id="message" showDetail="false" />
+											</p:confirmDialog>
+										</p:commandButton>
+
+										<!--  <button jsf:id="executeButton" type="submit"
+											class="btn btn-sm btn-primary"
+											rendered="#{x.batchStatus == 'U' and x.processingStatus == 'N'}">
+											<span>Execute</span>
+											<f:ajax event="click"
+											update="batchInfoTable"
+												listener="#{bullhornBatchProcessBean.executeProcess}"
+												execute="@form" />
+											<f:param name="bullhornBatchInfoId"
+												value="#{x.bullhornBatchInfoId}" />
+										</button>  -->
+										
+									</p:column>
+									
+									<p:column width="100">
+										<f:facet name="header">
+											<h:outputText value="Progress" />
+										</f:facet>
+										<p:progressBar id="progressBarClient" value="#{x.completionPercentage}" labelTemplate="{value}%" styleClass="animated" style="margin-top:10px;" ajax="true" interval="5000"></p:progressBar>
+									</p:column>
+
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchInfoId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornBatchInfoId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Info Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchInfoId}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchCode}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornBatchCode}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Code" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchCode}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.batchEntryDateTime}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.batchEntryDateTime}">
+										<f:facet name="header">
+											<h:outputText value="Batch Entry Date Time" />
+										</f:facet>
+										<h:outputText value="#{x.batchEntryDateTime}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.batchStatus}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.batchStatus}">
+										<f:facet name="header">
+											<h:outputText value="Batch Status" />
+										</f:facet>
+										<h:outputText value="#{x.batchStatus}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.batchType}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.batchType}">
+										<f:facet name="header">
+											<h:outputText value="Batch Type" />
+										</f:facet>
+										<h:outputText value="#{x.batchType}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.processingDateTime}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.processingDateTime}">
+										<f:facet name="header">
+											<h:outputText value="Processing Date Time" />
+										</f:facet>
+										<h:outputText value="#{x.processingDateTime}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.totalBatchRecords}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.totalBatchRecords}">
+										<f:facet name="header">
+											<h:outputText value="Total Batch Records" />
+										</f:facet>
+										<h:outputText value="#{x.totalBatchRecords}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.processedRecords}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.processedRecords}">
+										<f:facet name="header">
+											<h:outputText value="Processed Records" />
+										</f:facet>
+										<h:outputText value="#{x.processedRecords}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.acceptedRecords}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.acceptedRecords}">
+										<f:facet name="header">
+											<h:outputText value="Accepted Records" />
+										</f:facet>
+										<h:outputText value="#{x.acceptedRecords}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.rejectedRecords}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.rejectedRecords}">
+										<f:facet name="header">
+											<h:outputText value="Rejected Records" />
+										</f:facet>
+										<h:outputText value="#{x.rejectedRecords}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.companyCode}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.companyCode}">
+										<f:facet name="header">
+											<h:outputText value="Company Code" />
+										</f:facet>
+										<h:outputText value="#{x.companyCode}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.completionPercentage}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.completionPercentage}">
+										<f:facet name="header">
+											<h:outputText value="Completion Percentage" />
+										</f:facet>
+										<h:outputText value="#{x.completionPercentage}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.executedBy}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.executedBy}">
+										<f:facet name="header">
+											<h:outputText value="Executed By" />
+										</f:facet>
+										<h:outputText value="#{x.executedBy}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.executionCompletion}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.executionCompletion}">
+										<f:facet name="header">
+											<h:outputText value="Execution Completion" />
+										</f:facet>
+										<h:outputText value="#{x.executionCompletion}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.executionStart}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.executionStart}">
+										<f:facet name="header">
+											<h:outputText value="Execution Start" />
+										</f:facet>
+										<h:outputText value="#{x.executionStart}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.importComments}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.importComments}" style="word-break: break-word">
+										<f:facet name="header">
+											<h:outputText value="Import Comments" />
+										</f:facet>
+										<h:outputText value="#{x.importComments}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.isRecordHasErrors}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.isRecordHasErrors}">
+										<f:facet name="header">
+											<h:outputText value="Is Record Has Errors" />
+										</f:facet>
+										<h:outputText value="#{x.isRecordHasErrors}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.isTransferredForProcessing}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.isTransferredForProcessing}">
+										<f:facet name="header">
+											<h:outputText value="Is Transferred For Processing" />
+										</f:facet>
+										<h:outputText value="#{x.isTransferredForProcessing}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.processingStatus}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.processingStatus}">
+										<f:facet name="header">
+											<h:outputText value="Processing Status" />
+										</f:facet>
+										<h:outputText value="#{x.processingStatus}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.recordsTransferredToAnalyzer}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.recordsTransferredToAnalyzer}">
+										<f:facet name="header">
+											<h:outputText value="Records Transferred To Analyzer" />
+										</f:facet>
+										<h:outputText value="#{x.recordsTransferredToAnalyzer}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.recordsTransferredToStaging}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.recordsTransferredToStaging}">
+										<f:facet name="header">
+											<h:outputText value="Records Transferred To Staging" />
+										</f:facet>
+										<h:outputText value="#{x.recordsTransferredToStaging}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.totalRecordsTransferred}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.totalRecordsTransferred}">
+										<f:facet name="header">
+											<h:outputText value="Total Records Transferred" />
+										</f:facet>
+										<h:outputText value="#{x.totalRecordsTransferred}" />
+									</p:column>
+
+
+								</p:dataTable>
+							</div>
+							
+							<div class="col-xs-4">
+							
+							<div class="row" >
+								<div class="col-xs-12">
+									<div class="chart-box">
+										<ct:chart id="lineChart" type="line"
+											model="#{bullhornBatchProcessBean.bhBatchLineChartModel}"
+											rendered="#{true}" style="width: 100%; height: 300px;">
+										</ct:chart>
+									</div>
+								</div>
+							</div>
+							
+
+							<div class="row" style="height: 50px">
+								<div class="col-xs-4">
+									<div class="chart-box">
+										<ct:chart id="pieChart" type="pie"
+											model="#{bullhornBatchProcessBean.bhIssuePieChartModel}"
+											rendered="#{true}" style="width: 300px; height: 300px;">
+											<p:ajax event="itemSelect"
+												listener="#{pieChartBean.pieItemSelect}"
+												update="pieChartMessage" />
+										</ct:chart>
+										<p:message id="pieChartMessage" for="pieChart"
+											showDetail="true" />
+									</div>
+								</div>
+							</div>
+								
+							</div>							
+						</div>
+
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body">
+										<h3>Batch Data Processed</h3>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-xs-12">
+								<p:dataTable id="batchDataProcessedTable" rowIndexVar="index" resizableColumns="true" resizeMode="expand"
+									value="#{bullhornBatchProcessBean.batchDataProcessedData}"
+									var="x" rows="10" paginator="true"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+									scrollHeight="350" scrollWidth="96%"
+									widgetVar="batchDataProcessedTable"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{bullhornBatchProcessBean.filteredBatchDataProcessedList}"
+									selectionMode="single"
+									selection="#{bullhornBatchProcessBean.bullhornBatchDataProcessedDTO}"
+									rowKey="#{x.bullhornBatchDataProcessedId}"
+									rowStyleClass="#{null}" >
+									
+									<p:ajax event="rowSelect"
+										listener="#{bullhornBatchProcessBean.onBatchDataProcessedRowSelect}"
+										update="dataTableForm:j_idt45:batchDataIssuesTable" />
+									<p:ajax event="rowUnselect"
+										listener="#{bullhornBatchProcessBean.onRowUnselect}"
+										update="dataTableForm:j_idt45:batchDataIssuesTable" />
+
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('batchInfoTable').filter()" style="width:150px"
+												placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>									
+
+									<!-- <f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('batchDataProcessedTable').filter()"
+												style="width:150px" placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet> -->
+
+									<p:column width="40">
+										<f:facet name="header">
+											<h:outputText value="Sr. #" />
+										</f:facet>
+										<h:outputText value="#{index + 1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="250" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchDataProcessedId}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.bullhornBatchDataProcessedId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Data Processed Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchDataProcessedId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="250" filterStyle="display:none"
+										filterBy="#{x.bullhornTerminationDataProcessedId}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.bullhornTerminationDataProcessedId}">
+										<f:facet name="header">
+											<h:outputText value="Bull Horn Termination Data Processed Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornTerminationDataProcessedId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.processed}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.processed}">
+										<f:facet name="header">
+											<h:outputText value="Processed" />
+										</f:facet>
+										<h:outputText value="#{x.processed}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.recordAccepted}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.recordAccepted}">
+										<f:facet name="header">
+											<h:outputText value="Record Accepted" />
+										</f:facet>
+										<h:outputText value="#{x.recordAccepted}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>	
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.companyCode}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.companyCode}">
+										<f:facet name="header">
+											<h:outputText value="Company Code" />
+										</f:facet>
+										<h:outputText value="#{x.companyCode}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.ssn}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.ssn}">
+										<f:facet name="header">
+											<h:outputText value="Ssn" />
+										</f:facet>
+										<h:outputText value="#{x.ssn}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchCode}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornBatchCode}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Code" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchCode}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+										<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.recordHasErrors}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.recordHasErrors}">
+										<f:facet name="header">
+											<h:outputText value="Record Has Errors" />
+										</f:facet>
+										<h:outputText value="#{x.recordHasErrors}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="250" filterStyle="display:none"
+										filterBy="#{x.importComments}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.importComments}" style="white-space: nowrap">
+										<f:facet name="header">
+											<h:outputText value="Import Comments" />
+										</f:facet>
+										<h:outputText value="#{x.importComments}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.submittedByEmplId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.submittedByEmplId}">
+										<f:facet name="header">
+											<h:outputText value="Submitted By Empl Id" />
+										</f:facet>
+										<h:outputText value="#{x.submittedByEmplId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.submittedByEmail}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.submittedByEmail}">
+										<f:facet name="header">
+											<h:outputText value="Submitted By Email" />
+										</f:facet>
+										<h:outputText value="#{x.submittedByEmail}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornPlacementId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornPlacementId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Placement Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornPlacementId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.entryDateTime}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.entryDateTime}">
+										<f:facet name="header">
+											<h:outputText value="Entry Date Time" />
+										</f:facet>
+										<h:outputText value="#{x.entryDateTime}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.dataSource}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.dataSource}">
+										<f:facet name="header">
+											<h:outputText value="Data Source" />
+										</f:facet>
+										<h:outputText value="#{x.dataSource}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.processingDateTime}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.processingDateTime}">
+										<f:facet name="header">
+											<h:outputText value="Processing Date Time" />
+										</f:facet>
+										<h:outputText value="#{x.processingDateTime}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.transactionType}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.transactionType}">
+										<f:facet name="header">
+											<h:outputText value="Transaction Type" />
+										</f:facet>
+										<h:outputText value="#{x.transactionType}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.assignedAnalyzerId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.assignedAnalyzerId}">
+										<f:facet name="header">
+											<h:outputText value="Assigned Analyzer Id" />
+										</f:facet>
+										<h:outputText value="#{x.assignedAnalyzerId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.assignedParentId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.assignedParentId}">
+										<f:facet name="header">
+											<h:outputText value="Assigned Parent Id" />
+										</f:facet>
+										<h:outputText value="#{x.assignedParentId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.updateDateTime}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.updateDateTime}">
+										<f:facet name="header">
+											<h:outputText value="Update Date Time" />
+										</f:facet>
+										<h:outputText value="#{x.updateDateTime}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchInfoId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornBatchInfoId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Info Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchInfoId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.isTransferredToAnalyzerStaging}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.isTransferredToAnalyzerStaging}">
+										<f:facet name="header">
+											<h:outputText value="Is Transferred To Analyzer Staging" />
+										</f:facet>
+										<h:outputText value="#{x.isTransferredToAnalyzerStaging}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.transferToAnalyzerStagingDate}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.transferToAnalyzerStagingDate}">
+										<f:facet name="header">
+											<h:outputText value="Transfer To Analyzer Staging Date" />
+										</f:facet>
+										<h:outputText value="#{x.transferToAnalyzerStagingDate}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.isTransferredToAnalyzer}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.isTransferredToAnalyzer}">
+										<f:facet name="header">
+											<h:outputText value="Is Transferred To Analyzer" />
+										</f:facet>
+										<h:outputText value="#{x.isTransferredToAnalyzer}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.transferToAnalyzerDate}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.transferToAnalyzerDate}">
+										<f:facet name="header">
+											<h:outputText value="Transfer To Analyzer Date" />
+										</f:facet>
+										<h:outputText value="#{x.transferToAnalyzerDate}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.terminateDate}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.terminateDate}">
+										<f:facet name="header">
+											<h:outputText value="Terminate Date" />
+										</f:facet>
+										<h:outputText value="#{x.terminateDate}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.reason}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.reason}">
+										<f:facet name="header">
+											<h:outputText value="Reason" />
+										</f:facet>
+										<h:outputText value="#{x.reason}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.eligibleForReHire}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.eligibleForReHire}">
+										<f:facet name="header">
+											<h:outputText value="Eligible For ReHire" />
+										</f:facet>
+										<h:outputText value="#{x.eligibleForReHire}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.overrideTermination}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.overrideTermination}">
+										<f:facet name="header">
+											<h:outputText value="Override Termination" />
+										</f:facet>
+										<h:outputText value="#{x.overrideTermination}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.dentalInsurance}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.dentalInsurance}">
+										<f:facet name="header">
+											<h:outputText value="Dental Insurance" />
+										</f:facet>
+										<h:outputText value="#{x.dentalInsurance}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.falseTermination}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.falseTermination}">
+										<f:facet name="header">
+											<h:outputText value="False Termination" />
+										</f:facet>
+										<h:outputText value="#{x.falseTermination}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornTerminationDataRawId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornTerminationDataRawId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Termination Data RawId" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornTerminationDataRawId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.terminationDateOverrideDate}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.terminationDateOverrideDate}">
+										<f:facet name="header">
+											<h:outputText value="TerminationDateOverrideDate" />
+										</f:facet>
+										<h:outputText value="#{x.terminationDateOverrideDate}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="250" filterStyle="display:none"
+										filterBy="#{x.bullhornTerminationDataStagingId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornTerminationDataStagingId}">
+										<f:facet name="header">
+											<h:outputText value="BullhornTerminationDataStagingId" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornTerminationDataStagingId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									
+									
+									
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.address1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.address1}">
+										<f:facet name="header">
+											<h:outputText value="Address 1" />
+										</f:facet>
+										<h:outputText value="#{x.address1}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.address2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.address2}">
+										<f:facet name="header">
+											<h:outputText value="Address 2" />
+										</f:facet>
+										<h:outputText value="#{x.address2}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.ae2EmplId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.ae2EmplId}">
+										<f:facet name="header">
+											<h:outputText value="Ae 2 Empl Id" />
+										</f:facet>
+										<h:outputText value="#{x.ae2EmplId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.ae1EmplId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.ae1EmplId}">
+										<f:facet name="header">
+											<h:outputText value="Ae1 Empl Id" />
+										</f:facet>
+										<h:outputText value="#{x.ae1EmplId}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.analyzerCategory1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.analyzerCategory1}">
+										<f:facet name="header">
+											<h:outputText value="Analyzer Category 1" />
+										</f:facet>
+										<h:outputText value="#{x.analyzerCategory1}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="250" filterStyle="display:none"
+										filterBy="#{x.analyzerCategory2Classification}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.analyzerCategory2Classification}">
+										<f:facet name="header">
+											<h:outputText value="Analyzer Category 2 Classification" />
+										</f:facet>
+										<h:outputText value="#{x.analyzerCategory2Classification}"  style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.placementType}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.placementType}">
+										<f:facet name="header">
+											<h:outputText value="Placement Type" />
+										</f:facet>
+										<h:outputText value="#{x.placementType}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.annualPay}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.annualPay}">
+										<f:facet name="header">
+											<h:outputText value="Annual Pay" />
+										</f:facet>
+										<h:outputText value="#{x.annualPay}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.assignedSSN}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.assignedSSN}">
+										<f:facet name="header">
+											<h:outputText value="Assigned SSN" />
+										</f:facet>
+										<h:outputText value="#{x.assignedSSN}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+																		
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.billableCost}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.billableCost}">
+										<f:facet name="header">
+											<h:outputText value="Billable Cost" />
+										</f:facet>
+										<h:outputText value="#{x.billableCost}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.billableHolidays}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.billableHolidays}">
+										<f:facet name="header">
+											<h:outputText value="Billable Holidays" />
+										</f:facet>
+										<h:outputText value="#{x.billableHolidays}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.billablePTO}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.billablePTO}">
+										<f:facet name="header">
+											<h:outputText value="Billable PTO" />
+										</f:facet>
+										<h:outputText value="#{x.billablePTO}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.billRate}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.billRate}">
+										<f:facet name="header">
+											<h:outputText value="Bill Rate" />
+										</f:facet>
+										<h:outputText value="#{x.billRate}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bonusPercentage}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bonusPercentage}">
+										<f:facet name="header">
+											<h:outputText value="Bonus Percentage" />
+										</f:facet>
+										<h:outputText value="#{x.bonusPercentage}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchDataRawId}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.bullhornBatchDataRawId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Data Raw Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchDataRawId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornRecordId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornRecordId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Record Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornRecordId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.checkedReferences}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.checkedReferences}">
+										<f:facet name="header">
+											<h:outputText value="Checked References" />
+										</f:facet>
+										<h:outputText value="#{x.checkedReferences}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.chkReferralFee}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.chkReferralFee}">
+										<f:facet name="header">
+											<h:outputText value="Chk Referral Fee" />
+										</f:facet>
+										<h:outputText value="#{x.chkReferralFee}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.city}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.city}">
+										<f:facet name="header">
+											<h:outputText value="City" />
+										</f:facet>
+										<h:outputText value="#{x.city}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.clientAddressId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.clientAddressId}">
+										<f:facet name="header">
+											<h:outputText value="Client Address Id" />
+										</f:facet>
+										<h:outputText value="#{x.clientAddressId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.clientId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.clientId}">
+										<f:facet name="header">
+											<h:outputText value="Client Id" />
+										</f:facet>
+										<h:outputText value="#{x.clientId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.commEffDate}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.commEffDate}">
+										<f:facet name="header">
+											<h:outputText value="Comm Eff Date" />
+										</f:facet>
+										<h:outputText value="#{x.commEffDate}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.comments}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.comments}">
+										<f:facet name="header">
+											<h:outputText value="Comments" />
+										</f:facet>
+										<h:outputText value="#{x.comments}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commisionName1AE1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.commisionName1AE1}">
+										<f:facet name="header">
+											<h:outputText value="Commision Name 1 AE 1" />
+										</f:facet>
+										<h:outputText value="#{x.commisionName1AE1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commisionName2REC1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.commisionName2REC1}">
+										<f:facet name="header">
+											<h:outputText value="Commision Name 2 REC 1" />
+										</f:facet>
+										<h:outputText value="#{x.commisionName2REC1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commisionName3AE2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.commisionName3AE2}">
+										<f:facet name="header">
+											<h:outputText value="Commision Name 3 AE 2" />
+										</f:facet>
+										<h:outputText value="#{x.commisionName3AE2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commisionName4REC2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.commisionName4REC2}">
+										<f:facet name="header">
+											<h:outputText value="Commision Name 4 REC 2" />
+										</f:facet>
+										<h:outputText value="#{x.commisionName4REC2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commisionPercent1AE1}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commisionPercent1AE1}">
+										<f:facet name="header">
+											<h:outputText value="Commision Percent 1 AE 1" />
+										</f:facet>
+										<h:outputText value="#{x.commisionPercent1AE1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="210" filterStyle="display:none"
+										filterBy="#{x.commisionPercent2REC1}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commisionPercent2REC1}">
+										<f:facet name="header">
+											<h:outputText value="Commision Percent 2 REC 1" />
+										</f:facet>
+										<h:outputText value="#{x.commisionPercent2REC1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commisionPercent3AE2}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commisionPercent3AE2}">
+										<f:facet name="header">
+											<h:outputText value="Commision Percent 3 AE 2" />
+										</f:facet>
+										<h:outputText value="#{x.commisionPercent3AE2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="210" filterStyle="display:none"
+										filterBy="#{x.commisionPercent4REC2}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commisionPercent4REC2}">
+										<f:facet name="header">
+											<h:outputText value="Commision Percent 4 REC 2" />
+										</f:facet>
+										<h:outputText value="#{x.commisionPercent4REC2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commission5MSP}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.commission5MSP}">
+										<f:facet name="header">
+											<h:outputText value="Commission 5 MSP" />
+										</f:facet>
+										<h:outputText value="#{x.commission5MSP}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commissionModel1AE1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.commissionModel1AE1}">
+										<f:facet name="header">
+											<h:outputText value="Commission Model 1 AE 1" />
+										</f:facet>
+										<h:outputText value="#{x.commissionModel1AE1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commissionModel2REC1}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commissionModel2REC1}">
+										<f:facet name="header">
+											<h:outputText value="Commission Model 2 REC 1" />
+										</f:facet>
+										<h:outputText value="#{x.commissionModel2REC1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commissionModel3AE2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.commissionModel3AE2}">
+										<f:facet name="header">
+											<h:outputText value="Commission Model 3 AE 2" />
+										</f:facet>
+										<h:outputText value="#{x.commissionModel3AE2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commissionModel4REC2}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commissionModel4REC2}">
+										<f:facet name="header">
+											<h:outputText value="Commission Model 4 REC 2" />
+										</f:facet>
+										<h:outputText value="#{x.commissionModel4REC2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commissionPercentage5MSP}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commissionPercentage5MSP}">
+										<f:facet name="header">
+											<h:outputText value="Commission Percentage 5 MSP" />
+										</f:facet>
+										<h:outputText value="#{x.commissionPercentage5MSP}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commissionPerson5MSP}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commissionPerson5MSP}">
+										<f:facet name="header">
+											<h:outputText value="Commission Person 5 MSP" />
+										</f:facet>
+										<h:outputText value="#{x.commissionPerson5MSP}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commissionPersonGrade1AE1}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commissionPersonGrade1AE1}">
+										<f:facet name="header">
+											<h:outputText value="Commission Person Grade 1 AE 1" />
+										</f:facet>
+										<h:outputText value="#{x.commissionPersonGrade1AE1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.commissionPersonGrade3AE2}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.commissionPersonGrade3AE2}">
+										<f:facet name="header">
+											<h:outputText value="Commission Person Grade 3 AE 2" />
+										</f:facet>
+										<h:outputText value="#{x.commissionPersonGrade3AE2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.consultantJobBoard}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.consultantJobBoard}">
+										<f:facet name="header">
+											<h:outputText value="Consultant Job Board" />
+										</f:facet>
+										<h:outputText value="#{x.consultantJobBoard}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.cther1OrphanAE2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.cther1OrphanAE2}">
+										<f:facet name="header">
+											<h:outputText value="Cther 1 Orphan AE 2" />
+										</f:facet>
+										<h:outputText value="#{x.cther1OrphanAE2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.dealPortfolio1AE1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.dealPortfolio1AE1}">
+										<f:facet name="header">
+											<h:outputText value="Deal Portfolio 1 AE 1" />
+										</f:facet>
+										<h:outputText value="#{x.dealPortfolio1AE1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.dealPortfolio2REC1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.dealPortfolio2REC1}">
+										<f:facet name="header">
+											<h:outputText value="Deal Portfolio 2 REC 1" />
+										</f:facet>
+										<h:outputText value="#{x.dealPortfolio2REC1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.dealPortfolio3AE2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.dealPortfolio3AE2}">
+										<f:facet name="header">
+											<h:outputText value="Deal Portfolio 3 AE 2" />
+										</f:facet>
+										<h:outputText value="#{x.dealPortfolio3AE2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.dealPortfolio4REC2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.dealPortfolio4REC2}">
+										<f:facet name="header">
+											<h:outputText value="Deal Portfolio 4 REC 2" />
+										</f:facet>
+										<h:outputText value="#{x.dealPortfolio4REC2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.dealType}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.dealType}">
+										<f:facet name="header">
+											<h:outputText value="Deal Type" />
+										</f:facet>
+										<h:outputText value="#{x.dealType}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.dob}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.dob}">
+										<f:facet name="header">
+											<h:outputText value="Dob" />
+										</f:facet>
+										<h:outputText value="#{x.dob}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.doubleTime}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.doubleTime}">
+										<f:facet name="header">
+											<h:outputText value="Double Time" />
+										</f:facet>
+										<h:outputText value="#{x.doubleTime}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.doubleTimeBill}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.doubleTimeBill}">
+										<f:facet name="header">
+											<h:outputText value="Double Time Bill" />
+										</f:facet>
+										<h:outputText value="#{x.doubleTimeBill}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.effectiveDate}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.effectiveDate}">
+										<f:facet name="header">
+											<h:outputText value="Effective Date" />
+										</f:facet>
+										<h:outputText value="#{x.effectiveDate}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.email}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.email}">
+										<f:facet name="header">
+											<h:outputText value="Email" />
+										</f:facet>
+										<h:outputText value="#{x.email}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.employeeCategory}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.employeeCategory}">
+										<f:facet name="header">
+											<h:outputText value="Employee Category" />
+										</f:facet>
+										<h:outputText value="#{x.employeeCategory}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.employeeClass}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.employeeClass}">
+										<f:facet name="header">
+											<h:outputText value="Employee Class" />
+										</f:facet>
+										<h:outputText value="#{x.employeeClass}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.employeeType}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.employeeType}">
+										<f:facet name="header">
+											<h:outputText value="Employee Type" />
+										</f:facet>
+										<h:outputText value="#{x.employeeType}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.employeeVeteran}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.employeeVeteran}">
+										<f:facet name="header">
+											<h:outputText value="Employee Veteran" />
+										</f:facet>
+										<h:outputText value="#{x.employeeVeteran}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.endDate}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.endDate}">
+										<f:facet name="header">
+											<h:outputText value="End Date" />
+										</f:facet>
+										<h:outputText value="#{x.endDate}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.equipmentCost}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.equipmentCost}">
+										<f:facet name="header">
+											<h:outputText value="Equipment Cost" />
+										</f:facet>
+										<h:outputText value="#{x.equipmentCost}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.execOrphanAE1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.execOrphanAE1}">
+										<f:facet name="header">
+											<h:outputText value="Exec Orphan AE 1" />
+										</f:facet>
+										<h:outputText value="#{x.execOrphanAE1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.fax}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.fax}">
+										<f:facet name="header">
+											<h:outputText value="Fax" />
+										</f:facet>
+										<h:outputText value="#{x.fax}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.firstName}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.firstName}">
+										<f:facet name="header">
+											<h:outputText value="First Name" />
+										</f:facet>
+										<h:outputText value="#{x.firstName}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.flsaReferance}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.flsaReferance}">
+										<f:facet name="header">
+											<h:outputText value="Flsa Referance" />
+										</f:facet>
+										<h:outputText value="#{x.flsaReferance}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.bonusEligible}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bonusEligible}">
+										<f:facet name="header">
+											<h:outputText value="Bonus Eligible" />
+										</f:facet>
+										<h:outputText value="#{x.bonusEligible}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.flsaStatus}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.flsaStatus}">
+										<f:facet name="header">
+											<h:outputText value="Flsa Status" />
+										</f:facet>
+										<h:outputText value="#{x.flsaStatus}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.gender}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.gender}">
+										<f:facet name="header">
+											<h:outputText value="Gender" />
+										</f:facet>
+										<h:outputText value="#{x.gender}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.geoOffice}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.geoOffice}">
+										<f:facet name="header">
+											<h:outputText value="Geo Office" />
+										</f:facet>
+										<h:outputText value="#{x.geoOffice}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.h1}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.h1}">
+										<f:facet name="header">
+											<h:outputText value="H 1" />
+										</f:facet>
+										<h:outputText value="#{x.h1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.hrbpEmplId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.hrbpEmplId}">
+										<f:facet name="header">
+											<h:outputText value="Hrbp Empl Id" />
+										</f:facet>
+										<h:outputText value="#{x.hrbpEmplId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.immigrationCost}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.immigrationCost}">
+										<f:facet name="header">
+											<h:outputText value="Immigration Cost" />
+										</f:facet>
+										<h:outputText value="#{x.immigrationCost}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.initial}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.initial}">
+										<f:facet name="header">
+											<h:outputText value="Initial" />
+										</f:facet>
+										<h:outputText value="#{x.initial}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.jobCategory}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.jobCategory}">
+										<f:facet name="header">
+											<h:outputText value="Job Category" />
+										</f:facet>
+										<h:outputText value="#{x.jobCategory}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.jobTitle}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.jobTitle}">
+										<f:facet name="header">
+											<h:outputText value="Job Title" />
+										</f:facet>
+										<h:outputText value="#{x.jobTitle}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.lastName}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.lastName}">
+										<f:facet name="header">
+											<h:outputText value="Last Name" />
+										</f:facet>
+										<h:outputText value="#{x.lastName}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.liaisonName}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.liaisonName}">
+										<f:facet name="header">
+											<h:outputText value="Liaison Name" />
+										</f:facet>
+										<h:outputText value="#{x.liaisonName}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.ltdBenefit}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.ltdBenefit}">
+										<f:facet name="header">
+											<h:outputText value="Ltd Benefit" />
+										</f:facet>
+										<h:outputText value="#{x.ltdBenefit}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.managingDirector}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.managingDirector}">
+										<f:facet name="header">
+											<h:outputText value="Managing Director" />
+										</f:facet>
+										<h:outputText value="#{x.managingDirector}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.managingDirectorEmplId}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.managingDirectorEmplId}">
+										<f:facet name="header">
+											<h:outputText value="Managing Director Empl Id" />
+										</f:facet>
+										<h:outputText value="#{x.managingDirectorEmplId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.mobilePager}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.mobilePager}">
+										<f:facet name="header">
+											<h:outputText value="Mobile Pager" />
+										</f:facet>
+										<h:outputText value="#{x.mobilePager}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.mspEmplId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.mspEmplId}">
+										<f:facet name="header">
+											<h:outputText value="Msp Empl Id" />
+										</f:facet>
+										<h:outputText value="#{x.mspEmplId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.nonBillableHolidays}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.nonBillableHolidays}">
+										<f:facet name="header">
+											<h:outputText value="Non Billable Holidays" />
+										</f:facet>
+										<h:outputText value="#{x.nonBillableHolidays}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.nonBillablePTO}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.nonBillablePTO}">
+										<f:facet name="header">
+											<h:outputText value="Non Billable PTO" />
+										</f:facet>
+										<h:outputText value="#{x.nonBillablePTO}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.office}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.office}">
+										<f:facet name="header">
+											<h:outputText value="Office" />
+										</f:facet>
+										<h:outputText value="#{x.office}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.oneTimeBill}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.oneTimeBill}">
+										<f:facet name="header">
+											<h:outputText value="One Time Bill" />
+										</f:facet>
+										<h:outputText value="#{x.oneTimeBill}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.oneTimePay}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.oneTimePay}">
+										<f:facet name="header">
+											<h:outputText value="One Time Pay" />
+										</f:facet>
+										<h:outputText value="#{x.oneTimePay}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.other1OrphanAE2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.other1OrphanAE2}">
+										<f:facet name="header">
+											<h:outputText value="Other 1 Orphan AE 2" />
+										</f:facet>
+										<h:outputText value="#{x.other1OrphanAE2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.other2OrphanREC2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.other2OrphanREC2}">
+										<f:facet name="header">
+											<h:outputText value="Other 2 Orphan REC 2" />
+										</f:facet>
+										<h:outputText value="#{x.other2OrphanREC2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.otherAmountHour}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.otherAmountHour}">
+										<f:facet name="header">
+											<h:outputText value="Other Amount Hour" />
+										</f:facet>
+										<h:outputText value="#{x.otherAmountHour}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.otherDollar}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.otherDollar}">
+										<f:facet name="header">
+											<h:outputText value="Other Dollar" />
+										</f:facet>
+										<h:outputText value="#{x.otherDollar}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.payRate}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.payRate}">
+										<f:facet name="header">
+											<h:outputText value="Pay Rate" />
+										</f:facet>
+										<h:outputText value="#{x.payRate}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.perDiem}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.perDiem}">
+										<f:facet name="header">
+											<h:outputText value="Per Diem" />
+										</f:facet>
+										<h:outputText value="#{x.perDiem}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.placementId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.placementId}">
+										<f:facet name="header">
+											<h:outputText value="Placement Id" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+										</f:facet>
+										<h:outputText value="#{x.placementId}" />
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.portfolio}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.portfolio}">
+										<f:facet name="header">
+											<h:outputText value="Portfolio" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+										</f:facet>
+										<h:outputText value="#{x.portfolio}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.portfolioDescription}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.portfolioDescription}">
+										<f:facet name="header">
+											<h:outputText value="Portfolio Description" />
+										</f:facet>
+										<h:outputText value="#{x.portfolioDescription}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>									
+									
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.product}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.product}">
+										<f:facet name="header">
+											<h:outputText value="Product" />
+										</f:facet>
+										<h:outputText value="#{x.product}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.projectCost}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.projectCost}">
+										<f:facet name="header">
+											<h:outputText value="Project Cost" />
+										</f:facet>
+										<h:outputText value="#{x.projectCost}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.psClientId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.psClientId}">
+										<f:facet name="header">
+											<h:outputText value="Ps Client Id" />
+										</f:facet>
+										<h:outputText value="#{x.psClientId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.psCustomerAddressId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.psCustomerAddressId}">
+										<f:facet name="header">
+											<h:outputText value="Ps Customer Address Id" />
+										</f:facet>
+										<h:outputText value="#{x.psCustomerAddressId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.psVendorId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.psVendorId}">
+										<f:facet name="header">
+											<h:outputText value="Ps Vendor Id" />
+										</f:facet>
+										<h:outputText value="#{x.psVendorId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.pto}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.pto}">
+										<f:facet name="header">
+											<h:outputText value="Pto" />
+										</f:facet>
+										<h:outputText value="#{x.pto}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.rec1EmplId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.rec1EmplId}">
+										<f:facet name="header">
+											<h:outputText value="Rec 1 Empl Id" />
+										</f:facet>
+										<h:outputText value="#{x.rec1EmplId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.rec2EmplId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.rec2EmplId}">
+										<f:facet name="header">
+											<h:outputText value="Rec 2 Empl Id" />
+										</f:facet>
+										<h:outputText value="#{x.rec2EmplId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>																
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.recordProcessingStatus}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.recordProcessingStatus}">
+										<f:facet name="header">
+											<h:outputText value="Record Processing Status" />
+										</f:facet>
+										<h:outputText value="#{x.recordProcessingStatus}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.recruiterOrphanREC1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.recruiterOrphanREC1}">
+										<f:facet name="header">
+											<h:outputText value="Recruiter Orphan REC 1" />
+										</f:facet>
+										<h:outputText value="#{x.recruiterOrphanREC1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.recruitingClassification}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.recruitingClassification}">
+										<f:facet name="header">
+											<h:outputText value="Recruiting Classification" />
+										</f:facet>
+										<h:outputText value="#{x.recruitingClassification}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.referralFeeAmount}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.referralFeeAmount}">
+										<f:facet name="header">
+											<h:outputText value="Referral Fee Amount" />
+										</f:facet>
+										<h:outputText value="#{x.referralFeeAmount}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.sickLeaveType}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.sickLeaveType}">
+										<f:facet name="header">
+											<h:outputText value="Sick Leave Type" />
+										</f:facet>
+										<h:outputText value="#{x.sickLeaveType}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.siteId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.siteId}">
+										<f:facet name="header">
+											<h:outputText value="Site Id" />
+										</f:facet>
+										<h:outputText value="#{x.siteId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.skillCategory}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.skillCategory}">
+										<f:facet name="header">
+											<h:outputText value="Skill Category" />
+										</f:facet>
+										<h:outputText value="#{x.skillCategory}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.splitCommissionPercentage2REC1}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.splitCommissionPercentage2REC1}">
+										<f:facet name="header">
+											<h:outputText value="Split Commission Percentage 2 REC 1" />
+										</f:facet>
+										<h:outputText value="#{x.splitCommissionPercentage2REC1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.splitCommissionPercentage1AE1}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.splitCommissionPercentage1AE1}">
+										<f:facet name="header">
+											<h:outputText value="Split Commission Percentage 1 AE 1" />
+										</f:facet>
+										<h:outputText value="#{x.splitCommissionPercentage1AE1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.splitCommissionPercentage3AE2}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.splitCommissionPercentage3AE2}">
+										<f:facet name="header">
+											<h:outputText value="Split Commission Percentage 3 AE 2" />
+										</f:facet>
+										<h:outputText value="#{x.splitCommissionPercentage3AE2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.splitCommissionPercentage4REC2}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.splitCommissionPercentage4REC2}">
+										<f:facet name="header">
+											<h:outputText value="Split Commission Percentage 4 REC 2" />
+										</f:facet>
+										<h:outputText value="#{x.splitCommissionPercentage4REC2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.ssnGenerated}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.ssnGenerated}">
+										<f:facet name="header">
+											<h:outputText value="Ssn Generated" />
+										</f:facet>
+										<h:outputText value="#{x.ssnGenerated}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.startDate}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.startDate}">
+										<f:facet name="header">
+											<h:outputText value="Start Date" />
+										</f:facet>
+										<h:outputText value="#{x.startDate}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.state}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.state}">
+										<f:facet name="header">
+											<h:outputText value="State" />
+										</f:facet>
+										<h:outputText value="#{x.state}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.stdBenefit}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.stdBenefit}">
+										<f:facet name="header">
+											<h:outputText value="Std Benefit" />
+										</f:facet>
+										<h:outputText value="#{x.stdBenefit}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.subContractorId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.subContractorId}">
+										<f:facet name="header">
+											<h:outputText value="Sub Contractor Id" />
+										</f:facet>
+										<h:outputText value="#{x.subContractorId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.telephone}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.telephone}">
+										<f:facet name="header">
+											<h:outputText value="Telephone" />
+										</f:facet>
+										<h:outputText value="#{x.telephone}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.thw}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.thw}">
+										<f:facet name="header">
+											<h:outputText value="Thw" />
+										</f:facet>
+										<h:outputText value="#{x.thw}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.totalHolidays}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.totalHolidays}">
+										<f:facet name="header">
+											<h:outputText value="Total Holidays" />
+										</f:facet>
+										<h:outputText value="#{x.totalHolidays}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.travelRequired}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.travelRequired}">
+										<f:facet name="header">
+											<h:outputText value="Travel Required" />
+										</f:facet>
+										<h:outputText value="#{x.travelRequired}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.unEmployedForTwoMonths}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.unEmployedForTwoMonths}">
+										<f:facet name="header">
+											<h:outputText value="Un Employed For Two Months" />
+										</f:facet>
+										<h:outputText value="#{x.unEmployedForTwoMonths}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.vertical}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.vertical}">
+										<f:facet name="header">
+											<h:outputText value="Vertical" />
+										</f:facet>
+										<h:outputText value="#{x.vertical}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.workEmail}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.workEmail}">
+										<f:facet name="header">
+											<h:outputText value="Work Email" />
+										</f:facet>
+										<h:outputText value="#{x.workEmail}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.workPhone}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.workPhone}">
+										<f:facet name="header">
+											<h:outputText value="Work Phone" />
+										</f:facet>
+										<h:outputText value="#{x.workPhone}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteAddress1}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.worksiteAddress1}">
+										<f:facet name="header">
+											<h:outputText value="Worksite Address 1" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteAddress1}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteAddress2}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.worksiteAddress2}">
+										<f:facet name="header">
+											<h:outputText value="Worksite Address 2" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteAddress2}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteCity}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.worksiteCity}">
+										<f:facet name="header">
+											<h:outputText value="Worksite City" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteCity}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteManagerEmail}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.worksiteManagerEmail}">
+										<f:facet name="header">
+											<h:outputText value="Worksite Manager Email" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteManagerEmail}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteManagerFirstName}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.worksiteManagerFirstName}">
+										<f:facet name="header">
+											<h:outputText value="Worksite Manager First Name" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteManagerFirstName}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteManagerLastName}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.worksiteManagerLastName}">
+										<f:facet name="header">
+											<h:outputText value="Worksite Manager Last Name" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteManagerLastName}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteManagerPhone}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.worksiteManagerPhone}">
+										<f:facet name="header">
+											<h:outputText value="Worksite Manager Phone" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteManagerPhone}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteState}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.worksiteState}">
+										<f:facet name="header">
+											<h:outputText value="Worksite State" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteState}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteZipCode}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.worksiteZipCode}">
+										<f:facet name="header">
+											<h:outputText value="Worksite Zip Code" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteZipCode}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.zipcode}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.zipcode}">
+										<f:facet name="header">
+											<h:outputText value="Zipcode" />
+										</f:facet>
+										<h:outputText value="#{x.zipcode}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.analyzerSiteCreationDate}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.analyzerSiteCreationDate}">
+										<f:facet name="header">
+											<h:outputText value="Analyzer Site Creation Date" />
+										</f:facet>
+										<h:outputText value="#{x.analyzerSiteCreationDate}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.coSellStatus}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.coSellStatus}">
+										<f:facet name="header">
+											<h:outputText value="CoSellStatus" />
+										</f:facet>
+										<h:outputText value="#{x.coSellStatus}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchAnalyzerStagingId}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.bullhornBatchAnalyzerStagingId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Analyzer Staging Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchAnalyzerStagingId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornWorksiteDataId}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.bullhornWorksiteDataId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Worksite Data Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornWorksiteDataId}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.isAnalyzerSiteCreated}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.isAnalyzerSiteCreated}">
+										<f:facet name="header">
+											<h:outputText value="Is Analyzer Site Created" />
+										</f:facet>
+										<h:outputText value="#{x.isAnalyzerSiteCreated}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.isWorksiteAddressDataValidated}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.isWorksiteAddressDataValidated}">
+										<f:facet name="header">
+											<h:outputText value="Is Worksite Address Data Validated" />
+										</f:facet>
+										<h:outputText value="#{x.isWorksiteAddressDataValidated}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.isWorksiteChanged}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.isWorksiteChanged}">
+										<f:facet name="header">
+											<h:outputText value="Is Worksite Changed" />
+										</f:facet>
+										<h:outputText value="#{x.isWorksiteChanged}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.worksiteChangeDate}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.worksiteChangeDate}">
+										<f:facet name="header">
+											<h:outputText value="Worksite Change Date" />
+										</f:facet>
+										<h:outputText value="#{x.worksiteChangeDate}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.processingComments}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.processingComments}">
+										<f:facet name="header">
+											<h:outputText value="Processing Comments" />
+										</f:facet>
+										<h:outputText value="#{x.processingComments}" style="#{x.recordHasErrors == 'Y' ? 'color:red'  : 'color:green'}"/>
+									</p:column>
+
+								</p:dataTable>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-body">
+										<h3>Batch Data Issues</h3>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-xs-12">
+								<p:dataTable id="batchDataIssuesTable"
+									value="#{bullhornBatchProcessBean.batchDataIssuesData}" resizableColumns="true" resizeMode="expand"
+									var="x" rows="10" paginator="true" rowIndexVar="index"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+									scrollHeight="350" scrollWidth="96%"
+									widgetVar="batchDataIssuesTable"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{bullhornBatchProcessBean.filteredBatchDataIssuesList}">
+
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('batchDataIssuesTable').filter()"
+												style="width:150px" placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>
+									
+									<p:column width="40">
+										<f:facet name="header">
+											<h:outputText value="Sr. #" />
+										</f:facet>
+										<h:outputText value="#{index + 1}"/>
+									</p:column>
+
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchDataIssuesId}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.bullhornBatchDataIssuesId}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Data Issues Id" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchDataIssuesId}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.companyCode}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.companyCode}">
+										<f:facet name="header">
+											<h:outputText value="Company Code" />
+										</f:facet>
+										<h:outputText value="#{x.companyCode}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.sourceFieldName}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.sourceFieldName}">
+										<f:facet name="header">
+											<h:outputText value="Source Field Name" />
+										</f:facet>
+										<h:outputText value="#{x.sourceFieldName}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.sourceFieldValue}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.sourceFieldValue}">
+										<f:facet name="header">
+											<h:outputText value="Source Field Value" />
+										</f:facet>
+										<h:outputText value="#{x.sourceFieldValue}" />
+									</p:column>
+									
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.messageText}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.messageText}" style="white-space: nowrap">
+										<f:facet name="header">
+											<h:outputText value="Message Text" />
+										</f:facet>
+										<h:outputText value="#{x.messageText}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.sourceTableName}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.sourceTableName}">
+										<f:facet name="header">
+											<h:outputText value="Source Table Name" />
+										</f:facet>
+										<h:outputText value="#{x.sourceTableName}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.sourceIdColumnName}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.sourceIdColumnName}">
+										<f:facet name="header">
+											<h:outputText value="Source Id Column Name" />
+										</f:facet>
+										<h:outputText value="#{x.sourceIdColumnName}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.sourceRecordId}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.sourceRecordId}">
+										<f:facet name="header">
+											<h:outputText value="Source Record Id" />
+										</f:facet>
+										<h:outputText value="#{x.sourceRecordId}" />
+									</p:column>
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.bullhornBatchCode}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.bullhornBatchCode}">
+										<f:facet name="header">
+											<h:outputText value="Bullhorn Batch Code" />
+										</f:facet>
+										<h:outputText value="#{x.bullhornBatchCode}" />
+									</p:column>
+									<p:column width="110" filterStyle="display:none"
+										filterBy="#{x.recordType}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.recordType}">
+										<f:facet name="header">
+											<h:outputText value="Record Type" />
+										</f:facet>
+										<h:outputText value="#{x.recordType}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.entryDateTime}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.entryDateTime}">
+										<f:facet name="header">
+											<h:outputText value="Entry Date Time" />
+										</f:facet>
+										<h:outputText value="#{x.entryDateTime}" />
+									</p:column>
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.databaseName}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.databaseName}">
+										<f:facet name="header">
+											<h:outputText value="Database Name" />
+										</f:facet>
+										<h:outputText value="#{x.databaseName}" />
+									</p:column>
+
+
+
+								</p:dataTable>
+							</div>
+						</div>
+
+
+					</h:form>
+				</h:form>
+				<!-- 							</div>
+						</div>
+					</div>
+				</div> -->
+			</section>
+
+			<!-- /.content-wrapper -->
+
+
+			<!-- Control Sidebar -->
+			<ui:include src="includes/side-navigation.xhtml"></ui:include>
+			<!-- /.control-sidebar -->
+			<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+			<div class="control-sidebar-bg"></div>
+
+		</div>
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+	</div>
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		$(document).ready(
+				function() {
+					setupPageComponents();
+				});
+		
+		
+		function setupPageComponents(){
+			$('.select2').select2();
+			/* var currentDate = new Date();
+
+			//due to time of 0000, it was setting it to one day before, so set 2 as start date.
+			var firstDay = new Date(currentDate.getFullYear(),
+					currentDate.getMonth(), 2);
+
+			var from = firstDay.toJSON().slice(0, 10).split('-');
+			firstDay = from[1] + "/" + from[2] + "/" + from[0];
+			$("#filterForm\\:startDate").val(firstDay);
+
+			var to = currentDate.toJSON().slice(0, 10).split('-');
+			currentDate = to[1] + "/" + to[2] + "/" + to[0];
+			$("#filterForm\\:endDate").val(currentDate);
+
+			$('#filterForm\\:startDate').datepicker({
+				autoclose : true
+			})
+
+			$('#filterForm\\:endDate').datepicker({
+				autoclose : true
+			}) */
+		}
+	</script>
+
+	<script type="text/javascript">
+	function submitForm() {
+			$("#filterForm\\:actualSaveButton").click();
+	}
+	function validateForm() {
+		var sMonth = $("#filterForm\\:sMonth").val();
+		//alert(sMonth);
+		var sYear = $("#filterForm\\:sYear").val();
+		var eMonth = $("#filterForm\\:eMonth").val();
+		var eYear = $("#filterForm\\:eYear").val();
+		var numberOfMonths;
+		numberOfMonths = (eYear - sYear) * 12 + (eMonth - sMonth) + 1;
+		if (numberOfMonths > 3) {
+			alert("Month Cycle Cannot be greater than 3");
+			return false;
+		}
+		
+		$("#filterForm\\:numberOfMonths").val(numberOfMonths);
+
+		var Report_Month = new Date(sYear, sMonth - 1, 1);
+		Report_Month = new Date(Report_Month);
+		Report_Month = ((Report_Month.getMonth() + 1) + '/'
+				+ Report_Month.getDate() + '/' + Report_Month.getFullYear());
+		
+		$("#filterForm\\:reportMonth").val(Report_Month);
+
+		var Report_Year = new Date(eYear, eMonth, 0);
+		Report_Year = ((Report_Year.getMonth() + 1) + '/'
+				+ Report_Year.getDate() + '/' + Report_Year.getFullYear());
+		
+		$("#filterForm\\:reportYear").val(Report_Year);
+
+		if (Date.parse(Report_Month) > Date.parse(Report_Year)) {
+			alert("Start date cannot be greater than End Date");
+			return false;
+		}
+		return true;
+	}
+</script>
+
+	<script type="text/javascript">
+	function getMonday(d) {
+		  d = new Date(d);
+		  var day = d.getDay(),
+		      diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+		  return new Date(d.setDate(diff));
+		}
+	
+	function getUpcomingSunday() {
+		  const date = new Date();
+		  const today = date.getDate();
+		  const dayOfTheWeek = date.getDay();
+		  const newDate = date.setDate(today - dayOfTheWeek + 7);
+		  return new Date(newDate);
+		}
+	
+	function initializeComponents() {
+		$('.select2').select2();
+
+		$('#filterForm\\:startDate').datepicker({
+			autoclose : true
+		})
+
+		$('#filterForm\\:endDate').datepicker({
+			autoclose : true
+		})
+	}
+		$(document).ready(
+				function() {
+					resetDates();
+				});
+		
+		function resetDates(){
+
+			$('.select2').select2();
+			var endDate = getUpcomingSunday();
+
+			//due to time of 0000, it was setting it to one day before, so set 2 as start date.
+			var firstDay = getMonday(new Date());
+
+			var from = firstDay.toJSON().slice(0, 10).split('-');
+			firstDay = from[1] + "/" + from[2] + "/" + from[0];
+			$("#filterForm\\:startDate").val(firstDay);
+
+			var to = endDate.toJSON().slice(0, 10).split('-');
+			endDate = to[1] + "/" + to[2] + "/" + to[0];
+			$("#filterForm\\:endDate").val(endDate);
+
+			$('#filterForm\\:startDate').datepicker({
+				autoclose : true
+			})
+
+			$('#filterForm\\:endDate').datepicker({
+				autoclose : true
+			})
+		}
+	</script>
+
+
+</body>
+
+</html>

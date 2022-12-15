@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<style type="text/css">
+
+/* .ui-button{
+	background-color: #b7ddfb !important;
+
+	border: none;
+    text-shadow: none;
+ }
+ */
+
+/* .ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only {
+	border: none;
+}
+
+.ui-button.ui-state-hover{
+     border: none;
+     background: yello !important;
+}
+
+ .ui-button.ui-state-active{
+     background: red !important;
+} */
+
+.ui-button .ui-widget .ui-state-default .ui-corner-all .ui-button-text-only .btn .btn-xs .bg-olive{
+	color: red;
+}
+</style>
+<script type="text/javascript">
+function clickListButton(button){
+	var id = "dataTableForm:crudDataTable:0:"+button;
+	document.getElementById(id).click();
+}
+</script>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Left side column. contains the logo and sidebar -->
+		<!-- <ui:include src="includes/side-navigation.xhtml"></ui:include> -->
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				responsive="true" header="Messages">
+				<p:messages id="messagesInDialog" showDetail="true" />
+				<!-- <p:button value="OK" onclick="messageDialog.hide()" /> -->
+			</p:dialog>
+		</p:outputPanel>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Finalize Draft Commission</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+								
+									<p:growl id="message" showDetail="true" />
+								
+									<p:dataTable id="crudDataTable"
+										value="#{commissionProcessBean.list}" var="x"
+										rows="15" paginator="true"
+										paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+										scrollHeight="350" scrollWidth="100%" widgetVar="dataTable"
+										emptyMessage="No data found with given criteria"
+										filteredValue="#{commissionProcessBean.filteredList}">
+										
+										<!-- <f:facet name="header">
+											<p:outputPanel>
+												<h:outputText value="Search all fields:" />
+												<p:inputText id="globalFilter"
+													onchange="PF('dataTable').filter()" style="width:150px"
+													placeholder="Enter keyword" />
+											</p:outputPanel>
+										</f:facet>
+										
+										<p:column width="200" filterStyle="display:none"
+											filterBy="#{x.commissionProcessId}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.commissionProcessId}">
+											<f:facet name="header">
+												<h:outputText value="Commission Process Id" />
+											</f:facet>
+											<h:outputText value="#{x.commissionProcessId}" />
+										</p:column> -->
+										
+										<p:column width="100">
+											<f:facet name="header">
+												<h:outputText value="Actions" />
+											</f:facet>
+											
+											<p:commandButton id="actionButton"
+												value="Finalize"
+												styleClass="btn btn-xs bg-olive active"
+												rendered="#{x.commissionMode == 'DRAFT' &amp;&amp; x.completionDate != NULL}"
+												actionListener="#{commissionProcessBean.finalizeProcess}" update="dataTableForm:message">
+												<f:param name="accountingPeriod" value="#{x.accountingPeriod}" />
+												<f:param name="fiscalYear" value="#{x.fiscalYear}" />
+												<p:confirm header="Confirmation" message="This is an ir reversable process, Are you sure ?" icon="ui-icon-alert" />
+											</p:commandButton>
+											
+											<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+										        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+										        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+										    </p:confirmDialog>
+										</p:column>
+
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.accountingPeriod}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.accountingPeriod}">
+											<f:facet name="header">
+												<h:outputText value="Accounting Period" />
+											</f:facet>
+											<h:outputText value="#{commissionProcessBean.getMonthName(x.accountingPeriod-1)}" />
+										</p:column>
+
+										<p:column width="110" filterStyle="display:none"
+											filterBy="#{x.fiscalYear}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.fiscalYear}">
+											<f:facet name="header">
+												<h:outputText value="Fiscal Year" />
+											</f:facet>
+											<h:outputText value="#{x.fiscalYear}" />
+										</p:column>
+
+										<p:column width="160" filterStyle="display:none"
+											filterBy="#{x.commissionMode}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.commissionMode}">
+											<f:facet name="header">
+												<h:outputText value="Commission Mode" />
+											</f:facet>
+											<h:outputText value="#{x.commissionMode}" />
+										</p:column>
+
+										<p:column width="220" filterStyle="display:none"
+											filterBy="#{x.executedBy}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.executedBy}">
+											<f:facet name="header">
+												<h:outputText value="Executed By" />
+											</f:facet>
+											<h:outputText value="#{x.executedBy}" />
+										</p:column>
+
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.executionDate}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.executionDate}">
+											<f:facet name="header">
+												<h:outputText value="Execution Date" />
+											</f:facet>
+											<h:outputText value="#{x.executionDate}" />
+										</p:column>
+										
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.completionDate}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.completionDate}">
+											<f:facet name="header">
+												<h:outputText value="Completion Date" />
+											</f:facet>
+											<h:outputText value="#{x.completionDate}" />
+										</p:column>
+										
+									</p:dataTable>
+
+								</h:form>
+
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+
+			</section>
+			<!-- /.content -->
+		</div>
+		
+		
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

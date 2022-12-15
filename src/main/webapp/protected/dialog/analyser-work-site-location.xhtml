@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<h:head>
+	<meta charset="utf-8"></meta>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+	<!-- Tell the browser to be responsive to screen width -->
+	<meta
+		content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+		name="viewport"></meta>
+	<!-- Bootstrap 3.3.7 -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+	<!-- <link rel="stylesheet"
+			href="../resources/" /> -->
+	<!-- Font Awesome -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/font-awesome/css/font-awesome.min.css" />
+	<!-- Ionicons -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/Ionicons/css/ionicons.min.css" />
+
+	<!-- DataTables -->
+	<!-- <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css" /> -->
+	<link rel="stylesheet" type="text/css"
+		href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+
+	<!-- daterange picker -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/bootstrap-daterangepicker/daterangepicker.css" />
+	<!-- bootstrap datepicker -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
+
+	<!-- iCheck for checkboxes and radio inputs -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/plugins/iCheck/all.css" />
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/plugins/iCheck/square/blue.css" />
+
+	<!-- Bootstrap time Picker -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/plugins/timepicker/bootstrap-timepicker.min.css" />
+
+	<!-- Select2 -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/select2/dist/css/select2.min.css" />
+
+	<!-- Theme style -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/AdminLTE.min.css" />
+
+	<!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/skins/_all-skins.min.css" />
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+	<!-- Google Font -->
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+	</link>
+
+	<style type="text/css">
+.odd {
+	background: aliceblue;
+	padding: 0px 15px;
+}
+
+.even {
+	background: alicegrey;
+	padding: 0px 15px;
+}
+
+.title {
+	background: #99d9f7;
+	padding-top: 5px;
+	text-transform: uppercase;
+	font-size: 16px;
+	text-align: center !important;
+	margin-bottom: 0px;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+}
+</style>
+
+</h:head>
+<h:outputScript name="js/analyser-work-site-location-function.js"
+	target="head" />
+<body class="hold-transition skin-blue">
+	<!-- Content Wrapper. Contains page content -->
+	<div class="content-wrapper" style="margin-left: 0px !important;">
+
+		<!-- Main content -->
+		<section class="content">
+
+			<div class="row even">
+				<div class="col-xs-12"></div>
+			</div>
+			<div class="row even">
+				<div class="col-xs-12">
+					<!-- /.box -->
+					<div class="box">
+						<div class="box-header"
+							style="text-align: center; background: aliceblue;">
+							<h1 class="box-title" style="font-size: 30px !important;">Analyzer Work Site Location</h1>
+						</div>
+						<!-- /.box-header -->
+						<h:form role="form" name="analyserWorkSiteLocationForm"
+							id="analyserWorkSiteLocationForm">
+							<p:inputText type="hidden" id="action" name="action"
+								value="#{analyserWorkSiteLocationBean.action}" />
+							<div class="box-body">
+
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Client Company" />
+										</div>
+									</div>
+									<div class="col-md-9">
+										<div class="form-group">
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{analyserWorkSiteLocationBean.clientId}"
+												id="clientCompany">
+												<f:selectItems
+													value="#{analyserWorkSiteLocationBean.clientCompany}"
+													var="r" itemLabel="#{r.label}" itemValue="#{r.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Manager Last Name*" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<p:inputText styleClass="form-control input-sm"
+												id="managerLastName"
+												readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.lastName}" >
+												<p:keyFilter regEx="/[a-z_]/i"></p:keyFilter>
+											</p:inputText>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Manager First Name*" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<p:inputText styleClass="form-control input-sm"
+												id="managerFirstName"
+												readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.managerName}">
+												<p:keyFilter regEx="/[a-z_]/i"></p:keyFilter>
+											</p:inputText>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Address1*" />
+										</div>
+									</div>
+									<div class="col-md-9">
+										<div class="form-group">
+											<h:inputText styleClass="form-control input-sm" id="address1"
+												readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.address1}" />
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Address 2" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:inputText styleClass="form-control input-sm" id="address2"
+												readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.address2}" />
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Phone" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<div class="input-group">
+												<span class="input-group-addon"><i
+													class="fa fa-phone"></i></span>
+												<p:inputMask styleClass="form-control input-sm" id="phone"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.telephone}"
+													mask="(999) 999-9999" autoClear="true"
+													placeholder="(999) 999-9999" />
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="City*" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<p:inputText styleClass="form-control input-sm" id="city"
+												readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.city}">
+											</p:inputText>
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="State*" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.state}"
+												id="state">
+												<f:selectItems
+													value="#{analyserWorkSiteLocationBean.uSAStates}" var="r"
+													itemLabel="#{r.label}" itemValue="#{r.value}" />
+											</h:selectOneMenu>
+											<p:inputText type="hidden" id="hiddenState" value="#{analyserWorkSiteLocationBean.state}" />
+										</div>
+									</div>
+
+								</div>
+
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Zip Code*" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<div class="input-group">
+												<p:inputMask styleClass="form-control input-sm" id="zipCode"
+													readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+													maxlength="10"
+													value="#{analyserWorkSiteLocationBean.analyserClientSite.zipCode}"
+													mask="*****-?****" placeholder="12345-6789" />
+												<span class="input-group-btn"> <p:commandButton
+														process="@this, address1, address2,city, state, zipCode"
+														partialSubmit="true" icon="fa fa-check"
+														style="height:30px;" id="zipButton" update="uspsAddressForm"
+														styleClass="btn btn-sm btn-info btn-flat"
+														actionListener="#{analyserWorkSiteLocationBean.validateZipCodeDlg}">
+													</p:commandButton>
+												</span>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Country" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.country}"
+												id="country">
+												<f:selectItems
+													value="#{analyserWorkSiteLocationBean.countryNames}"
+													var="r" itemLabel="#{r.label}" itemValue="#{r.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Fax" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<p:inputMask styleClass="form-control input-sm" id="fax"
+												readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.fax}"
+												mask="(999) 999-9999" autoClear="true"
+												placeholder="(999) 999-9999" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<h:outputLabel value="Email*" />
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<p:inputText id="email" styleClass="form-control input-sm"
+												readonly="#{analyserWorkSiteLocationBean.showReadOnly}"
+												value="#{analyserWorkSiteLocationBean.analyserClientSite.email}">
+												<p:keyFilter regEx="/[a-z0-9_\.\-@]/i" />
+											</p:inputText>
+										</div>
+									</div>
+								</div>
+
+								<div class="box-footer" id="buttonsDiv"
+									style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+									<input id="saveButton" type="button"
+										class="btn btn-md btn-primary" value="Add"
+										onclick="submitForm();" />
+
+									<p:remoteCommand name="rc"
+										actionListener="#{analyserWorkSiteLocationBean.saveAnalyserWorkSite}" />
+									<p:commandButton type="button" style="display:none;"
+										styleClass="btn btn-xs btn-primary btn-info" onclick="rc()"
+										id="actualSaveButton" />
+								</div>
+
+							</div>
+						</h:form>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+				</div>
+				<!-- /.col -->
+			</div>
+			<!-- /.row -->
+		</section>
+		<!-- /.content -->
+	</div>
+
+	<p:outputPanel autoUpdate="true">
+		<p:dialog id="messageDialog" widgetVar="messageDialog" modal="true"
+			appendToBody="true" visible="#{not empty facesContext.messageList}"
+			header="Validation Messages" width="400px;" height="400px;"
+			closeOnEscape="true" closable="true">
+			<p:messages id="messagesInDialog" showDetail="true"
+				rendered="#{facesContext.postback or facesContext.validationFailed}" />
+		</p:dialog>
+	</p:outputPanel>
+
+	<p:dialog header="USPS Address" widgetVar="validateZipDlg"
+		minHeight="80" modal="true" closeOnEscape="false" draggable="false"
+		maximizable="false" minimizable="false" minWidth="100"
+		resizable="false" width="100%" position="top">
+
+		<section class="content">
+			<h:form id="uspsAddressForm">
+				<div class="row title">
+					<div class="col-xs-12">
+						<div class="form-group" style="font-weight: bold;">You Entered</div>
+					</div>
+				</div>
+
+				<p:dataTable var="analyserUspsAddress" rowIndexVar="rowIndex"
+					value="#{analyserWorkSiteLocationBean.oldAddressList}">
+
+					<p:column style="width:32px;text-align: center">
+						<p:commandButton icon="ui-icon-search"
+							update="analyserWorkSiteLocationForm:zipCode, analyserWorkSiteLocationForm:address1,
+							analyserWorkSiteLocationForm:address2, analyserWorkSiteLocationForm:city, analyserWorkSiteLocationForm:hiddenState"
+							actionListener="#{analyserWorkSiteLocationBean.selectAnalyserUspsAddressFromDialog(analyserUspsAddress)}"
+							immediate="true" title="Select" oncomplete="updateState();"/>
+					</p:column>
+
+					<p:column headerText="Address 1">
+						<h:outputText value="#{analyserUspsAddress.address1}" />
+					</p:column>
+
+					<p:column headerText="Address 2">
+						<h:outputText value="#{analyserUspsAddress.address2}" />
+					</p:column>
+
+					<p:column headerText="City">
+						<h:outputText value="#{analyserUspsAddress.city}" />
+					</p:column>
+
+					<p:column headerText="State">
+						<h:outputText value="#{analyserUspsAddress.state}" />
+					</p:column>
+
+					<p:column headerText="Zip Code">
+						<h:outputText value="#{analyserUspsAddress.zipCode}" />
+					</p:column>
+				</p:dataTable>
+
+				<hr />
+
+				<div class="row title">
+					<div class="col-xs-12">
+						<div class="form-group" style="font-weight: bold;">USPS Validated</div>
+					</div>
+				</div>
+				<p:dataTable var="analyserUspsAddress" rowIndexVar="rowIndex"
+					value="#{analyserWorkSiteLocationBean.newAddressList}">
+
+					<p:column style="width:32px;text-align: center">
+						<p:commandButton icon="ui-icon-search" 
+							update="analyserWorkSiteLocationForm:zipCode, analyserWorkSiteLocationForm:address1,
+							analyserWorkSiteLocationForm:address2, analyserWorkSiteLocationForm:city, analyserWorkSiteLocationForm:hiddenState"
+							actionListener="#{analyserWorkSiteLocationBean.selectAnalyserUspsAddressFromDialog(analyserUspsAddress)}"
+							immediate="true" title="select" oncomplete="updateState();"/>
+					</p:column>
+
+					<p:column headerText="Address 1">
+						<h:outputText value="#{analyserUspsAddress.address1}" />
+					</p:column>
+
+					<p:column headerText="Address 2">
+						<h:outputText value="#{analyserUspsAddress.address2}" />
+					</p:column>
+
+					<p:column headerText="City">
+						<h:outputText value="#{analyserUspsAddress.city}" />
+					</p:column>
+
+					<p:column headerText="State">
+						<h:outputText value="#{analyserUspsAddress.state}" />
+					</p:column>
+
+					<p:column headerText="Zip Code">
+						<h:outputText value="#{analyserUspsAddress.zipCode}" />
+					</p:column>
+
+				</p:dataTable>
+			</h:form>
+		</section>
+	</p:dialog>
+
+	<ui:include src="../includes/dialog-scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		function initializeDialogComponents() {
+			$('.select2').select2();
+
+		}
+
+		$(document).ready(function() {
+			initializeDialogComponents();
+			disableFields();
+			//var screen = "View";
+		});
+		
+		function updateState() {
+			const state = $("#analyserWorkSiteLocationForm\\:hiddenState").val();
+			console.log('State :: ', state)
+			$('#analyserWorkSiteLocationForm\\:state').val(state).trigger("change");
+		}
+	</script>
+
+</body>
+
+</html>

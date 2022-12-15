@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<h:head>
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/dist/css/ReportStyle.css" />
+</h:head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Revenue by Client</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="true" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Company Code" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.companyCode}" id="compCode">
+												<p:ajax event="change" listener="#{revenueByClientReportsBean.onCompanyCodeChange}" update="branch managingDirector commissionPerson client recruitingTeam category2 product vertical dealType entityName"/>
+												
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems value="#{companyBean.companies}"
+													var="compCode" itemLabel="#{compCode.label}"
+													itemValue="#{compCode.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Office" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.branch}" id="branch">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{revenueByClientReportsBean.getOfficeByCompanyCodeList(revenueByClientReportsBean.companyCode)}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Managing Director" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.managingDirector}"
+												id="managingDirector">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{revenueByClientReportsBean.getMDCommissionPersonList(revenueByClientReportsBean.companyCode)}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Commission Person" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.commissionPerson}"
+												id="commissionPerson">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />												
+												<f:selectItems
+													value="#{revenueByClientReportsBean.getAllCommissionPersonList(revenueByClientReportsBean.companyCode)}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Client" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.client}" id="client">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems value="#{revenueByClientReportsBean.getAnalyserClientByCompanyCodeList(revenueByClientReportsBean.companyCode)}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="recruitingTeam" value="Recruiting Team" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.recruitingTeam}"
+												id="recruitingTeam">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems value="#{revenueByClientReportsBean.getRecruitingClassificationsByCompanyCodeList(revenueByClientReportsBean.companyCode)}"
+														var="liaison" itemLabel="#{liaison.label}"
+														itemValue="#{liaison.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Classification 2" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.analyzerCategory2}"
+												id="category2">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{revenueByClientReportsBean.getAnalyserCategory2ByCompanyCodeList(revenueByClientReportsBean.companyCode)}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="product" value="Product" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.product}" id="product">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{revenueByClientReportsBean.getProductByCompanyCodeList(revenueByClientReportsBean.companyCode)}" var="product"
+													itemLabel="#{product.label}" itemValue="#{product.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Vertical" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.vertical}" id="vertical">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{revenueByClientReportsBean.getVerticalByCompanyCodeList(revenueByClientReportsBean.companyCode)}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Deal Type" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.dealType}" id="dealType">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{revenueByClientReportsBean.getDealTypeByCompanyCodeList(revenueByClientReportsBean.companyCode)}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="entityName" value="Entity Name" />
+											<p:selectOneMenu styleClass="form-control" filter="true" filterMatchMode="contains"
+												value="#{revenueByClientReportsBean.entityName}" id="entityName">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{revenueByClientReportsBean.getEntityByCompanyCodeList(revenueByClientReportsBean.companyCode)}" var="branch"
+													itemLabel="#{branch.label}" itemValue="#{branch.value}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+								</div>	
+
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate
+												Report</span>
+											<f:ajax event="click"
+												listener="#{revenueByClientReportsBean.generateReport}"
+												execute="@form"
+												render=":dataTableForm :dataTableForm:recordTotal :dataTableForm:recordTotalZero" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{revenueByClientReportsBean.eraseFilter}"
+												oncomplete="resetEntirePage();"/>
+										</button>
+										
+										<h:commandButton value="Reset p:ajax" style="display:none;" id="resetButton">
+                							<p:ajax update="@form :dataTableForm" resetValues="true" oncomplete="initializePageComponents();"/>
+            							</h:commandButton>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+				<!-- 
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:outputText id="recordTotal" rendered="#{fn:length(revenueByClientReportsBean.reportData) != 0 }" value="Total records : #{fn:length(revenueByClientReportsBean.reportData)}" />
+							</div>
+						</div>
+					</div>		
+				</div> -->
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4">
+											<!-- <h:outputText id="recordTotal"
+												rendered="#{fn:length(revenueByClientReportsBean.reportData) != 0 }"
+												value="Total records : #{fn:length(revenueByClientReportsBean.reportData)}" />
+
+											<h:outputText id="recordTotalZero"
+												rendered="#{fn:length(revenueByClientReportsBean.reportData) == 0 }"
+												value="No record found" /> -->
+										</div>
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary" rendered="#{revenueByClientReportsBean.userRoleAllowedDownloadAccess == true ? 'true': 'false'}">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{revenueByClientReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{revenueByClientReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{revenueByClientReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{revenueByClientReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{revenueByClientReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+
+											<p:dataTable id="crudDataTable"
+												value="#{revenueByClientReportsBean.reportData}" var="x"
+												rows="15" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{revenueByClientReportsBean.filteredList}" filterEvent="enter">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->												
+	      										<p:column headerText="Company" width="250" sortBy="#{x.get('COMPANY')}" filterBy="#{x.get('COMPANY')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COMPANY')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Managing Director" width="250" sortBy="#{x.get('MANAGINGDIRECTOR')}" filterBy="#{x.get('MANAGINGDIRECTOR')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('MANAGINGDIRECTOR')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Last Name" width="130" sortBy="#{x.get('LASTNAME')}" filterBy="#{x.get('LASTNAME')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('LASTNAME')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="First Name" width="130" sortBy="#{x.get('FIRSTNAME')}" filterBy="#{x.get('FIRSTNAME')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('FIRSTNAME')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Email" width="200" sortBy="#{x.get('EMAIL')}" filterBy="#{x.get('EMAIL')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('EMAIL')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Home Phone" width="130" sortBy="#{x.get('HOMEPHONE')}" filterBy="#{x.get('HOMEPHONE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('HOMEPHONE')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Cell Phone" width="130" sortBy="#{x.get('CELLPHONE')}" filterBy="#{x.get('CELLPHONE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('CELLPHONE')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Recruiting Team" width="150" sortBy="#{x.get('RECRUITINGCLASSIFICATION')}" filterBy="#{x.get('RECRUITINGCLASSIFICATION')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('RECRUITINGCLASSIFICATION')}" />
+	      										</p:column>
+
+	      										<p:column headerText="Bill Rate" width="100" sortBy="#{x.get('BILLRATE')}" filterBy="#{x.get('BILLRATE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('BILLRATE')}" />
+	      										</p:column>
+
+	      										<p:column headerText="Pay Rate" width="100" sortBy="#{x.get('PAYRATE')}" filterBy="#{x.get('PAYRATE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('PAYRATE')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Profit" width="100" sortBy="#{x.get('PROFIT')}" filterBy="#{x.get('PROFIT')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('PROFIT')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="AE" width="150" sortBy="#{x.get('AE')}" filterBy="#{x.get('AE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('AE')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Recruiter" width="150" sortBy="#{x.get('RECRUITER')}" filterBy="#{x.get('RECRUITER')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('RECRUITER')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Start Date" width="150" sortBy="#{x.get('STARTDATEFORMATTED')}" filterBy="#{x.get('STARTDATEFORMATTED')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('STARTDATEFORMATTED')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="End Date" width="150" sortBy="#{x.get('ENDDATE')}" filterBy="#{x.get('ENDDATE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('ENDDATE')}" />
+	      										</p:column>
+	
+	      										<p:column headerText="Office" width="130" sortBy="#{x.get('OFFICE')}" filterBy="#{x.get('OFFICE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('OFFICE')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Portfolio" width="90" sortBy="#{x.get('PORTFOLIO')}" filterBy="#{x.get('PORTFOLIO')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('PORTFOLIO')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Portfolio Description" width="160" sortBy="#{x.get('PORTFOLIODESCRIPTION')}" filterBy="#{x.get('PORTFOLIODESCRIPTION')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('PORTFOLIODESCRIPTION')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Vertical" width="130" sortBy="#{x.get('VERTICAL')}" filterBy="#{x.get('VERTICAL')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('VERTICAL')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Product" width="130" sortBy="#{x.get('PRODUCT')}" filterBy="#{x.get('PRODUCT')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('PRODUCT')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Deal Type" width="150" sortBy="#{x.get('DEALTYPE')}" filterBy="#{x.get('DEALTYPE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('DEALTYPE')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="Employee Type" width="150" sortBy="#{x.get('EMPTYPE')}" filterBy="#{x.get('EMPTYPE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('EMPTYPE')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Worksite City" width="130" sortBy="#{x.get('CITY')}" filterBy="#{x.get('CITY')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('CITY')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Worksite State" width="130" sortBy="#{x.get('STATE')}" filterBy="#{x.get('STATE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('STATE')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Industry" width="180" sortBy="#{x.get('INDUSTRY')}" filterBy="#{x.get('INDUSTRY')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('INDUSTRY')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Job Title" width="200" sortBy="#{x.get('JOBTITLE')}" filterBy="#{x.get('JOBTITLE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('JOBTITLE')}" />
+	      										</p:column>
+
+	      										<p:column headerText="AE-2" width="130" sortBy="#{x.get('AE2')}" filterBy="#{x.get('AE2')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('AE2')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Recruiter-2" width="130" sortBy="#{x.get('RECRUITER2')}" filterBy="#{x.get('RECRUITER2')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('RECRUITER2')}" />
+	      										</p:column>
+
+	      										<p:column headerText="MSP Client Partner" width="170" sortBy="#{x.get('MSPNAME')}" filterBy="#{x.get('MSPNAME')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('MSPNAME')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Parent Id" width="170" sortBy="#{x.get('PARENTID')}" filterBy="#{x.get('PARENTID')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('PARENTID')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Liaison" width="160" sortBy="#{x.get('CL')}" filterBy="#{x.get('CL')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('CL')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Classification 1" width="160" sortBy="#{x.get('ANALYZERCATEGORY1')}" filterBy="#{x.get('ANALYZERCATEGORY1')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('ANALYZERCATEGORY1')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Classification 2" width="160" sortBy="#{x.get('ANALYZERCATEGORY2')}" filterBy="#{x.get('ANALYZERCATEGORY2')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('ANALYZERCATEGORY2')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Project Cost/Hr" width="160" sortBy="#{x.get('PROJECTCOST')}" filterBy="#{x.get('PROJECTCOST')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('PROJECTCOST')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="GP%" width="130" sortBy="#{x.get('GP')}" filterBy="#{x.get('GP')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('GP')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="IT-GS-Practice" width="170" sortBy="#{x.get('COMMISSIONPERSON6')}" filterBy="#{x.get('COMMISSIONPERSON6')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COMMISSIONPERSON6')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="IT-GS-Delivery" width="170" sortBy="#{x.get('COMMISSIONPERSON7')}" filterBy="#{x.get('COMMISSIONPERSON7')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COMMISSIONPERSON7')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="IT-GS-BDE" width="170" sortBy="#{x.get('COMMISSIONPERSON8')}" filterBy="#{x.get('COMMISSIONPERSON8')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COMMISSIONPERSON8')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="IT-GS-Proposal" width="170" sortBy="#{x.get('COMMISSIONPERSON9')}" filterBy="#{x.get('COMMISSIONPERSON9')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COMMISSIONPERSON9')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Entity Name" width="170" sortBy="#{x.get('ENTITYNAME')}" filterBy="#{x.get('ENTITYNAME')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('ENTITYNAME')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="COM" width="100" sortBy="#{x.get('COM')}" filterBy="#{x.get('COM')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COM')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="AE1 Orphan" width="130" sortBy="#{x.get('AE1ORPHAN')}" filterBy="#{x.get('AE1ORPHAN')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('AE1ORPHAN')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Recruiter 1 Orphan" width="150" sortBy="#{x.get('REC1ORPHAN')}" filterBy="#{x.get('REC1ORPHAN')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('REC1ORPHAN')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="AE2 Orphan" width="130" sortBy="#{x.get('AE2ORPHAN')}" filterBy="#{x.get('AE2ORPHAN')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('AE2ORPHAN')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Recruiter 2 Orphan" width="150" sortBy="#{x.get('REC2ORPHAN')}" filterBy="#{x.get('REC2ORPHAN')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('REC2ORPHAN')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Worksite Manager Name" width="200" sortBy="#{x.get('WORKSITEMANAGERNAME')}" filterBy="#{x.get('WORKSITEMANAGERNAME')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('WORKSITEMANAGERNAME')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Worksite Manager Email" width="200" sortBy="#{x.get('WORKSITEMANAGEREMAIL')}" filterBy="#{x.get('WORKSITEMANAGEREMAIL')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('WORKSITEMANAGEREMAIL')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="Employee Category" width="160" sortBy="#{x.get('EMPLOYEECATEGORY')}" filterBy="#{x.get('EMPLOYEECATEGORY')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('EMPLOYEECATEGORY')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="Employee Class" width="140" sortBy="#{x.get('EMPLOYEECLASS')}" filterBy="#{x.get('EMPLOYEECLASS')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('EMPLOYEECLASS')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="Flsa Status" width="110" sortBy="#{x.get('FLSASTATUS')}" filterBy="#{x.get('FLSASTATUS')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('FLSASTATUS')}" />
+	      										</p:column>
+												
+	      										<p:column headerText="AE1 EmplId" width="100" sortBy="#{x.get('AE1EMPLID')}" filterBy="#{x.get('AE1EMPLID')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('AE1EMPLID')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="AE2 EmplId" width="100" sortBy="#{x.get('AE2EMPLID')}" filterBy="#{x.get('AE2EMPLID')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('AE2EMPLID')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="Recruiter1 EmplId" width="100" sortBy="#{x.get('RECRUITER1EMPLID')}" filterBy="#{x.get('RECRUITER1EMPLID')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('RECRUITER1EMPLID')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="Recruiter2 EmplId" width="100" sortBy="#{x.get('RECRUITER2EMPLID')}" filterBy="#{x.get('RECRUITER2EMPLID')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('RECRUITER2EMPLID')}" />
+	      										</p:column>
+           										
+	      										<p:column headerText="MSP EmplId" width="100" sortBy="#{x.get('MSPCLIENTPARTNEREMPLID')}" filterBy="#{x.get('MSPCLIENTPARTNEREMPLID')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('MSPCLIENTPARTNEREMPLID')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="MD EmplId" width="100" sortBy="#{x.get('MDEMPLID')}" filterBy="#{x.get('MDEMPLID')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COMPMDEMPLIDANY')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="Company Code" width="100" sortBy="#{x.get('COMPANYCODE')}" filterBy="#{x.get('COMPANYCODE')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COMPANYCODE')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="CoSellStatus" width="100" sortBy="#{x.get('COSELLSTATUS')}" filterBy="#{x.get('COSELLSTATUS')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('COSELLSTATUS')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="DealPortfolio1AE1" width="150" sortBy="#{x.get('DEALPORTFOLIO1AE1')}" filterBy="#{x.get('DEALPORTFOLIO1AE1')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('DEALPORTFOLIO1AE1')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="DealPortfolio2REC1" width="150" sortBy="#{x.get('DEALPORTFOLIO2REC1')}" filterBy="#{x.get('DEALPORTFOLIO2REC1')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('DEALPORTFOLIO2REC1')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="DealPortfolio3AE2" width="150" sortBy="#{x.get('DEALPORTFOLIO3AE2')}" filterBy="#{x.get('DEALPORTFOLIO3AE2')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('DEALPORTFOLIO3AE2')}" />
+	      										</p:column>
+											
+	      										<p:column headerText="DealPortfolio4REC2" width="150" sortBy="#{x.get('DEALPORTFOLIO4REC2')}" filterBy="#{x.get('DEALPORTFOLIO4REC2')}" filterMatchMode="contains">
+	          								 		<h:outputText value="#{x.get('DEALPORTFOLIO4REC2')}" />
+	      										</p:column>
+											
+           										<p:column headerText="AE-1 Split%" width="110" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" 
+           										filterMatchMode="contains" rendered="#{revenueByClientReportsBean.roleId == 3}">
+               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE1')}" />
+           										</p:column>
+												
+           										<p:column headerText="REC1 Split%" width="300" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" 
+           										filterMatchMode="contains" rendered="#{revenueByClientReportsBean.roleId == 3}">
+               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE2')}" />
+           										</p:column>
+        										
+           										<p:column headerText="AE-2 Split%" width="300" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" 
+           										filterMatchMode="contains" rendered="#{revenueByClientReportsBean.roleId == 3}">
+               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE3')}" />
+           										</p:column>
+												
+           										<p:column headerText="REC2 Split%" width="150" sortBy="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" filterBy="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SPLITCOMMISSIONPERCENTAGE4')}" />
+           										</p:column>
+    											
+           										<p:column headerText="CommissionableProfit" width="200" sortBy="#{x.get('COMMISSIONABLEPROFIT')}" filterBy="#{x.get('COMMISSIONABLEPROFIT')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISSIONABLEPROFIT')}" />
+           										</p:column>												
+												
+	       										<p:column headerText="BH PID" width="80" sortBy="#{x.get('BULLHORNPLACEMENTID')}" filterBy="#{x.get('BULLHORNPLACEMENTID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('BULLHORNPLACEMENTID')}" />
+           										</p:column>												
+<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->												
+											</p:dataTable>
+										</div>
+									</div>
+
+								</h:form>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('.select2').select2();
+			//initialize();
+		});
+	</script>
+
+</body>
+
+</html>

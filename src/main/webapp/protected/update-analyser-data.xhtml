@@ -1,0 +1,898 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+
+<script type="text/javascript">
+	function clickListButton(button) {
+		var id = "dataTableForm:crudDataTable:0:" + button;
+		document.getElementById(id).click();
+	}
+</script>
+
+<body class="hold-transition skin-blue sidebar-mini">
+
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+
+	<div class="wrapper">
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Left side column. contains the logo and sidebar -->
+		<!-- <ui:include src="includes/side-navigation.xhtml"></ui:include> -->
+		<!-- <p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				responsive="true" header="Messages">
+				<p:messages id="messagesInDialog" showDetail="false" />
+				<p:button value="OK" onclick="messageDialog.hide()" />
+			</p:dialog>
+		</p:outputPanel> -->
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Update Analyzer Data</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="collapse in">
+					<h:form id="filterForm">
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+
+									<div class="col-xs-6">
+										<div class="form-group">
+											<h:inputText id="name" styleClass="form-control input-sm"
+												value="#{updateAnalyserDataBean.parentId}" />
+										</div>
+									</div>
+
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Find</span>
+											<f:ajax event="click"
+												listener="#{updateAnalyserDataBean.filter}" execute="@form"
+												render=":dataTableForm" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<f:ajax event="click"
+												listener="#{updateAnalyserDataBean.eraseFilter}"
+												execute="@form" render=":filterForm :dataTableForm" />
+										</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form id="dataTableForm"
+									onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+
+									<div class="row">
+										<div class="col-xs-12">
+
+											<p:dataTable id="crudDataTable"
+												value="#{updateAnalyserDataBean.analyserList}" var="x"
+												rows="15" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="100%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{updateAnalyserDataBean.filteredList}"
+												rowStyleClass="#{x.analyserId == updateAnalyserDataBean.selectedAnalyser.analyserId ? 'ui-state-highlight' : null}"
+												rowIndexVar="index">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+
+												<p:column width="30">
+													<f:facet name="header">
+														<h:outputText value="Sr #" />
+													</f:facet>
+													<h:outputText value="#{index + 1}" />
+												</p:column>
+
+												<p:column width="80">
+													<f:facet name="header">
+														<h:outputText value="Actions" />
+													</f:facet>
+													<p:remoteCommand name="rc1" actionListener="#{updateAnalyserDataBean.getAllPortfolios(x.companyCode)}" />
+													<p:remoteCommand name="rc" actionListener="#{updateAnalyserDataBean.getTerminationReasonBeanByCompanyCodeList(x.companyCode)}" />
+													
+													<p:commandButton id="modify" value="Modify" update="@form"
+														styleClass="btn btn-xs"
+														actionListener="#{updateAnalyserDataBean.modifyAnalyserData}"
+														 onclick="rc1(); rc()">
+														<f:param name="analyserId" value="#{x.analyserId}" />													
+													</p:commandButton>
+												</p:column>
+
+												<p:column width="80" filterStyle="display:none"
+													filterBy="#{x.parentId}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Parent Id" />
+													</f:facet>
+													<h:outputText value="#{x.parentId}" />
+												</p:column>
+
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.lastName}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Last Name" />
+													</f:facet>
+													<h:outputText value="#{x.lastName}" />
+												</p:column>
+
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.firstName}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="First Name" />
+													</f:facet>
+													<h:outputText value="#{x.firstName}" />
+												</p:column>
+
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.startDate}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Start Date" />
+													</f:facet>
+													<h:outputText value="#{x.startDate}" />
+												</p:column>
+
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.effectiveDate}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Effective Date" />
+													</f:facet>
+													<h:outputText value="#{x.effectiveDate}" />
+												</p:column>
+
+												<p:column width="120" filterStyle="display:none"
+													filterBy="#{x.commEffectiveDate}"
+													filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Comm Eff Date" />
+													</f:facet>
+													<h:outputText value="#{x.commEffectiveDate}" />
+												</p:column>
+
+												<p:column width="120" filterStyle="display:none"
+													filterBy="#{x.terminateDate}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Terminate Date" />
+													</f:facet>
+													<h:outputText value="#{x.terminateDate}" />
+												</p:column>
+
+												<p:column width="80" filterStyle="display:none"
+													filterBy="#{x.isRehired}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Is Rehired" />
+													</f:facet>
+													<h:outputText value="#{x.isRehired}" />
+												</p:column>
+
+												<p:column width="260" filterStyle="display:none"
+													filterBy="#{x.reason}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Reason" />
+													</f:facet>
+													<h:outputText value="#{x.reason}" />
+												</p:column>
+
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.dob}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="DOB" />
+													</f:facet>
+													<h:outputText value="#{x.dob}" />
+												</p:column>
+												
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.portfolio}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Portfolio" />
+													</f:facet>
+													<h:outputText value="#{x.portfolio}" process="@this" />
+												</p:column>
+												
+												<p:column width="100" filterStyle="display:none"
+													filterBy="#{x.portfolioDescription}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Portfolio Desc" />
+													</f:facet>
+													<h:outputText value="#{x.portfolioDescription}" />
+												</p:column>
+											
+												<p:column width="120" filterStyle="display:none"
+													filterBy="#{x.ssn}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="SSN" />
+													</f:facet>
+													<h:outputText value="#{x.ssn}" />
+												</p:column>
+
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.commisionName1}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="AE-1 Name" />
+													</f:facet>
+													<h:outputText value="#{x.commisionName1}" />
+												</p:column>
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.commissionPersonGrade1}"
+													filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="AE-1 Grade" />
+													</f:facet>
+													<h:outputText value="#{x.commissionPersonGrade1}" />
+												</p:column>
+
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.commisionName3}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="AE-2 Name" />
+													</f:facet>
+													<h:outputText value="#{x.commisionName3}" />
+												</p:column>
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.commissionPersonGrade3}"
+													filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="AE-2 Grade" />
+													</f:facet>
+													<h:outputText value="#{x.commissionPersonGrade3}" />
+												</p:column>
+
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.endDate}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="End Date" />
+													</f:facet>
+													<h:outputText value="#{x.endDate}" />
+												</p:column>
+
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.analyserId}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Analyzer Id" />
+													</f:facet>
+													<h:outputText value="#{x.analyserId}" />
+												</p:column>
+
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.recordStatus}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Record Status" />
+													</f:facet>
+													<h:outputText value="#{x.recordStatus}" />
+												</p:column>
+												
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.companyCode}" filterMatchMode="contains">
+													<f:facet name="header">
+														<h:outputText value="Company Code" />
+													</f:facet>
+													<h:outputText value="#{x.companyCode}" />
+												</p:column>
+
+											</p:dataTable>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="box">
+												<div class="box-body">
+													<h3>Analyzer Detail</h3>
+													<p:confirmDialog global="true" showEffect="fade"
+														hideEffect="fade">
+														<p:commandButton value="Yes" type="button"
+															styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+														<p:commandButton value="No" type="button"
+															styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+													</p:confirmDialog>
+													<p:growl id="message" showDetail="false" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="parentIdDiv">
+												<h:outputLabel value="Parent Id" />
+												<p:inputText id="parentId"
+													styleClass="form-control input-sm"
+													value="#{updateAnalyserDataBean.selectedAnalyser.parentId}"
+													readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="newParentIdDiv">
+												<h:outputLabel value="New Parent Id" />
+												<p:inputText id="newParentId"
+													styleClass="form-control input-sm"
+													value="#{updateAnalyserDataBean.selectedAnalyser.newParentId}"
+													readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="analyserIdDiv">
+												<h:outputLabel value="Analyzer Id" />
+												<p:inputText id="analyserId"
+													styleClass="form-control input-sm"
+													value="#{updateAnalyserDataBean.selectedAnalyser.analyserId}"
+													readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="lastNameDiv">
+												<h:outputLabel value="Last Name" />
+
+												<div class="input-group">
+													<p:inputText id="lastName"
+														styleClass="form-control input-sm"
+														value="#{updateAnalyserDataBean.selectedAnalyser.lastName}">
+													</p:inputText>
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, lastName" update="message, crudDataTable"
+															partialSubmit="true" icon="fa fa-check"
+															id="lastNameButton" style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="firstNameDiv">
+												<h:outputLabel value="First Name" />
+												<div class="input-group">
+													<p:inputText id="firstName"
+														styleClass="form-control input-sm"
+														value="#{updateAnalyserDataBean.selectedAnalyser.firstName}">
+													</p:inputText>
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, firstName"
+															update="message, crudDataTable" partialSubmit="true"
+															icon="fa fa-check" id="firstNameButton"
+															style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="dobDiv">
+												<h:outputLabel for="dob" value="Date of Birth" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="dob"
+														value="#{updateAnalyserDataBean.selectedAnalyser.dob}"
+														mask="99/99/9999" />
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, dob" update="message, crudDataTable"
+															partialSubmit="true" icon="fa fa-check" id="dobButton"
+															style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="ssnDiv">
+												<h:outputLabel value="SSN" />
+												<div class="input-group">
+													<p:inputMask styleClass="form-control input-sm" id="ssn"
+														name="ssn"
+														value="#{updateAnalyserDataBean.selectedAnalyser.ssn}"
+														mask="999-99-9999" placeholder="999-99-9999">
+													</p:inputMask>
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, ssn" update="message, crudDataTable"
+															partialSubmit="true" icon="fa fa-check" id="ssnButton"
+															style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="startDateDiv">
+												<h:outputLabel for="startDate" value="Start Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="startDate" name="startDate"
+														value="#{updateAnalyserDataBean.selectedAnalyser.startDate}"
+														mask="99/99/9999" />
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, startDate" update="message,crudDataTable"
+															partialSubmit="true" icon="fa fa-check"
+															id="startDateButton" style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="endDateDiv">
+												<h:outputLabel for="endDate" value="End Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="endDate" name="endDate"
+														value="#{updateAnalyserDataBean.selectedAnalyser.endDate}"
+														mask="99/99/9999" />
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, endDate" update="message, crudDataTable"
+															partialSubmit="true" icon="fa fa-check"
+															id="endDateButton" style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="effectiveDateDiv">
+												<h:outputLabel for="effectiveDate" value="Effective Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="effectiveDate" name="effectiveDate"
+														value="#{updateAnalyserDataBean.selectedAnalyser.effectiveDate}"
+														mask="99/99/9999" />
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, effectiveDate"
+															update="message, crudDataTable" partialSubmit="true"
+															icon="fa fa-check" id="effectiveDateButton"
+															style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="commEffectiveDateDiv">
+												<h:outputLabel for="commEffectiveDate"
+													value="Commission Effective Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="commEffectiveDate" name="commEffectiveDate"
+														value="#{updateAnalyserDataBean.selectedAnalyser.commEffectiveDate}"
+														mask="99/99/9999" />
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, commEffectiveDate"
+															update="message, crudDataTable" partialSubmit="true"
+															icon="fa fa-check" id="commEffectiveDateButton"
+															style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="terminateDateDiv">
+												<h:outputLabel for="terminateDate" value="Terminate Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="terminateDate" name="terminateDate"
+														value="#{updateAnalyserDataBean.selectedAnalyser.terminateDate}"
+														mask="99/99/9999" />
+													<span class="input-group-btn"> <p:commandButton
+															disabled="#{!updateAnalyserDataBean.updateRecord 
+															or updateAnalyserDataBean.selectedAnalyser.terminateDate eq null
+															or updateAnalyserDataBean.selectedAnalyser.terminateDate eq ''}"
+															process="@this, terminateDate"
+															update="message, crudDataTable" partialSubmit="true"
+															icon="fa fa-check" id="terminateDateButton"
+															style="height: 30px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="reasonDiv">
+												<div class="input-group">
+													<h:outputLabel for="reason" value="Reason" />
+													<h:selectOneMenu styleClass="form-control input-sm select2"
+														value="#{updateAnalyserDataBean.selectedAnalyser.reason}"
+														id="reason">
+
+														<f:selectItem itemLabel="Select One" itemValue="" />
+														<f:selectItems value="#{updateAnalyserDataBean.terminationReasonList}"
+															var="r" itemLabel="#{r.label}" itemValue="#{r.value}" /> 															
+													</h:selectOneMenu>
+													<span class="input-group-btn"> <p:commandButton
+															disabled="#{! updateAnalyserDataBean.updateRecord 
+															or updateAnalyserDataBean.selectedAnalyser.reason eq null 
+															or updateAnalyserDataBean.selectedAnalyser.reason eq ''}"
+															process="@this, reason" update="message, crudDataTable"
+															partialSubmit="true" icon="fa fa-check" id="reasonButton"
+															style="height:34px; margin-top: 25px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="grade1Div">
+												<div class="input-group">
+													<h:outputLabel for="commissionPersonGrade1"
+														value="AE-1 Grade" />
+													<h:selectOneMenu styleClass="form-control input-sm select2"
+														value="#{updateAnalyserDataBean.selectedAnalyser.commissionPersonGrade1}"
+														id="commissionPersonGrade1">
+														<f:selectItem itemLabel="" itemValue="" />
+														<f:selectItem itemLabel="A" itemValue="A" />
+														<f:selectItem itemLabel="B" itemValue="B" />
+														<f:selectItem itemLabel="C" itemValue="C" />
+														<f:selectItem itemLabel="D" itemValue="D" />
+														<f:selectItem itemLabel="E" itemValue="E" />
+														<f:selectItem itemLabel="F" itemValue="F" />
+													</h:selectOneMenu>
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, commissionPersonGrade1"
+															update="message, crudDataTable" partialSubmit="true"
+															icon="fa fa-check" id="commissionPersonGrade1Button"
+															style="height:34px; margin-top: 25px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-4 inner-end">
+												<div class="form-group" id="grade1Div">
+													<div class="input-group">
+														<h:outputLabel for="commissionPersonGrade1"
+															value="AE-2 Grade" />
+														<h:selectOneMenu
+															styleClass="form-control input-sm select2"
+															value="#{updateAnalyserDataBean.selectedAnalyser.commissionPersonGrade3}"
+															id="commissionPersonGrade3">
+															<f:selectItem itemLabel="" itemValue="" />
+															<f:selectItem itemLabel="A" itemValue="A" />
+															<f:selectItem itemLabel="B" itemValue="B" />
+															<f:selectItem itemLabel="C" itemValue="C" />
+															<f:selectItem itemLabel="D" itemValue="D" />
+															<f:selectItem itemLabel="E" itemValue="E" />
+															<f:selectItem itemLabel="F" itemValue="F" />
+														</h:selectOneMenu>
+														<span class="input-group-btn"> <p:commandButton
+																disabled="!#{updateAnalyserDataBean.updateRecord}"
+																process="@this, commissionPersonGrade3"
+																update="message, crudDataTable" partialSubmit="true"
+																icon="fa fa-check" id="commissionPersonGrade3Button"
+																style="height:34px; margin-top: 25px;"
+																styleClass="btn btn-sm btn-info btn-flat"
+																actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+																<p:confirm header="Confirmation"
+																	message="Are you sure that you want to make changes to this field?"
+																	icon="ui-icon-alert" />
+															</p:commandButton>
+														</span>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="isRehiredDiv">
+												<div class="input-group">
+													<h:outputLabel for="isRehired" value="Is Rehired" />
+													<h:selectOneMenu styleClass="form-control input-sm select2"
+														value="#{updateAnalyserDataBean.selectedAnalyser.isRehired}"
+														id="isRehired">
+														<f:selectItem itemLabel="" itemValue="" />
+														<f:selectItem itemLabel="Yes" itemValue="Y" />
+														<f:selectItem itemLabel="No" itemValue="N" />
+													</h:selectOneMenu>
+													<span class="input-group-btn"> <p:commandButton
+															disabled="!#{updateAnalyserDataBean.updateRecord}"
+															process="@this, isRehired"
+															update="message, crudDataTable" partialSubmit="true"
+															icon="fa fa-check" id="isRehiredButton"
+															style="height:34px; margin-top: 25px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="portfolioDiv">
+												<div class="input-group">
+													<h:outputLabel for="portfolio" value="Portfolio" />
+														<h:selectOneMenu styleClass="form-control input-sm select2"
+														value="#{updateAnalyserDataBean.selectedAnalyser.portfolio}" 
+														id="portfolio">
+														
+														<f:selectItem itemLabel="Select One" itemValue=""  />
+														<f:selectItems value="#{updateAnalyserDataBean.selectedPortfolio}" var="portfolio" itemLabel="#{portfolio.label}"
+														itemValue="#{portfolio.value}" />
+														
+													</h:selectOneMenu>
+													<span class="input-group-btn"> <p:commandButton
+															disabled="#{! updateAnalyserDataBean.updateRecord}"
+															process="@this, portfolio" update="message, crudDataTable"
+															partialSubmit="true" icon="fa fa-check" id="portfolioButton"
+															style="height:34px; margin-top: 25px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="companyCodeDiv">
+												<div class="input-group">
+													<h:outputLabel for="companyCode" value="Company Code" />
+														<h:selectOneMenu styleClass="form-control input-sm select2"
+														value="#{updateAnalyserDataBean.selectedAnalyser.companyCode}" 
+														id="companyCode">
+																												
+														<f:selectItems value="#{companyBean.companies}"
+															var="compCode" itemLabel="#{compCode.label}"
+															itemValue="#{compCode.value}" />
+														
+													</h:selectOneMenu>
+													<span class="input-group-btn"> <p:commandButton
+															disabled="#{! updateAnalyserDataBean.updateRecord}"
+															process="@this, companyCode" update="message, crudDataTable"
+															partialSubmit="true" icon="fa fa-check" id="companyCodeButton"
+															style="height:34px; margin-top: 25px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{updateAnalyserDataBean.updateAnalyserData}">
+															<p:confirm header="Confirmation"
+																message="Are you sure that you want to make changes to this field?"
+																icon="ui-icon-alert" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+									
+									</div>
+
+									<!-- <div class="box-footer" id="buttonsDiv"
+										style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+
+										<h:commandButton id="actualSaveButton" value="Update"
+											validateClient="true"
+											action="#{updateAnalyserDataBean.saveAnalyser}" />
+									</div> -->
+
+								</h:form>
+
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		function initialize() {
+			console.log("Here");
+
+			$('.select2').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			});
+
+			//Date picker
+			$('#dataTableForm\\:commEffectiveDate').datepicker({
+				autoclose : true,
+				useCurrent : false,
+				todayBtn : 'linked'
+			//startDate: new Date()
+			})
+
+			$('#dataTableForm\\:effectiveDate').datepicker({
+				autoclose : true,
+				useCurrent : false,
+				todayBtn : 'linked'
+			//startDate: new Date()
+			})
+
+			$('#dataTableForm\\:dob').datepicker({
+				autoclose : true
+			})
+
+			$('#dataTableForm\\:terminateDate').datepicker({
+				autoclose : true,
+				todayBtn : 'linked'
+			})
+
+			$('#dataTableForm\\:startDate').datepicker({
+				autoclose : true,
+				todayBtn : 'linked'
+			})
+
+			$('#dataTableForm\\:endDate').datepicker({
+				autoclose : true,
+				todayBtn : 'linked'
+			})
+		}
+		$(document).ready(function() {
+			$('.select2').select2();
+			initialize();
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<style type="text/css">
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- p:messages styleClass="errorMessage" globalOnly="true" />  -->
+				<!-- Global messages -->
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<div class="box">
+							<div class="box-header">
+								<h3 class="box-title">
+									<h:outputText value="#{assignToGroupBean.action}" />
+									<h:outputText value=" " />
+									<h:outputText value="#{assignToGroupBean.userType}" />
+									<h:outputText value=" " />
+									<h:outputText
+										rendered="#{assignToGroupBean.action == 'Assign'}" value="To" />
+									<h:outputText
+										rendered="#{assignToGroupBean.action != 'Assign'}"
+										value="From" />
+									Group :
+									<h:outputLabel
+										value="#{assignToGroupBean.group.groupDescription}" />
+								</h3>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form role="form" id="inputForm">
+									<p:growl id="msg" showDetail="true" escape="false" />
+
+									<!-- <p:pickList id="pojoPickList"
+										value="#{assignToGroupBean.resourcesList}" var="res"
+										itemLabel="#{res}" itemValue="#{res}" effect="bounce"
+										showCheckbox="true" responsive="true" showSourceFilter="true"
+										showTargetFilter="true" filterMatchMode="contains"
+										converter="userEntityConverter">
+
+										<f:facet name="sourceCaption">Available</f:facet>
+										<f:facet name="targetCaption">Selected</f:facet>
+
+										<p:ajax event="transfer"
+											listener="#{assignToGroupBean.onTransfer}" update="msg" />
+
+										<p:column style="width:90%;">
+											<h:outputText value="#{res.firstName}" />
+										</p:column>
+									</p:pickList> -->
+
+									<p:dataTable id="crudDataTable"
+										value="#{assignToGroupBean.sourceList}" var="x" rows="15"
+										paginator="true"
+										paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										rowsPerPageTemplate="10,20,50,100" scrollable="false"
+										scrollHeight="350" scrollWidth="96%" reflow="true">
+
+										<p:column width="250">
+											<f:facet name="header">
+												<h:outputText value="User Id" />
+											</f:facet>
+											<h:outputText value="#{x.userId}" />
+										</p:column>
+
+
+										<p:column width="250">
+											<f:facet name="header">
+												<h:outputText value="User Name" />
+											</f:facet>
+											<h:outputText value="#{x.firstName}" />
+										</p:column>
+
+
+										<p:column width="100" headerClass="right">
+											<f:facet name="header">
+												<h:outputText
+													value="Action #{assignToGroupBean.targetList.size()}" />
+											</f:facet>
+
+											<p:commandButton id="assignDeassignBtn" value="#{assignToGroupBean.buttonLabel}"
+												styleClass="ui-priority-primary" process="@this"
+												actionListener="#{assignToGroupBean.assignUserToGroup}"
+												update="@form">
+												<f:param name="userId" value="#{x.userId}" />
+											</p:commandButton>
+										</p:column>
+
+									</p:dataTable>
+
+									<p:commandButton id="pojoSubmit" value="Modify"
+										styleClass="btn btn-sm btn-primary active"
+										disabled="#{assignToGroupBean.targetList eq null or assignToGroupBean.targetList.size() eq 0}"
+										actionListener="#{assignToGroupBean.saveSelectedList}"
+										style="margin-top:5px" />
+
+									<p:commandButton id="pojoSubmit1" value="Show List"
+										styleClass="btn btn-sm btn-primary" immediate="true" update="targetDataTable"
+										disabled="#{assignToGroupBean.targetList eq null or assignToGroupBean.targetList.size() eq 0}"
+										onclick="PF('userDlg').show();" style="margin-top:5px" />
+
+									<p:link outcome="add-group" value="Cancel"
+										styleClass="btn btn-sm btn-primary" style="margin-top:5px">
+									</p:link>
+
+								</h:form>
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+
+				<p:dialog modal="true" showEffect="fade" hideEffect="fade"
+					widgetVar="themesDialog">
+					<h:panelGrid id="displayThemes" columns="2">
+						<h:outputText value="Source: " style="font-weight:bold" />
+						<ui:repeat value="#{resourceBean.resourcesList.source}" var="res">
+							<h:outputText value="#{res.firstName}" style="margin-right:5px" />
+						</ui:repeat>
+
+						<h:outputText value="Target: " style="font-weight:bold" />
+						<ui:repeat value="#{resourceBean.resourcesList.target}" var="res">
+							<h:outputText value="#{res.firstName}" style="margin-right:5px" />
+						</ui:repeat>
+					</h:panelGrid>
+				</p:dialog>
+
+				<p:dialog header="Assigned Users" modal="true" showEffect="fade"
+					hideEffect="fade" widgetVar="userDlg" minHeight="60">
+					<p:dataTable id="targetDataTable"
+						value="#{assignToGroupBean.targetList}" var="x" rows="15"
+						paginator="true"
+						paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						rowsPerPageTemplate="10,20,50,100" scrollable="false"
+						scrollHeight="350" scrollWidth="96%" reflow="true">
+
+						<p:column width="250">
+							<f:facet name="header">
+								<h:outputText value="User Id" />
+							</f:facet>
+							<h:outputText value="#{x.userId}" />
+						</p:column>
+
+
+						<p:column width="250">
+							<f:facet name="header">
+								<h:outputText value="User Name" />
+							</f:facet>
+							<h:outputText value="#{x.firstName}" />
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

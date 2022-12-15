@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				header="Validation Messages" width="400px;" height="400px;"
+				closeOnEscape="true" closable="true">
+				<p:messages id="messagesInDialog" showDetail="false"
+					rendered="#{facesContext.postback or facesContext.validationFailed}" />
+			</p:dialog>
+		</p:outputPanel>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>User Information</h1>
+			</section>
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<div class="box">
+							<!-- /.box-header -->
+							<h:form id="inputForm" class="form-horizontal">
+								<div class="box-body">
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="userId" value="User Id" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<div class="input-group">
+												<p:inputText id="userId" styleClass="form-control input-sm"
+													value="#{applicationUserBean.applicationUser.userId}"  required="true"
+												requiredMessage="User Id required" validatorMessage="Invalid UserID Format">
+													<f:validateRegex 
+													pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+												</p:inputText>
+												<span class="input-group-btn"> <p:commandButton														
+														process="@this, userId" partialSubmit="true"
+														icon="fa fa-check" id="userIdButton" style="height: 30px;"
+														styleClass="btn btn-sm btn-info btn-flat" update="userId"
+														actionListener="#{applicationUserBean.userIdValidation()}">														
+													</p:commandButton>
+												</span>
+											</div>
+										</div>
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="userRole" value="User Role" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{applicationUserBean.applicationUser.roleId}"  required="true"
+												requiredMessage="User Role required"
+												id="userRole">
+												<f:selectItems value="#{applicationUserBean.listOfRoles}"
+													var="vertical" itemLabel="#{vertical.label}"
+													itemValue="#{vertical.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<h:inputHidden id="test"
+										value="#{applicationUserBean.showUpdateButton}" />
+									<div class="form-group" id="passwordDiv">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel value="Password" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<h:inputSecret id="password"
+												value="#{applicationUserBean.applicationUser.password}"  required="true"
+												requiredMessage="Password required"
+												styleClass="form-control" />
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="lastName" value="Last Name" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<h:inputText id="lastName"
+												value="#{applicationUserBean.applicationUser.lastName}"
+												styleClass="form-control" required="true"
+												requiredMessage="Last name required" />
+										</div>
+
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="firstName" value="First Name" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<h:inputText id="firstName"
+												value="#{applicationUserBean.applicationUser.firstName}"
+												styleClass="form-control" required="true"
+												requiredMessage="First name required" />
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="address1" value="Street Address 1" />
+										</div>
+										<div class="col-sm-4">
+											<h:inputText id="address1"
+												value="#{applicationUserBean.applicationUser.addr1}"  required="false"
+												requiredMessage="Street Address 1 required"
+												styleClass="form-control" />
+										</div>
+
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="address2" value="Street Address 2" />
+										</div>
+										<div class="col-sm-4">
+											<h:inputText id="address2"
+												value="#{applicationUserBean.applicationUser.addr2}"  required="false"
+												requiredMessage="Street Address 2 required"
+												styleClass="form-control" />
+										</div>
+									</div>
+
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="city" value="City" />
+										</div>
+										<div class="col-sm-4">
+											<h:inputText id="city"
+												value="#{applicationUserBean.applicationUser.city}" required="false"
+												requiredMessage="City required"
+												styleClass="form-control" />
+										</div>
+
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="state" value="State" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{applicationUserBean.applicationUser.state}" required="true"
+												requiredMessage="State required"
+												id="state">
+												<f:selectItems value="#{applicationUserBean.uSAStates}"
+													var="states" itemLabel="#{states.label}"
+													itemValue="#{states.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="location" value="Location Code" />
+										</div>
+										<div class="col-sm-4">
+											<p:inputMask styleClass="form-control input-sm" id="location"
+												value="#{applicationUserBean.applicationUser.zip}" required="false"
+												requiredMessage="Location Code required"
+												mask="*****-?****" placeholder="12345-6789" />
+										</div>
+
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="phone" value="Phone" />
+										</div>
+										<div class="col-sm-4">
+											<p:inputMask styleClass="form-control input-sm" id="phone"
+												value="#{applicationUserBean.applicationUser.phone}" required="false"
+												requiredMessage="Phone Number required"
+												mask="(999) 999-9999" placeholder="(999) 999-9999" />
+										</div>
+									</div>
+
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="overtime" value="Overtime" />
+										</div>
+										<div class="col-sm-4">
+											<h:selectBooleanCheckbox
+												styleClass="form-control input-sm minimal" id="overtime"
+												value="#{applicationUserBean.applicationUser.overtime}" />
+										</div>
+
+										<div class="col-sm-2 control-label">
+											<h:outputLabel value="Regular Hours" />
+										</div>
+										<div class="col-sm-4">
+											<p:inputText id="lunchHour" styleClass="form-control"
+												value="#{applicationUserBean.applicationUser.lunchHour}"
+												maxlength="10" required="false" 
+												requiredMessage="Regular hours can't be empty.">
+												<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+											</p:inputText>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel value="Auto Allowance" />
+										</div>
+										<div class="col-sm-4">
+											<p:inputText id="autoExpenseLimit" styleClass="form-control"
+												value="#{applicationUserBean.applicationUser.autoExpenseLimit}"
+												maxlength="10">
+												<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+											</p:inputText>
+										</div>
+
+										<div class="col-sm-2 control-label">
+											<h:outputLabel value="Telephone Allowance" />
+										</div>
+										<div class="col-sm-4">
+											<p:inputText id="otherExpenseLimit" styleClass="form-control"
+												value="#{applicationUserBean.applicationUser.otherExpenseLimit}"
+												maxlength="10">
+												<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+											</p:inputText>
+										</div>
+									</div>
+
+									<div class="form-group">
+
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="managerId" value="Manager Id" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{applicationUserBean.applicationUser.managerId}" required="true"
+												requiredMessage="Manager Id required"
+												id="managerId">
+												<f:selectItem itemLabel="" itemValue="" />
+												<f:selectItems
+													value="#{applicationUserBean.getAllManagerId()}"
+													var="managerId" itemLabel="#{managerId.label}"
+													itemValue="#{managerId.value}" />
+
+											</h:selectOneMenu>
+										</div>
+											<div class="col-sm-2 control-label">
+											<h:outputLabel for="employeeId" value="Employee Id" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<div class="input-group">
+												<p:inputText id="employeeId" styleClass="form-control input-sm"
+													value="#{applicationUserBean.applicationUser.ADPCode}" required="true"
+												requiredMessage="Employee Id required" autocomplete="off">
+												
+												</p:inputText>
+												<span class="input-group-btn"> <p:commandButton														
+														process="@this, employeeId" partialSubmit="true"
+														icon="fa fa-check" id="employeeIdButton" style="height: 30px;"
+														styleClass="btn btn-sm btn-info btn-flat"
+														actionListener="#{applicationUserBean.employeeIdValidation()}">
+														
+													</p:commandButton>
+												</span>
+											</div>
+										</div>
+										
+									</div>
+
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel value="Payroll Code" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<h:inputText id="payrollCode"
+												value="#{applicationUserBean.applicationUser.payrollCode}" required="true"
+												requiredMessage="Payroll Code required"
+												styleClass="form-control" />
+										</div>
+										<div class="col-sm-2 control-label">
+											<h:outputLabel value="Company Code" /><h:outputLabel style="color:red">*</h:outputLabel>
+										</div>
+										<div class="col-sm-4">
+											<h:selectOneMenu id="compCode"
+													styleClass="form-control input-sm select2"
+													value="#{applicationUserBean.applicationUser.companyCode}" required="true" 
+													requiredMessage="CompanyCode is required">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{companyBean.companies}"
+														var="compCode" itemLabel="#{compCode.label}"
+														itemValue="#{compCode.value}" />
+												</h:selectOneMenu>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-xs-12">
+											<p:commandButton value="Save" id="saveButton"
+												actionListener="#{applicationUserBean.save}"
+												styleClass="btn btn-sm btn-primary" icon="ui-icon-check"
+												validateClient="true"
+												rendered="#{!applicationUserBean.showUpdateButton}" />
+
+											<p:commandButton value="Update" id="updateButton"
+												actionListener="#{applicationUserBean.update}"
+												styleClass="btn btn-sm btn-primary" validateClient="true"
+												icon="ui-icon-check"
+												rendered="#{applicationUserBean.showUpdateButton}" />
+
+											<h:outputText value="&#160;" />
+
+											<p:button outcome="application-users" title="Cancel"
+												value="Cancel" styleClass="btn btn-sm btn-default"
+												icon="ui-icon-cancel" />
+
+										</div>
+									</div>
+								</div>
+							</h:form>
+						</div>
+					</div>
+				</div>
+			</section>
+
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		function initializeComponents() {
+			$('.select2').select2();
+		}
+
+		function bindCheckboxes() {
+			$('input[type="checkbox"].minimal').iCheck({
+				checkboxClass : 'icheckbox_flat-blue'
+			})
+		}
+
+		$(document).ready(function() {
+			initializeComponents();
+			bindCheckboxes();
+			var val = $("#inputForm\\:test").val();
+			if(val == "true"){
+				$("#passwordDiv").remove("");
+				$("#inputForm\\:userId").prop("readonly",true);
+			}
+		});
+	</script>
+
+</body>
+
+</html>

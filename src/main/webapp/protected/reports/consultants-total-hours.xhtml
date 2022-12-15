@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Consultants total hours</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="startDate" value="Start Date" />
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="startDate"
+													value="#{consultantsTotalHoursReportsBean.startDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="endDate" value="End Date" />
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="endDate"
+													value="#{consultantsTotalHoursReportsBean.endDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Consultant Name" />
+											<p:inputText id="consultantName"
+												value="#{consultantsTotalHoursReportsBean.consultantName}"
+												styleClass="form-control input-sm" />
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Office" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{consultantsTotalHoursReportsBean.branch}"
+												id="branch">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{consultantsTotalHoursReportsBean.branchesList}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate
+												Report</span>
+											<f:ajax event="click"
+												listener="#{consultantsTotalHoursReportsBean.generateReport}"
+												execute="@form"
+												render=":dataTableForm :dataTableForm:recordTotal :dataTableForm:recordTotalZero" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{consultantsTotalHoursReportsBean.eraseFilter}"
+												oncomplete="resetEntirePage();" />
+										</button>
+
+										<h:commandButton value="Reset p:ajax" style="display:none;"
+											id="resetButton">
+											<p:ajax update="@form :dataTableForm" resetValues="true"
+												oncomplete="initializePageComponents();resetDates();" />
+										</h:commandButton>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm"
+									onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{consultantsTotalHoursReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{consultantsTotalHoursReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{consultantsTotalHoursReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{consultantsTotalHoursReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{consultantsTotalHoursReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable"
+												value="#{consultantsTotalHoursReportsBean.reportData}"
+												var="x" rows="10" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,20,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{consultantsTotalHoursReportsBean.filteredList}" filterEvent="enter">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->	
+												
+												<p:column headerText="Employee Id" width="200" sortBy="#{x.get('EMPLID')}" filterBy="#{x.get('EMPLID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('EMPLID')}" />
+           										</p:column>
+											
+												<p:column headerText="Employee Record" width="130" sortBy="#{x.get('EMPL_RCD')}" filterBy="#{x.get('EMPL_RCD')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('EMPL_RCD')}" />
+           										</p:column>
+											
+												<p:column headerText="First Name" width="130" sortBy="#{x.get('FIRST_NAME')}" filterBy="#{x.get('FIRST_NAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('FIRST_NAME')}" />
+           										</p:column>
+												
+												<p:column headerText="Last Name" width="200" sortBy="#{x.get('LAST_NAME')}" filterBy="#{x.get('LAST_NAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('LAST_NAME')}" />
+           										</p:column>
+											
+												<p:column headerText="TRC" width="200" sortBy="#{x.get('TRC')}" filterBy="#{x.get('TRC')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('TRC')}" />
+           										</p:column>
+											
+												<p:column headerText="Project ID" width="130" sortBy="#{x.get('PROJECT_ID')}" filterBy="#{x.get('PROJECT_ID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('PROJECT_ID')}" />
+           										</p:column>
+           										
+												<p:column headerText="Location" width="130" sortBy="#{x.get('LOCATION')}" filterBy="#{x.get('LOCATION')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('LOCATION')}" />
+           										</p:column>
+											
+												<p:column headerText="PER ORG" width="130" sortBy="#{x.get('PER_ORG')}" filterBy="#{x.get('PER_ORG')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('PER_ORG')}" />
+           										</p:column>
+												
+												<p:column headerText="Pay Group" width="100" sortBy="#{x.get('PAYGROUP')}" filterBy="#{x.get('PAYGROUP')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('PAYGROUP')}" />
+           										</p:column>
+											
+												<p:column headerText="Hours" width="100" sortBy="#{x.get('HOURS')}" filterBy="#{x.get('HOURS')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('HOURS')}" />
+           										</p:column>
+																							
+<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		function initializeComponents() {
+			$('.select2').select2();
+
+			$('#filterForm\\:startDate').datepicker({
+				autoclose : true
+			})
+
+			$('#filterForm\\:endDate').datepicker({
+				autoclose : true
+			})
+		}
+
+		$(document).ready(function() {
+			resetDates();
+
+		});
+
+		function resetDates() {
+			var currentDate = new Date();
+
+			//due to time of 0000, it was setting it to one day before, so set 2 as start date.
+			var firstDay = new Date(currentDate.getFullYear(), currentDate
+					.getMonth(), 2);
+
+			var from = firstDay.toJSON().slice(0, 10).split('-');
+			firstDay = from[1] + "/" + from[2] + "/" + from[0];
+			$("#filterForm\\:startDate").val(firstDay);
+
+			var to = currentDate.toJSON().slice(0, 10).split('-');
+			currentDate = to[1] + "/" + to[2] + "/" + to[0];
+			$("#filterForm\\:endDate").val(currentDate);
+
+			initializeComponents();
+		}
+	</script>
+
+</body>
+
+</html>

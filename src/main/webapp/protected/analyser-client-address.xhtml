@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+<style type="text/css">
+/*.row {
+	border: 1px solid;
+	border-bottom: 1px solid;
+}
+.row>div {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}*/
+.inner {
+	background: aliceblue;
+	border-right: 1px solid blue;
+	padding: 0px 15px;
+}
+
+.inner-end {
+	/*background: aliceblue;*/
+	padding: 0px 15px;
+}
+
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+
+.ui-button-icon-only .ui-button-text {
+	padding: 0.18em;
+}
+</style>
+<body class="hold-transition skin-blue sidebar-mini">
+
+
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+
+
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+		<!-- Left side column. contains the logo and sidebar -->
+		<!-- <ui:include src="includes/side-navigation.xhtml"></ui:include> -->
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Analyzer Client Address</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+							<!-- /.box-header -->
+							<h:form role="form" name="analyserClientAddressForm"
+								id="analyserClientAddressForm">
+								<p:inputText type="hidden" id="action" name="action" value="#{analyserClientAddressBean.action}"></p:inputText>
+								<p:growl id="growl" showDetail="true" />
+								<div class="box-body inner-end">
+									<div class="row">
+										<div class="col-md-12 inner-end">
+											<h:outputLabel for="clientCompany" value="Client Company" />
+											<div class="form-group">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientAddressBean.analyserClientAddress.clientId}"
+													id="clientCompany">
+													<f:selectItem itemLabel="Select One" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientAddressBean.clientNames}"
+														var="client" itemLabel="#{client.label}"
+														itemValue="#{client.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group">
+												<h:outputLabel for="contactName" value="Attn" />
+												<p:inputText id="contactName"
+													styleClass="form-control input-sm"
+													value="#{analyserClientAddressBean.analyserClientAddress.contactName}"
+													disabled="#{analyserClientAddressBean.showReadOnly}" />
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<h:outputLabel for="email" value="Email" />
+
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-envelope"></i></span>
+													<p:inputText id="email" styleClass="form-control input-sm"
+														value="#{analyserClientAddressBean.analyserClientAddress.email}"
+														disabled="#{analyserClientAddressBean.showReadOnly}">
+														<p:keyFilter regEx="/[a-z0-9_\.\-@]/i" />
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group">
+												<h:outputLabel for="address1" value="Address 1" />
+												<p:inputText id="address1"
+													styleClass="form-control input-sm"
+													value="#{analyserClientAddressBean.analyserClientAddress.address1}"
+													disabled="#{analyserClientAddressBean.showReadOnly}" />
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<h:outputLabel for="address2" value="Address 2" />
+												<p:inputText id="address2"
+													styleClass="form-control input-sm"
+													value="#{analyserClientAddressBean.analyserClientAddress.address2}"
+													disabled="#{analyserClientAddressBean.showReadOnly}" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group">
+												<h:outputLabel for="city" value="City" />
+												<p:inputText id="city" styleClass="form-control input-sm"
+													value="#{analyserClientAddressBean.analyserClientAddress.city}"
+													disabled="#{analyserClientAddressBean.showReadOnly}" />
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<h:outputLabel for="state" value="State" />
+											<div class="form-group">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientAddressBean.analyserClientAddress.state}"
+													id="state">
+													<f:selectItem itemLabel="Select One" itemValue="" />
+													<f:selectItems
+														value="#{statesBean.getList()}"
+														var="states" itemLabel="#{states.label}"
+														itemValue="#{states.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group">
+												<h:outputLabel for="zip" value="Zip Code" />
+												<p:inputText id="zip" styleClass="form-control input-sm"
+													value="#{analyserClientAddressBean.analyserClientAddress.zipCode}"
+													disabled="#{analyserClientAddressBean.showReadOnly}" />
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<h:outputLabel for="country" value="Country" />
+											<div class="form-group">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientAddressBean.analyserClientAddress.country}"
+													id="country">
+													<f:selectItem itemLabel="Select One" itemValue="" />
+													<f:selectItems
+														value="#{countryBean.getCountryList()}"
+														var="country" itemLabel="#{country.label}"
+														itemValue="#{country.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group">
+												<h:outputLabel for="homePhone" value="Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="homePhone"
+														value="#{analyserClientAddressBean.analyserClientAddress.telephone}"
+														mask="(999) 999-9999"
+														disabled="#{analyserClientAddressBean.showReadOnly}" />
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-6">
+											<div class="form-group">
+												<h:outputLabel for="fax" value="Fax" />
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fa fa-fax"></i></span>
+													<p:inputMask styleClass="form-control input-sm" id="fax"
+														value="#{analyserClientAddressBean.analyserClientAddress.fax}"
+														mask="(999) 999-9999"
+														disabled="#{analyserClientAddressBean.showReadOnly}" />
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-6 inner-end">
+											<div class="form-group">
+												<h:outputLabel for="jobCategory" value="Distribution Method" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientAddressBean.analyserClientAddress.distributionMethod}"
+													id="jobCategory">
+													<f:selectItem itemLabel="Select One" itemValue="" />
+													<f:selectItem itemLabel="AutoPay" itemValue="AutoPay" />
+													<f:selectItem itemLabel="Email" itemValue="Email" />
+													<f:selectItem itemLabel="Fax" itemValue="Fax" />
+													<f:selectItem itemLabel="Mail" itemValue="Mail" />
+													<f:selectItem itemLabel="Mail &amp; Email"
+														itemValue="Mail &amp; Email" />
+													<f:selectItem itemLabel="Other" itemValue="Other" />
+
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-12 inner-end">
+											<div class="form-group">
+												<h:outputLabel for="comments" value="Comments" />
+												<h:inputTextarea id="comments"
+													value="#{analyserClientAddressBean.analyserClientAddress.specialNotes}"
+													style="width: 100%; height: 100px; font-size: 14px; border: 1px solid #dddddd;"
+													disabled="#{analyserClientAddressBean.showReadOnly}"></h:inputTextarea>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+								</div>
+								<!-- /.box-body -->
+
+								<div class="box-footer" id="buttonsDiv"
+									style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+									<p:commandButton action="#{analyserClientAddressBean.updateAnalyserClientCompanyAddress}"
+										styleClass="btn btn-xs btn-primary btn-info" value="Update"
+										id="actualSaveButton" />
+								</div>
+							</h:form>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</section>
+
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('.select2').select2();
+			
+			var action = $("#analyserClientAddressForm\\:action").val();
+			if(action == "Modify"){
+				$("#buttonsDiv").attr('style','display:block');
+			}else if(action == "View"){
+				$("#buttonsDiv").attr('style','display:none');
+			}
+			disableDropDownSelect('clientCompany');
+			
+		});
+		function disableDropDownSelect(elem){
+		    var e = '#analyserClientAddressForm\\:'+elem;
+		    $(e).select2().on('select2:selecting',
+		        function(e) {
+		            e.preventDefault();
+		            $(this).select2('close');
+		        }
+		    );
+		    $(e).select2('enable',false);
+		}
+	</script>
+</body>
+
+</html>

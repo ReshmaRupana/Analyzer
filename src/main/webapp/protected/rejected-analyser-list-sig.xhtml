@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<style type="text/css">
+
+/* .ui-button{
+	background-color: #b7ddfb !important;
+
+	border: none;
+    text-shadow: none;
+ }
+ */
+
+ /* .ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only {
+	border: none;
+}
+
+.ui-button.ui-state-hover{
+     border: none;
+     background: yello !important;
+}
+
+ .ui-button.ui-state-active{
+     background: red !important;
+} */
+
+</style>
+<script type="text/javascript">
+function clickListButton(button, place){
+	var id = "dataTableForm:crudDataTable:"+place+":"+button;
+	document.getElementById(id).click();
+}
+</script>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Left side column. contains the logo and sidebar -->
+		<!-- <ui:include src="includes/side-navigation.xhtml"></ui:include> -->
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				responsive="true" header="Messages">
+				<p:messages id="messagesInDialog" showDetail="true" />
+				<!-- <p:button value="OK" onclick="messageDialog.hide()" /> -->
+			</p:dialog>
+		</p:outputPanel>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1><h:outputText value="#{param.compCode}"/> Rejected Analyzer List</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- TOOLBAR NAV -->
+				<!-- <nav class="navbar navbar-default">
+					<div class="container-fluid">
+						<div class="nav navbar-nav navbar-left">
+							<button type="button" title="Find"
+								class="btn btn-sm btn-default navbar-btn" data-toggle="collapse"
+								data-target="div#filterCollapsible" aria-expanded="false">
+								<i class="glyphicon glyphicon-search"></i> <span>Find</span>
+							</button>
+						</div>
+					</div>
+				</nav> -->
+
+				<!-- FILTER -->
+				<!-- <div id="filterCollapsible" class="collapse">
+					<h:form id="filterForm">
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+
+									<div class="col-xs-6">
+										<div class="form-group">
+											<h:inputText id="name" styleClass="form-control input-sm"
+												value="#{rejectedAnalyserListBean.searchString}" />
+										</div>
+									</div>
+
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Filter</span>
+											<f:ajax event="click" listener="#{rejectedAnalyserListBean.filter}"
+												execute="@form" render=":dataTableForm" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<f:ajax event="click"
+												listener="#{rejectedAnalyserListBean.eraseFilter}" execute="@form"
+												render=":filterForm :dataTableForm" />
+										</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div> -->
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+
+									<p:dataTable id="crudDataTable"
+										value="#{rejectedAnalyserListBean.analyserList}" var="x" rows="15"
+										paginator="true" rowIndexVar="index"
+										paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+										scrollHeight="350" scrollWidth="100%" widgetVar="dataTable"
+										emptyMessage="No data found with given criteria"
+										filteredValue="#{rejectedAnalyserListBean.filteredList}">
+
+										<f:facet name="header">
+											<p:outputPanel>
+												<h:outputText value="Search all fields:" />
+												<p:inputText id="globalFilter"
+													onchange="PF('dataTable').filter()" style="width:150px"
+													placeholder="Enter keyword" />
+											</p:outputPanel>
+										</f:facet>
+										
+										<p:column width="110" filterStyle="display:none"
+											filterBy="#{x.parentId}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.parentId}">
+											<f:facet name="header">
+												<h:outputText value="Parent Id" />
+											</f:facet>
+											<h:outputText value="#{x.parentId}" />
+										</p:column>
+
+										<p:column width="110" filterStyle="display:none"
+											filterBy="#{x.analyserId}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.analyserId}">
+											<f:facet name="header">
+												<h:outputText value="Analyzer Id" />
+											</f:facet>
+											<h:outputText value="#{x.analyserId}" />
+										</p:column>
+
+										<p:column width="110" filterStyle="display:none"
+											filterBy="#{x.lastName}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.lastName}">
+											<f:facet name="header">
+												<h:outputText value="Last Name" />
+											</f:facet>
+											<h:outputText value="#{x.lastName}" />
+										</p:column>
+
+										<p:column width="110" filterStyle="display:none"
+											filterBy="#{x.firstName}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.firstName}">
+											<f:facet name="header">
+												<h:outputText value="First Name" />
+											</f:facet>
+											<h:outputText value="#{x.firstName}" />
+										</p:column>
+
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.rejectedBy}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.rejectedBy}">
+											<f:facet name="header">
+												<h:outputText value="Rejected By User" />
+											</f:facet>
+											<h:outputText value="#{x.rejectedBy}" />
+										</p:column>
+
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.rejectionReason}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.rejectionReason}">
+											<f:facet name="header">
+												<h:outputText value="Rejection Reason" />
+											</f:facet>
+											<h:outputText value="#{x.rejectionReason}" />
+										</p:column>
+
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.rejectionDate}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.rejectionDate}">
+											<f:facet name="header">
+												<h:outputText value="Rejection Date" />
+											</f:facet>
+											<h:outputText value="#{x.rejectionDate}" />
+										</p:column>
+										
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.branch}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.branch}">
+											<f:facet name="header">
+												<h:outputText value="Office Name" />
+											</f:facet>
+											<h:outputText value="#{x.branch}" />
+										</p:column>
+										
+										<p:column width="150" filterStyle="display:none"
+											filterBy="#{x.vertical}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.vertical}">
+											<f:facet name="header">
+												<h:outputText value="Vertical" />
+											</f:facet>
+											<h:outputText value="#{x.vertical}" />
+										</p:column>
+										
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.clientCompanyName}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.clientCompanyName}">
+											<f:facet name="header">
+												<h:outputText value="Client Name" />
+											</f:facet>
+											<h:outputText value="#{x.clientCompanyName}" />
+										</p:column>
+										
+										<p:column width="250" filterStyle="display:none"
+											filterBy="#{x.companyCode}" filterMatchMode="contains"
+											sortable="true" sortBy="#{x.companyCode}">
+											<f:facet name="header">
+												<h:outputText value="Company Code" />
+											</f:facet>
+											<h:outputText value="#{x.companyCode}" />
+										</p:column>
+										
+										<p:column width="600">
+											<f:facet name="header">
+												<h:outputText value="Actions" />
+											</f:facet>
+											
+											<p:link outcome="analyser.xhtml?compCode=#{param.compCode}"
+												value="Modify" 
+												styleClass="btn btn-xs bg-navy">
+												<f:param name="analyserId" value="#{x.analyserId}" />
+												<f:param name="action" value="Modify" />
+											</p:link>
+											<h:outputText value=" " />
+											<p:link outcome="analyser.xhtml?compCode=#{param.compCode}" value="View"
+												styleClass="btn btn-xs bg-olive">
+												<f:param name="analyserId" value="#{x.analyserId}" />
+												<f:param name="action" value="View" />
+											</p:link>
+										</p:column>
+									</p:dataTable>
+
+								</h:form>
+
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+
+
+				<!-- PAGINATION -->
+				<!-- <nav jsf:id="pagination-bottom" aria-label="Pagination" class="text-center">
+					<h:form id="paginationBottomForm">
+						<ul class="pagination pagination-sm" style="display: inline-flex !important;">
+							<li class="#{rejectedAnalyserListBean.currentPage eq 0 ? 'disabled' : ''}">
+								<div class="form-group">
+									<h:selectOneMenu id="pageSizeBottom"
+										styleClass="form-control input-sm"
+										value="#{rejectedAnalyserListBean.pageSize}">
+										<f:selectItem itemLabel="10" itemValue="10" />
+										<f:selectItem itemLabel="25" itemValue="25" />
+										<f:selectItem itemLabel="50" itemValue="50" />
+										
+										<f:ajax 
+											event="change" 
+											listener="#{rejectedAnalyserListBean.pageSizeChangeListener}" execute="@this" 
+											render=":paginationForm :paginationBottomForm :dataTableForm :globalMessages" />
+									</h:selectOneMenu>	
+								</div>	
+							</li>
+							<li
+								class="#{rejectedAnalyserListBean.currentPage eq 1 ? 'disabled' : ''}">
+								<h:commandLink action="#{rejectedAnalyserListBean.filter}"
+									value="&#171;&#171;" disabled="#{rejectedAnalyserListBean.currentPage eq 1}">
+									<f:setPropertyActionListener
+										value="1"
+										target="#{rejectedAnalyserListBean.currentPage}" />
+									<f:ajax execute="@this"
+										render=":paginationForm :paginationBottomForm :dataTableForm :globalMessages" />
+								</h:commandLink>
+							</li>
+							<li
+								class="#{rejectedAnalyserListBean.currentPage eq 1 ? 'disabled' : ''}">
+								<h:commandLink action="#{rejectedAnalyserListBean.filter}"
+									value="&#171;" disabled="#{rejectedAnalyserListBean.currentPage eq 1}">
+									<f:setPropertyActionListener
+										value="#{rejectedAnalyserListBean.currentPage-1}"
+										target="#{rejectedAnalyserListBean.currentPage}" />
+									<f:ajax execute="@this"
+										render=":paginationForm :paginationBottomForm :dataTableForm :globalMessages" />
+								</h:commandLink>
+							</li>
+							
+							<li style="margin-top:5px;">
+								<h:outputLabel>
+									 (Page #{rejectedAnalyserListBean.currentPage} of #{rejectedAnalyserListBean.totalPages} ) 
+								</h:outputLabel>	
+							</li>
+							
+							<li
+								class="#{(rejectedAnalyserListBean.currentPage) eq rejectedAnalyserListBean.list.totalPages ? 'disabled' : ''}">
+								<h:commandLink action="#{rejectedAnalyserListBean.filter}"
+									value="&#187;"
+									disabled="#{(rejectedAnalyserListBean.currentPage) eq rejectedAnalyserListBean.list.totalPages}">
+									<f:setPropertyActionListener
+										value="#{rejectedAnalyserListBean.currentPage+1}"
+										target="#{rejectedAnalyserListBean.currentPage}" />
+									<f:ajax execute="@this"
+										render=":paginationForm :paginationBottomForm :dataTableForm :globalMessages" />
+								</h:commandLink>
+							</li>
+							<li
+								class="#{(rejectedAnalyserListBean.currentPage) eq rejectedAnalyserListBean.totalPages ? 'disabled' : ''}">
+								<h:commandLink action="#{rejectedAnalyserListBean.filter}"
+									value="&#187;&#187;" 
+									disabled="#{(rejectedAnalyserListBean.currentPage) eq rejectedAnalyserListBean.totalPages}">
+									<f:setPropertyActionListener
+										value="#{rejectedAnalyserListBean.totalPages}"
+										target="#{rejectedAnalyserListBean.currentPage}" />
+									<f:ajax execute="@this"
+										render=":paginationForm :paginationBottomForm  :dataTableForm :globalMessages" />
+								</h:commandLink>
+							</li>
+						</ul>
+					</h:form>
+				</nav> -->
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

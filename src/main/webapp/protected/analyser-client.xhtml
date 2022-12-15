@@ -1,0 +1,1049 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+<style type="text/css">
+.row {
+	background: aliceblue;
+	/*border: 1px solid;
+	border-bottom: 1px solid;*/
+}
+/*.row>div {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}*/
+.inner {
+	background: aliceblue;
+	border-right: 1px solid blue;
+	padding: 0px 15px;
+}
+
+.inner-end {
+	/* background: aliceblue; */
+	padding: 0px 15px;
+}
+
+.title {
+	background: #99d9f7;
+	padding-top: 5px;
+	text-transform: uppercase;
+	font-size: 16px;
+	text-align: center !important;
+	margin-bottom: 0px;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+}
+
+.ui-input-invalid {
+	background-color: red
+}
+
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+
+.ui-button-icon-only .ui-button-text {
+	padding: 0.18em;
+}
+
+/*
+This property will add a border to the drop down.
+Only apply this when the value is not selected, condition css attribute apply.
+1 - Selec the child container with this class and apply attribute
+*/
+/* .select2-container--default {
+  border: 1px solid red;
+} */
+.input-sm {
+	height: 34px !important;
+}
+</style>
+
+<!-- <h:outputScript name="jsf.js" library="javax.faces" target="head" /> -->
+
+<SCRIPT type="text/javascript">
+function submitForm(){
+	var screen = $("#analyserForm\\:action")[0].value;
+	if (screen == "Add") {
+		$("#analyserForm\\:actualSaveButton").click();
+	} else if (screen == "Modify") {
+		$("#analyserForm\\:actualUpdateButton").click();
+	}	
+}
+
+
+</SCRIPT>
+
+
+<body class="hold-transition skin-blue sidebar-mini">
+
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+
+
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				header="Validation Messages" width="400px;" height="400px;"
+				closeOnEscape="true" closable="true">
+				<p:messages id="messagesInDialog" showDetail="true"
+					rendered="#{facesContext.postback or facesContext.validationFailed}" />
+			</p:dialog>
+		</p:outputPanel>
+
+		<div id="dialog" title="Alert message" style="display: none">
+			<div class="ui-dialog-content ui-widget-content">
+				<p>
+					<span class="ui-icon ui-icon-alert"
+						style="float: left; margin: 0 7px 20px 0"></span> <label
+						id="lblMessage"> </label>
+				</p>
+			</div>
+		</div>
+
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+							<div class="box-header"
+								style="text-align: center; background: aliceblue;">
+								<h1 class="box-title" style="font-size: 30px !important;">ANALYSER CLIENT INFORMATION</h1>
+							</div>
+							<!-- /.box-header -->
+							<h:form role="form" name="analyserForm" id="analyserForm">
+								<div class="box-body inner-end">
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Client Information</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="primeSubDiv">
+												<h:outputLabel value="Prime or Sub" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.primeSub}"
+													id="primeSub">
+													<f:selectItem itemLabel="Prime" itemValue="Yes" />
+													<f:selectItem itemLabel="Sub" itemValue="No" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-9 inner-end">
+											<div class="form-group" id="companyNameDiv">
+												<h:outputLabel value="Company Name" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.companyName}"
+													id="companyName">
+												</h:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="otherAgreementDiv">
+												<h:outputLabel value="Other Agreement" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.otherAgreement}"
+													id="otherAgreement">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="agreementNumberDiv">
+												<h:outputLabel value="Agreement # Or Name" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.agreementNumber}"
+													id="agreementNumber">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactTitleDiv">
+												<h:outputLabel value="Contact Tile" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.contactTitle}"
+													id="contactTitle">
+												</h:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactNameDiv">
+												<h:outputLabel value="Contact Name" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.contactName}"
+													id="contactName">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactAddressDiv">
+												<h:outputLabel value="Contact Address" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.contactAddress}"
+													id="contactAddress">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="countryDiv">
+												<h:outputLabel value="Country" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.country}"
+													id="country">
+													<f:selectItem itemLabel="US" itemValue="US" />
+													<f:selectItem itemLabel="Other" itemValue="Other" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactCityDiv">
+												<h:outputLabel value="Contact City" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.contactCity}"
+													id="contactCity">
+												</h:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactStateDiv">
+												<h:outputLabel value="Contact State" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.contactState}"
+													id="contactState">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.contactState}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactZipDiv">
+												<h:outputLabel value="Contact Zip Code" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="contactZip"
+													value="#{analyserClientActionBean.client.contactZip}"
+													mask="*****-?****" placeholder="12345-1234" maxlength="10" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactPhoneDiv">
+												<h:outputLabel value="Contact Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="contactPhone"
+														value="#{analyserClientActionBean.client.contactPhone}"
+														mask="(999) 999-9999" autoClear="true"
+														placeholder="(999) 999-9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactFaxDiv">
+												<h:outputLabel value="Contact Fax" />
+												<p:inputMask styleClass="form-control input-sm"
+													id="contactFax"
+													value="#{analyserClientActionBean.client.contactFax}"
+													mask="(999) 999-9999" autoClear="true"
+													placeholder="(999) 999-9999" />
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="contactEmailDiv">
+												<h:outputLabel value="Contact Email" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-envelope"></i></span>
+													<p:inputText id="contactEmail"
+														styleClass="form-control input-sm"
+														value="#{analyserClientActionBean.client.contactEmail}">
+														<p:keyFilter regEx="/[a-z0-9_\.\-@]/i" />
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Discount Information</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="adminFeeDiv">
+												<h:outputLabel value="Admin Fee" />
+												<h:inputText styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.adminFee}"
+													id="adminFee" />
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="promptPayDiv">
+												<h:outputLabel value="Prompt Pay" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.promptPay}"
+													id="promptPay">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.promptPay}" var="item"
+														itemLabel="#{item.label}" itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="paymentDiscountDiv">
+												<h:outputLabel value="Early Payment Discount" />
+												<p:inputText id="paymentDiscount"
+													styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.paymentDiscount}"
+													maxlength="10">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="volumeDiscountDiv">
+												<h:outputLabel value="Current Volume Discount" />
+												<p:inputText id="volumeDiscount"
+													styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.volumeDiscount}"
+													maxlength="10">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="discountRemarksDiv">
+												<h:outputLabel value="Discount Notes" />
+												<h:inputTextarea id="discountRemarks"
+													styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.discountRemarks}"></h:inputTextarea>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="otherDiscountDiv">
+												<h:outputLabel value="Current Other Discounts" />
+												<p:inputText id="otherDiscount"
+													styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.otherDiscount}"
+													maxlength="10">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Miscellaneous</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="totalPTODaysDiv">
+												<h:outputLabel value="Total PTO Days" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.totalPTODays}"
+													id="totalPTODays">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItem itemLabel="3" itemValue="3" />
+													<f:selectItem itemLabel="5" itemValue="5" />
+													<f:selectItem itemLabel="10" itemValue="10" />
+													<f:selectItem itemLabel="15" itemValue="15" />
+													<f:selectItem itemLabel="20" itemValue="20" />
+													<f:selectItem itemLabel="25" itemValue="25" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="billablePTODiv">
+												<h:outputLabel value="Billable PTO" />
+												<p:inputText id="billablePTO" maxlength="10"
+													styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.billablePTO}">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>	
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="nonBillablePTODiv">
+												<h:outputLabel value="Non Billable PTO" />
+												<p:inputText id="nonBillablePTO" maxlength="10"
+													styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.nonBillablePTO}">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>	
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="totalHolidaysDiv">
+												<h:outputLabel value="Total Holidays" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.totalHolidays}"
+													id="totalHolidays">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItem itemLabel="3" itemValue="3" />
+													<f:selectItem itemLabel="5" itemValue="5" />
+													<f:selectItem itemLabel="10" itemValue="10" />
+													<f:selectItem itemLabel="15" itemValue="15" />
+													<f:selectItem itemLabel="20" itemValue="20" />
+													<f:selectItem itemLabel="25" itemValue="25" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="billableHolidaysDiv">
+												<h:outputLabel value="Billable Holidays" />
+												<p:inputText id="billableHolidays" maxlength="10"
+													styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.billableHolidays}">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>	
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="nonBillableHolidaysDiv">
+												<h:outputLabel value="Non Billable Holidays" />
+												<p:inputText id="nonBillableHolidays" maxlength="10"
+													styleClass="form-control input-sm"
+													value="#{analyserClientActionBean.client.nonBillableHolidays}">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>	
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSVerticalIdDiv">
+												<h:outputLabel value="PS Vertical Id" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.pSVerticalId}"
+													id="pSVerticalId">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSVerticalIds}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSVerticalCodeDiv">
+												<h:outputLabel value="PS Vertical Code" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.pSVerticalCode}"
+													id="pSVerticalCode">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSVerticalCodes}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSVerticalDescriptionDiv">
+												<h:outputLabel value="PS Vertical Description" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.verticalDescription}"
+													id="pSVerticalDescription">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSVerticalDescriptions}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSProductIdDiv">
+												<h:outputLabel value="PS Product Id" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.pSProductId}"
+													id="pSProductId">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSProductIds}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSProductCodeDiv">
+												<h:outputLabel value="PS Product Code" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.pSProductCode}"
+													id="pSProductCode">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSProductCodes}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSProductDescriptionDiv">
+												<h:outputLabel value="PS Vertical Description" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.productDescription}"
+													id="pSProductDescription">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSProductDescriptions}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSBillingTypeIdDiv">
+												<h:outputLabel value="PS BillingType Id" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.pSBillingTypeId}"
+													id="pSBillingTypeId">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSBillingTypeIds}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSBillingTypeCodeDiv">
+												<h:outputLabel value="PS BillingType Code" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.pSBillingTypeCode}"
+													id="pSBillingTypeCode">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSBillingTypeCodes}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="pSBillingTypeLongNameDiv">
+												<h:outputLabel value="PS Billing Type Long Name" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.pSBillingTypeLongName}"
+													id="pSBillingTypeLongName">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.pSBillingTypeLongNames}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="sickLeaveTypeDiv">
+												<h:outputLabel value="Sick Leave Type" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.sickLeaveType}"
+													id="sickLeaveType">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItem itemLabel="Billable" itemValue="B" />
+													<f:selectItem itemLabel="Non-Billable" itemValue="NB" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="entityNameDiv">
+												<h:outputLabel value="Entity Name" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.entityName}"
+													id="entityName">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserClientActionBean.entityNames}"
+														var="item" itemLabel="#{item.label}"
+														itemValue="#{item.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="companyCodeDiv">
+												<h:outputLabel for="companyCode" value="Company Code" />
+												<h:selectOneMenu id="companyCode"
+													styleClass="form-control input-sm select2"
+													value="#{analyserClientActionBean.client.companyCode}">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{companyBean.getCompanies()}"
+														var="compCode" itemLabel="#{compCode.label}"
+														itemValue="#{compCode.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<p:inputText type="hidden" id="action" name="action"
+										value="#{analyserClientActionBean.action}" />
+								</div>
+								<!-- /.box-body -->
+
+								<div class="box-footer" id="buttonsDiv"
+									style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+
+									<h:commandButton style="display:none;"
+										rendered="#{analyserClientActionBean.showSaveButton}"
+										id="actualSaveButton" value="Save" validateClient="true"
+										action="#{analyserClientActionBean.saveClient}" />
+									<input id="saveButton" style="display: none;" type="button"
+										class="btn btn-md btn-primary" value="Save"
+										onclick="submitForm();" />
+
+									<h:commandButton style="display:none;"
+										rendered="#{!analyserClientActionBean.showSaveButton}"
+										id="actualUpdateButton" value="Update Button"
+										validateClient="true" action="#{analyserClientActionBean.updateClient}" />
+
+									<input id="updateButton" style="display: none;" type="button"
+										class="btn btn-md btn-primary" value="Update"
+										onclick="submitForm();" /> &#160;
+									<h:commandButton rendered="#{!analyserBean.showSaveButton}"
+										id="discardButton" value="Discard Changes" immediate="true"
+										action="#{analyserClientActionBean.discardChanges}"
+										styleClass="btn btn-md btn-primary" />
+
+								</div>
+							</h:form>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</section>
+
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+	<script type="text/javascript">
+		var $ = jQuery.noConflict();
+	</script>
+	<script type="text/javascript">
+		function initializeComponents() {
+			$('.select2').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			});
+
+			$('#analyserForm\\:pSVerticalId').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSVerticalId is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSVerticalId is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSVerticalId").prop('selectedIndex');
+				changeDropDown('pSVerticalCode', selectedIndex);
+				changeDropDown('pSVerticalDescription', selectedIndex);
+			});
+			
+			$('#analyserForm\\:pSVerticalCode').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSVerticalCode is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSVerticalCode is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSVerticalCode").prop('selectedIndex');
+				changeDropDown('pSVerticalDescription', selectedIndex);
+				changeDropDown('pSVerticalId', selectedIndex);
+			});
+			
+			$('#analyserForm\\:pSVerticalDescription').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSVerticalDescription is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSVerticalDescription is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSVerticalDescription").prop('selectedIndex');
+				changeDropDown('pSVerticalCode', selectedIndex);
+				changeDropDown('pSVerticalId', selectedIndex);
+			});
+			
+			
+			$('#analyserForm\\:pSProductId').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSProductId is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSProductId is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSProductId").prop('selectedIndex');
+				changeDropDown('pSProductCode', selectedIndex);
+				changeDropDown('pSProductDescription', selectedIndex);
+			});
+			
+			$('#analyserForm\\:pSProductCode').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSProductCode is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSProductCode is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSProductCode").prop('selectedIndex');
+				changeDropDown('pSProductDescription', selectedIndex);
+				changeDropDown('pSProductId', selectedIndex);
+			});
+			
+			$('#analyserForm\\:pSProductDescription').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSProductDescription is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSProductDescription is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSProductDescription").prop('selectedIndex');
+				changeDropDown('pSProductCode', selectedIndex);
+				changeDropDown('pSProductId', selectedIndex);
+			});
+			
+			
+			
+			$('#analyserForm\\:pSBillingTypeId').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSBillingTypeId is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSBillingTypeId is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSBillingTypeId").prop('selectedIndex');
+				changeDropDown('pSBillingTypeCode', selectedIndex);
+				changeDropDown('pSBillingTypeLongName', selectedIndex);
+			});
+			
+			$('#analyserForm\\:pSBillingTypeCode').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSBillingTypeCode is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSBillingTypeCode is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSBillingTypeCode").prop('selectedIndex');
+				changeDropDown('pSBillingTypeLongName', selectedIndex);
+				changeDropDown('pSBillingTypeId', selectedIndex);
+			});
+			
+			$('#analyserForm\\:pSBillingTypeLongName').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in pSBillingTypeLongName is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in pSBillingTypeLongName is from UI, we can continue');
+				var selectedIndex = $("#analyserForm\\:pSBillingTypeLongName").prop('selectedIndex');
+				changeDropDown('pSBillingTypeCode', selectedIndex);
+				changeDropDown('pSBillingTypeId', selectedIndex);
+			});
+		}
+		
+		function changeDropDown(componentId, selectedIndex){
+			console.log("Selected Component is : "+componentId);
+			console.log("Selected index is : "+selectedIndex);
+			console.log("Previous selected value is : "+$("#analyserForm\\:"+componentId)[0][selectedIndex].value);
+			var value = $("#analyserForm\\:"+componentId)[0][selectedIndex].value;
+			$("#analyserForm\\:"+componentId).val(""+value+"").trigger('change.select2');
+			console.log("Selected value is : "+$("#analyserForm\\:"+componentId+" option:selected").val());
+		}
+
+		function bindCheckboxes() {
+			$('input[type="checkbox"].minimal').iCheck({
+				checkboxClass : 'icheckbox_flat-blue'
+			})
+			//chkReferralFee
+			var screen = $("#analyserForm\\:action")[0].value;
+			$('#analyserForm\\:chkBackgroundAmount').on(
+				'ifChecked ifUnchecked',
+				function(event) {
+					showTextBox('chkBackgroundAmount', 'backgroundAmount',
+							screen);
+			});
+			
+			$('#analyserForm\\:chkCreditCheckAmount').on(
+				'ifChecked ifUnchecked',
+				function(event) {
+					showTextBox('chkCreditCheckAmount', 'creditCheckAmount',
+							screen);
+			});
+			
+			$('#analyserForm\\:chkDrugTestAmount').on(
+				'ifChecked ifUnchecked',
+				function(event) {
+					showTextBox('chkDrugTestAmount', 'drugTestAmount',
+							screen);
+			});
+			
+			$('#analyserForm\\:tmContract').on(
+				'ifChecked ifUnchecked',
+				function(event) {
+					showTextBox('tmContract', 'amount',
+							screen);
+			});
+		}
+
+		function checkBoxProcessing(element) {
+			if ($("#analyserForm\\:" + element).is(':checked')) {
+				$('#analyserForm\\:' + element).iCheck('check');
+			} else if ($("#analyserForm\\:" + element).not(':checked')) {
+				$('#analyserForm\\:' + element).iCheck('uncheck');
+			}
+		}
+
+		function loadPageEvents(screen) {
+			if($("#analyserForm\\:chkBackgroundAmount").is(':checked')){
+				$("#analyserForm\\:backgroundAmount").prop("readonly",false);
+			}else{
+				$("#analyserForm\\:backgroundAmount").prop("readonly",true);
+			}
+			
+			if($("#analyserForm\\:chkCreditCheckAmount").is(':checked')){
+				$("#analyserForm\\:creditCheckAmount").prop("readonly",false);
+			}else{
+				$("#analyserForm\\:creditCheckAmount").prop("readonly",true);
+			}
+			
+			if($("#analyserForm\\:chkDrugTestAmount").is(':checked')){
+				$("#analyserForm\\:drugTestAmount").prop("readonly",false);
+			}else{
+				$("#analyserForm\\:drugTestAmount").prop("readonly",true);
+			}
+			
+			if($("#analyserForm\\:tmContract").is(':checked')){
+				$("#analyserForm\\:amount").prop("readonly",false);
+			}else{
+				$("#analyserForm\\:amount").prop("readonly",true);
+			}
+		}
+
+		function commandButtons() {
+			initializeComponents();
+			bindCheckboxes();
+			var screen = $("#analyserForm\\:action")[0].value;
+			if (screen == "Add") {
+				$("#saveButton").show();
+				$("#updateButton").hide();
+			} else if (screen == "Modify") {
+				$("#saveButton").hide();
+				$("#updateButton").show();
+			} else if (screen == "View") {
+				$("#saveButton").hide();
+				$("#updateButton").hide();
+			}
+		}
+
+		$(document).ready(function() {
+			initializeComponents();
+			bindCheckboxes();
+			var screen = $("#analyserForm\\:action")[0].value;
+			//var screen = "View";
+			loadPageEvents(screen);
+			commandButtons();
+			/* $( "#dialog" ).dialog({
+			    autoOpen: false
+			  }); */
+			disableFields();
+		});
+		
+		function disableFields(){
+			//disableDropDownSelect('pSVerticalCode');
+		}
+		function disableDropDownSelect(elem){
+		    var e = '#analyserForm\\:'+elem;
+		    $(e).attr('title', "Can't edit this field.");
+		    $(e).select2().on('select2:selecting',
+		        function(e) {
+		            e.preventDefault();
+		            $(this).select2('close');
+		        }
+		    );
+		}
+		
+		function showTextBox(checkbox, textbox,action) {
+			if(action == "Add"){
+				if ($("#analyserForm\\:" + checkbox).is(':checked') == true) {
+					$("#analyserForm\\:" + textbox).val("0.0");
+					$("#analyserForm\\:" + textbox).prop("readonly",false);
+				} else {
+					$("#analyserForm\\:" + textbox).val("0.0");
+					$("#analyserForm\\:" + textbox).prop("readonly",true);
+				}
+			}else{
+				if ($("#analyserForm\\:" + checkbox).is(':checked') == true) {
+					//$("#analyserForm\\:" + textbox).val("0.0");
+					$("#analyserForm\\:" + textbox).prop("readonly",false);
+				} else {
+					//$("#analyserForm\\:" + textbox).val("0.0");
+					$("#analyserForm\\:" + textbox).prop("readonly",true);
+				}
+			}
+		}
+
+		function ShowCustomDialog() {
+			ShowDialogBox('Warning', 'Record updated successfully.', 'Ok', '',
+					'GoToAssetList', null);
+		}
+
+		function ShowDialogBox(title, content, btn1text, btn2text,
+				functionText, parameterList) {
+			var btn1css;
+			var btn2css;
+
+			if (btn1text == '') {
+				btn1css = "hidecss";
+			} else {
+				btn1css = "showcss";
+			}
+
+			if (btn2text == '') {
+				btn2css = "hidecss";
+			} else {
+				btn2css = "showcss";
+			}
+			$("#lblMessage").html(content);
+
+			$("#dialog").dialog({
+				resizable : false,
+				title : title,
+				modal : true,
+				width : '400px',
+				height : 'auto',
+				bgiframe : false,
+				hide : {
+					effect : 'scale',
+					duration : 400
+				},
+
+				buttons : [ {
+					text : btn1text,
+					"class" : btn1css,
+					click : function() {
+
+						$("#dialog").dialog('close');
+
+					}
+				}, {
+					text : btn2text,
+					"class" : btn2css,
+					click : function() {
+						$("#dialog").dialog('close');
+					}
+				} ]
+			});
+		}
+	</script>
+</body>
+
+</html>

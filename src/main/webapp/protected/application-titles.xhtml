@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+<style type="text/css">
+.center {
+	text-align: center;
+}
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+
+.input-sm {
+	height: 34px !important;
+}
+
+select[readonly].select2+.select2-container {
+	pointer-events: none;
+	touch-action: none; . select2-selection { background : #eee;
+	box-shadow: none;
+}
+
+.select2-selection__arrow, .select2-selection__clear {
+	display: none;
+}
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Application Titles</h1>
+			</section>
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- <h:messages styleClass="errorMessage" globalOnly="true" /> -->
+				<!-- Global messages -->
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<h:form role="form" id="form1">
+							<p:growl showDetail="false" id="msgs" />
+							<div class="box">
+
+								<div class="box-body">
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group" id="doubleTimeDiv">
+												<h:outputLabel value="Resource Name" />
+												<h:inputText id="resourceName" a:placeholder="Resource Name"
+													value="#{titleActionBean.title.resourceName}"
+													styleClass="form-control" required="true" />
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<h:outputLabel value="Resource Title" />
+												<h:inputText id="title" a:placeholder="Resource Title"
+													value="#{titleActionBean.title.title}"
+													styleClass="form-control" required="true" />
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group" id="resourceDiv">
+												<h:outputLabel for="resource" value="Resource" />
+
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{titleActionBean.title.resourceId}" id="resource">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{titleActionBean.resourceList}"
+														var="res" itemLabel="#{res.resDesc}"
+														itemValue="#{res.resId}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group" id="menuItemDiv">
+												<h:outputLabel for="menuItem" value="Is Menu" />
+												<h:selectOneMenu styleClass="form-control input-sm select2 menuItem"
+													value="#{titleActionBean.title.menuItem}" id="menuItem">
+													<f:selectItem itemLabel="Yes" itemValue="1" />
+													<f:selectItem itemLabel="No" itemValue="0" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- /.box-body -->
+
+								<!-- <div class="box-footer"> -->
+								<div class="box-body">
+									<div class="form-group">
+										<div class="col-sm-3 control-label">
+											<p:commandButton value="Save" id="btnSave"
+												update=":form1 form2:crudDataTable"
+												rendered="#{!titleActionBean.showUpdateButton}"
+												styleClass="btn btn-primary btn-sm" icon="ui-icon-check"
+												actionListener="#{titleActionBean.saveTitle}"
+												oncomplete="reseValues()">
+											</p:commandButton>
+
+											<p:commandButton value="Update" id="btnUpdate"
+												update=":form1:msgs form2:crudDataTable"
+												rendered="#{titleActionBean.showUpdateButton}"
+												styleClass="btn btn-primary btn-sm" icon="ui-icon-check"
+												actionListener="#{titleActionBean.updateTitle}"
+												oncomplete="reseValues()">
+											</p:commandButton>
+
+											<p:commandButton value="Clear" id="btnClear"
+												styleClass="btn btn-default btn-sm" icon="fa fa-refresh"
+												actionListener="#{titleActionBean.clearForm}"
+												immediate="true" partialSubmit="true" update=":form1"
+												process="@this" oncomplete="reseValues()">
+												<f:ajax execute="@this"></f:ajax>
+											</p:commandButton>
+										</div>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<h:form role="form" id="form2">
+							<p:dataTable id="crudDataTable" value="#{titleActionBean.list}"
+								var="x" rows="10" paginator="true"
+								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								rowsPerPageTemplate="10,20,50,100" scrollable="false"
+								scrollHeight="350" scrollWidth="96%" reflow="true"
+								widgetVar="dataTable"
+								emptyMessage="No data found with given criteria"
+								filteredValue="#{titleActionBean.filteredList}">
+
+
+								<f:facet name="header">
+									<p:outputPanel>
+										<h:outputText value="Search all fields:" />
+										<p:inputText id="globalFilter"
+											onchange="PF('dataTable').filter()" style="width:150px"
+											placeholder="Enter keyword" />
+									</p:outputPanel>
+								</f:facet>
+
+
+
+								<p:column width="110" headerText="Resource Name"
+									filterStyle="display:none" filterBy="#{x.resourceName}"
+									filterMatchMode="contains" sortBy="#{x.resourceName}">
+									<h:outputText value="#{x.resourceName}" />
+								</p:column>
+
+								<p:column width="110" filterStyle="display:none"
+									filterBy="#{x.title}" filterMatchMode="contains"
+									headerText="Resource Title" sortBy="#{x.title}">
+									<h:outputText value="#{x.title}" />
+								</p:column>
+								
+								<p:column width="110" filterStyle="display:none"
+									filterBy="#{x.menuItem}" filterMatchMode="contains"
+									headerText="Is Menu" sortBy="#{x.menuItem}">
+									<h:outputText value="#{x.menuItem eq 1 ? 'Yes' : 'No'}" />
+								</p:column>
+
+								<p:column width="40" headerText="Action"
+									style="text-align:center;">
+
+									<h:commandLink title="Edit" styleClass="btn btn-xs btn-default"
+										role="button">
+										<i class="glyphicon glyphicon-pencil" />
+										<p:ajax listener="#{titleActionBean.editTitle}"
+											process="@this" update=":form1" oncomplete="reseValues()"/>
+										<f:setPropertyActionListener value="#{x}"
+											target="#{titleActionBean.title}" />
+									</h:commandLink>
+								</p:column>
+
+							</p:dataTable>
+						</h:form>
+					</div>
+				</div>
+
+
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+	<script>
+		$(document).ready(function() {
+			reseValues();
+		});
+		
+		function reseValues() {
+			$('.select2').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			});
+			
+			$('.menuItem').select2({
+				allowClear : false,
+			});
+			
+			$('.select2').on('change.select2', function(e) {
+				if (e.currentTarget.selectedIndex == 0) {
+					e.stopImmediatePropagation();
+					return false;
+				}
+			});
+		}
+	</script>
+</body>
+
+</html>

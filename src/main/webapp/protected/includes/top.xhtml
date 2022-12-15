@@ -1,0 +1,160 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui">
+	<header class="main-header">
+		<ui:param name="root" value="#{request.contextPath}" />
+		<!-- Logo -->
+		<a
+			href="#{root}/protected/analyser-list.xhtml?compCode=DISYS"
+			class="logo"> <!-- mini logo for sidebar mini 50x50 pixels --> <span
+			class="logo-mini"><p:graphicImage
+					url="/resources/images/fav_icon.png" /></span> <!-- logo for regular state and mobile devices -->
+			<span class="logo-lg"><b><p:graphicImage
+						url="/resources/images/logo.png" /></b></span>
+		</a>
+		<!-- Header Navbar: style can be found in header.less -->
+		<nav class="navbar navbar-static-top">
+		<!-- <nav class="navbar navbar-fixed-top"> -->
+			<!-- Sidebar toggle button-->
+			<a href="#" class="sidebar-toggle" data-toggle="push-menu"
+				role="button"> <span class="sr-only">Toggle navigation</span> <span
+				class="icon-bar"></span> <span class="icon-bar"></span> <span
+				class="icon-bar"></span>
+			</a>
+
+			<div class="navbar-custom-menu">
+				<ul class="nav navbar-nav">
+					<!-- User Account: style can be found in dropdown.less -->
+					<li class="dropdown user user-menu"><a href="#"
+						class="dropdown-toggle" data-toggle="dropdown"> <!-- <h:graphicImage
+								name="dist/img/user2-160x160.jpg" class="user-image"
+								alt="User Image" /> --> <h:graphicImage
+								name="dist/img/avatar-unisex.png" class="user-image" alt="User Image" />
+
+							<span class="hidden-xs"><h:outputText
+									value="#{userBean.user.firstName} #{userBean.user.lastName}"></h:outputText>
+								<!-- Test --></span>
+					</a>
+						<ul class="dropdown-menu">
+							<!-- User image -->
+							<li class="user-header">
+								<!-- <h:graphicImage
+									name="dist/img/user2-160x160.jpg" class="img-circle"
+									alt="User Image" /> --> <h:graphicImage
+									name="dist/img/avatar-unisex.png" class="img-circle" alt="User Image" />
+								<p>
+									<h:outputText
+										value="#{userBean.user.firstName} #{userBean.user.lastName}"></h:outputText>
+									<!-- <small>Member since Nov. 2012</small> -->
+								</p>
+							</li>
+							<!-- Menu Body -->
+							<!-- <li class="user-body">
+								<div class="row">
+									<div class="col-xs-4 text-center">
+										<a href="#">Followers</a>
+									</div>
+									<div class="col-xs-4 text-center">
+										<a href="#">Sales</a>
+									</div>
+									<div class="col-xs-4 text-center">
+										<a href="#">Friends</a>
+									</div>
+								</div> /.row
+							</li> -->
+							<!-- Menu Footer-->
+							<li class="user-footer">
+								<!-- <div class="pull-left">
+									<a href="#" class="btn btn-default btn-flat">Profile</a>
+								</div> -->
+								
+								<div class="pull-left">
+									<a href="#{root}/protected/change-password.xhtml"
+										class="btn btn-default btn-flat">Reset Password</a>
+								</div>
+								<div class="pull-right">
+									<a href="#{root}/logout"
+										class="btn btn-default btn-flat">Sign out</a>
+								</div>
+							</li>
+						</ul></li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<style type="text/css">
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+</style>
+
+
+<style type="text/css">
+   .ui-datatable,
+   .ui-datatable .ui-datatable-tablewrapper table {
+        font-size: 12px !important;
+   }
+            
+   /* For Paginator */
+   .ui-datatable .ui-paginator .ui-paginator-first, 
+   .ui-datatable .ui-paginator .ui-paginator-prev, 
+   .ui-datatable .ui-paginator .ui-paginator-pages .ui-paginator-page, 
+   .ui-datatable .ui-paginator .ui-paginator-next, 
+   .ui-datatable .ui-paginator .ui-paginator-last, 
+   .ui-datatable .ui-paginator .ui-paginator-rpp-options {
+        font-size: 10px !important;
+   }
+            
+   .ui-datatable .ui-paginator .ui-paginator-current {
+       font-size: 10px !important;
+   }
+</style>
+
+	<h:form id="menuForm">
+		<h:inputHidden id="userManagementMenu"
+			value="#{titleBean.userManagementMenu}" />
+		<h:inputHidden id="analyserMenu" value="#{titleBean.analyserMenu}" />
+		<h:inputHidden id="reportsMenu" value="#{titleBean.reportsMenu}" />
+		<h:inputHidden id="commissionMenu" value="#{titleBean.commissionMenu}" />
+		<h:inputHidden id="setupMenu" value="#{titleBean.setupMenu}" />
+		<h:inputHidden id="analyserCommonMenu" value="#{titleBean.analyserCommonMenu}" />
+		<h:inputHidden id="signatureAnalyserMenu" value="#{titleBean.signatureAnalyserMenu}" />
+
+		<h:inputHidden id="usersTreeMenu" value="#{titleBean.usersTreeMenu}" />
+		<h:inputHidden id="groupsTreeMenu" value="#{titleBean.groupsTreeMenu}" />
+		<h:inputHidden id="rolesTreeMenu" value="#{titleBean.rolesTreeMenu}" />
+		<h:inputHidden id="resourcesTreeMenu" value="#{titleBean.resourcesTreeMenu}" />
+
+		<h:inputHidden id="revenueTreeMenu" value="#{titleBean.revenueTreeMenu}" />
+		<h:inputHidden id="consultantsTreeMenu" value="#{titleBean.consultantsTreeMenu}" />
+		<h:inputHidden id="commissionTreeMenu" value="#{titleBean.commissionTreeMenu}" />
+		<h:inputHidden id="othersTreeMenu" value="#{titleBean.othersTreeMenu}" />
+		<h:inputHidden id="activityTreeMenu" value="#{titleBean.activityTreeMenu}" />
+
+		<h:inputHidden id="menuNumber" value="#{titleBean.menuNumber}" />
+		
+		<h:inputHidden id="displayAnalyserMenu" value="#{titleBean.displayAnalyserMenu}" />
+		<h:inputHidden id="displayReportsMenu" value="#{titleBean.displayReportsMenu}" />
+		<h:inputHidden id="displayCommissionManagementMenu" value="#{titleBean.displayCommissionManagementMenu}" />
+		<h:inputHidden id="displayUserManagementMenu" value="#{titleBean.displayUserManagementMenu}" />
+		<h:inputHidden id="displaySetupMenu" value="#{titleBean.displaySetupMenu}" />
+		<h:inputHidden id="displayAnalyserCommonMenu" value="#{titleBean.displayAnalyserCommonMenu}" />
+		<h:inputHidden id="displaySignatureAnalyserMenu" value="#{titleBean.displaySignatureAnalyserMenu}" />
+		
+		<h:inputHidden id="roleId" value="#{titleBean.roleId}" />
+		
+	</h:form>
+
+	<p:ajaxStatus onstart="PF('statusDialog').show()"
+		onsuccess="PF('statusDialog').hide();" />
+
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false"
+		closable="false" resizable="false" showHeader="false">
+		<p:graphicImage url="/resources/images/ajax-loader.gif" />
+	</p:dialog>
+</ui:composition>

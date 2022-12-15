@@ -1,0 +1,1408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<h:head>
+	<meta charset="utf-8"></meta>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+	<title><ui:insert name="title">Analyzer History Report</ui:insert></title>
+	<!-- Tell the browser to be responsive to screen width -->
+	<meta
+		content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+		name="viewport"></meta>
+	<!-- Bootstrap 3.3.7 -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+	<!-- <link rel="stylesheet"
+			href="../resources/" /> -->
+	<!-- Font Awesome -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/font-awesome/css/font-awesome.min.css" />
+	<!-- Ionicons -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/Ionicons/css/ionicons.min.css" />
+
+	<!-- DataTables -->
+	<!-- <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css" /> -->
+	<link rel="stylesheet" type="text/css"
+		href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+
+	<!-- Theme style -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/AdminLTE.min.css" />
+
+	<!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/skins/_all-skins.min.css" />
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+	<!-- Google Font -->
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+	</link>
+
+	<style type="text/css">
+.ui-datatable, .ui-datatable .ui-datatable-tablewrapper table {
+	font-size: 12px !important;
+}
+
+/* For Paginator */
+.ui-datatable .ui-paginator .ui-paginator-first, .ui-datatable .ui-paginator .ui-paginator-prev,
+	.ui-datatable .ui-paginator .ui-paginator-pages .ui-paginator-page,
+	.ui-datatable .ui-paginator .ui-paginator-next, .ui-datatable .ui-paginator .ui-paginator-last,
+	.ui-datatable .ui-paginator .ui-paginator-rpp-options {
+	font-size: 10px !important;
+}
+
+.ui-datatable .ui-paginator .ui-paginator-current {
+	font-size: 10px !important;
+}
+</style>
+
+</h:head>
+<body class="hold-transition skin-blue">
+	<!-- Content Wrapper. Contains page content -->
+	<div class="content-wrapper" style="margin-left: 0px !important;">
+		<!-- Main content -->
+		<section class="content">
+
+			<div class="row">
+				<div class="col-xs-12">
+					<!-- /.box -->
+
+					<div class="box">
+
+						<!-- /.box-header -->
+						<div class="box-body">
+							<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+								<p:dataTable id="crudDataTable"
+									value="#{analyserCommissionHistoryBean.responseList}" var="x" rows="10"
+									paginator="true" rowIndexVar="index"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,20,50,100" scrollable="false"
+									scrollHeight="200" scrollWidth="100%" widgetVar="dataTable"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{analyserCommissionHistoryBean.filteredList}">
+
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onchange="PF('dataTable').filter()" style="width:150px"
+												placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>
+
+									<p:column width="100">
+										<f:facet name="header">
+											<h:outputText value="Record ID" />
+										</f:facet>
+										<h:outputText value="#{index+1}" />
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Analyzer ID')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Analyzer ID')}">
+										<f:facet name="header">
+											<h:outputText value="Analyzer ID" />
+										</f:facet>
+										<h:outputText value="#{x.get('Analyzer ID')}" />
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Parent ID')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Parent ID')}">
+										<f:facet name="header">
+											<h:outputText value="Parent ID" />
+										</f:facet>
+										<h:outputText value="#{x.get('Parent ID')}" />
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('New Parent ID')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('New Parent ID')}">
+										<f:facet name="header">
+											<h:outputText value="New Parent ID" />
+										</f:facet>
+										<h:outputText value="#{x.get('New Parent ID')}" />
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Last Name')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Last Name')}">
+										<f:facet name="header">
+											<h:outputText value="Last Name" />
+										</f:facet>
+										<h:outputText value="#{x.get('Last Name')}" style="#{x.get('Last Name-color')}" />
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('First Name')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('First Name')}">
+										<f:facet name="header">
+											<h:outputText value="First Name" />
+										</f:facet>
+										<h:outputText value="#{x.get('First Name')}" style="#{x.get('First Name-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('ModifiedBy')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('ModifiedBy')}">
+										<f:facet name="header">
+											<h:outputText value="Modified By" />
+										</f:facet>
+										<h:outputText value="#{x.get('ModifiedBy')}" style="#{x.get('Modified By-color')}" />
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Start Date')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Start Date')}">
+										<f:facet name="header">
+											<h:outputText value="Start Date" />
+										</f:facet>
+										<h:outputText value="#{x.get('Start Date')}" style="#{x.get('Start Date-color')}" />
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('EFFECTIVE DATE')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('EFFECTIVE DATE')}">
+										<f:facet name="header">
+											<h:outputText value="Effective Date" />
+										</f:facet>
+										<h:outputText value="#{x.get('EFFECTIVE DATE')}" style="#{x.get('Effective Date-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Terminate Date')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Terminate Date')}">
+										<f:facet name="header">
+											<h:outputText value="Terminate Date" />
+										</f:facet>
+										<h:outputText value="#{x.get('Terminate Date')}" style="#{x.get('Terminate Date-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Comm Eff Date')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Comm Eff Date')}">
+										<f:facet name="header">
+											<h:outputText value="Comm Eff Date" />
+										</f:facet>
+										<h:outputText value="#{x.get('Comm Eff Date')}" style="#{x.get('Comm Eff Date-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('End Date')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('End Date')}">
+										<f:facet name="header">
+											<h:outputText value="End Date" />
+										</f:facet>
+										<h:outputText value="#{x.get('End Date')}" style="#{x.get('End Date-color')}"/>
+									</p:column>
+
+									<p:column width="180" filterStyle="display:none"
+										filterBy="#{x.get('Submission Date')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Submission Date')}">
+										<f:facet name="header">
+											<h:outputText value="Submission Date" />
+										</f:facet>
+										<h:outputText value="#{x.get('Submission Date')}" style="#{x.get('Submission Date-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Branch')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Branch')}">
+										<f:facet name="header">
+											<h:outputText value="Branch" />
+										</f:facet>
+										<h:outputText value="#{x.get('Branch')}" style="#{x.get('Branch-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Record Status')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Record Status')}">
+										<f:facet name="header">
+											<h:outputText value="Record Status" />
+										</f:facet>
+										<h:outputText value="#{x.get('Record Status')}" style="#{x.get('Record Status-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Employee Type')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Employee Type')}">
+										<f:facet name="header">
+											<h:outputText value="Employee Type" />
+										</f:facet>
+										<h:outputText value="#{x.get('Employee Type')}" style="#{x.get('Employee Type-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Pay Rate')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Pay Rate')}">
+										<f:facet name="header">
+											<h:outputText value="Pay Rate" />
+										</f:facet>
+										<h:outputText value="#{x.get('Pay Rate')}" style="#{x.get('Pay Rate-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Bill Rate')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Bill Rate')}">
+										<f:facet name="header">
+											<h:outputText value="Bill Rate" />
+										</f:facet>
+										<h:outputText value="#{x.get('Bill Rate')}" style="#{x.get('Bill Rate-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Profit')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Profit')}">
+										<f:facet name="header">
+											<h:outputText value="Profit" />
+										</f:facet>
+										<h:outputText value="#{x.get('Profit')}" style="#{x.get('Profit-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Portfolio Code')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Portfolio Code')}">
+										<f:facet name="header">
+											<h:outputText value="Portfolio Code" />
+										</f:facet>
+										<h:outputText value="#{x.get('Portfolio Code')}" style="#{x.get('Portfolio Code-color')}"/>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Portfolio Description')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Portfolio Description')}">
+										<f:facet name="header">
+											<h:outputText value="Portfolio Description" />
+										</f:facet>
+										<h:outputText value="#{x.get('Portfolio Description')}" style="#{x.get('Portfolio Description-color')}"/>
+									</p:column>
+									
+									<p:column width="80" filterStyle="display:none"
+										filterBy="#{x.get('BullhornPlacementId')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('BullhornPlacementId')}">
+										<f:facet name="header">
+											<h:outputText value="BH PID" />
+										</f:facet>
+										<h:outputText value="#{x.get('BullhornPlacementId')}" style="#{x.get('BullhornPlacementId-color')}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.get('DealActivityAmount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('DealActivityAmount')}">
+										<f:facet name="header">
+											<h:outputText value="DealActivityAmount" />
+										</f:facet>
+										<h:outputText value="#{x.get('DealActivityAmount')}" style="#{x.get('DealActivityAmount-color')}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.get('DealPortfolio1AE1')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('DealPortfolio1AE1')}">
+										<f:facet name="header">
+											<h:outputText value="DealPortfolio1AE1" />
+										</f:facet>
+										<h:outputText value="#{x.get('DealPortfolio1AE1')}" style="#{x.get('DealPortfolio1AE1-color')}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.get('DealPortfolio2REC1')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('DealPortfolio2REC1')}">
+										<f:facet name="header">
+											<h:outputText value="DealPortfolio2REC1" />
+										</f:facet>
+										<h:outputText value="#{x.get('DealPortfolio2REC1')}" style="#{x.get('DealPortfolio2REC1-color')}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.get('DealPortfolio3AE2')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('DealPortfolio3AE2')}">
+										<f:facet name="header">
+											<h:outputText value="DealPortfolio3AE2" />
+										</f:facet>
+										<h:outputText value="#{x.get('DealPortfolio3AE2')}" style="#{x.get('DealPortfolio3AE2-color')}"/>
+									</p:column>
+									
+									<p:column width="200" filterStyle="display:none"
+										filterBy="#{x.get('DealPortfolio4REC2')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('DealPortfolio4REC2')}">
+										<f:facet name="header">
+											<h:outputText value="DealPortfolio4REC2" />
+										</f:facet>
+										<h:outputText value="#{x.get('DealPortfolio4REC2')}" style="#{x.get('DealPortfolio4REC2-color')}"/>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('CompanyCode')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('CompanyCode')}">
+										<f:facet name="header">
+											<h:outputText value="CompanyCode" />
+										</f:facet>
+										<h:outputText value="#{x.get('CompanyCode')}" style="#{x.get('CompanyCode-color')}"/>
+									</p:column>																		
+
+								</p:dataTable>
+
+								<p:dataTable id="crudDataTable1"
+									value="#{analyserCommissionHistoryBean.responseList}" var="x" rows="10"
+									paginator="true" rowIndexVar="index"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,20,50,100" scrollable="false"
+									scrollHeight="200" scrollWidth="100%" widgetVar="dataTable1"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{analyserCommissionHistoryBean.filteredList1}">
+
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('dataTable1').filter()" style="width:150px"
+												placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>
+									
+									<p:column width="100">
+										<f:facet name="header">
+											<h:outputText value="Record ID" />
+										</f:facet>
+										<h:outputText value="#{index+1}" />
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Gross Profit Percentage')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Managing Director')}">
+										<f:facet name="header">
+											<h:outputText value="Managing Director" />
+										</f:facet>
+										<h:outputText value="#{x.get('Managing Director')}" style="#{x.get('Managing Director-color')}"/>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Gross Profit Percentage')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Gross Profit Percentage')}">
+										<f:facet name="header">
+											<h:outputText value="GP%" />
+										</f:facet>
+										<h:outputText value="#{x.get('Gross Profit Percentage')}" style="#{x.get('Gross Profit Percentage-color')}"/>
+									</p:column>
+
+									<!-- AE1 start -->
+									<p:column width="140" filterStyle="display:none"
+										filterBy="#{x.get('AE-1 Name')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('AE-1 Name')}">
+										<f:facet name="header">
+											<h:outputText value="Account Exec-1" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-1 Name')}" style="#{x.get('Account Exec-1-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('AE-1 Percent')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('AE-1 Percent')}">
+										<f:facet name="header">
+											<h:outputText value="Percent" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-1 Percent')}" style="#{x.get('Account Exec-1 Percentage-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('AE-1 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('AE-1 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-1 Amount')}" style="#{x.get('Account Exec-1 Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('AE-1 SPLIT%')}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.get('AE-1 SPLIT%')}">
+										<f:facet name="header">
+											<h:outputText value="AE1 Split%" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-1 SPLIT%')}" style="#{x.get('Split Commission Percentage 1-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('AE-1 Orphan')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('AE-1 Orphan')}">
+										<f:facet name="header">
+											<h:outputText value="AE1 Orphan" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-1 Orphan')}" style="#{x.get('Exec Orphan-color')}"/>
+									</p:column>
+									<!-- AE1 end -->
+
+
+									<!-- RE1 start -->
+									<p:column width="160" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-1 NAME')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('RECRUITER-1 NAME')}">
+										<f:facet name="header">
+											<h:outputText value="Recruiter-1" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-1 NAME')}" style="#{x.get('Recruiter 1-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-1 Percent')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('RECRUITER-1 Percent')}">
+										<f:facet name="header">
+											<h:outputText value="Percent" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-1 Percent')}" style="#{x.get('Recruiter-1 Percentage-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-1 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('RECRUITER-1 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-1 Amount')}" style="#{x.get('Recruiter-1 Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-1 SPLIT%')}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.get('RECRUITER-1 SPLIT%')}">
+										<f:facet name="header">
+											<h:outputText value="Recruiter1 Split%" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-1 SPLIT%')}" style="#{x.get('Split Commission Percentage 2-color')}"/>
+									</p:column>
+
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-1 Orphan')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('RECRUITER-1 Orphan')}">
+										<f:facet name="header">
+											<h:outputText value="Recruiter1 Orphan" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-1 Orphan')}" style="#{x.get('Recruiter Orphan-color')}" />
+									</p:column>
+									
+									<!-- RE1 end -->
+									
+									
+									<!-- AE2 start -->
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.get('AE-2 Name')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('AE-2 Name')}">
+										<f:facet name="header">
+											<h:outputText value="Account Exec-2" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-2 Name')}" style="#{x.get('Account Exec-2-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('AE-2 Percent')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('AE-2 Percent')}">
+										<f:facet name="header">
+											<h:outputText value="Percent" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-2 Percent')}" style="#{x.get('Account Exec-2 Percentage-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('AE-2 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('AE-2 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-2 Amount')}" style="#{x.get('Account Exec-2 Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('AE-2 SPLIT%')}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.get('AE-2 SPLIT%')}">
+										<f:facet name="header">
+											<h:outputText value="AE2 Split%" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-2 SPLIT%')}" style="#{x.get('Split Commission Percentage 3-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('AE-2 Orphan')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('AE-2 Orphan')}">
+										<f:facet name="header">
+											<h:outputText value="AE2 Orphan" />
+										</f:facet>
+										<h:outputText value="#{x.get('AE-2 Orphan')}" style="#{x.get('Other 1 Orphan-color')}"/>
+									</p:column>
+									
+									<!-- AE2 end -->
+
+									<!-- RE2 start -->
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-2 Name')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('RECRUITER-2 Name')}">
+										<f:facet name="header">
+											<h:outputText value="Recruiter-2" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-2 Name')}" style="#{x.get('Recruiter-2-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-2 Percent')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('RECRUITER-2 Percent')}">
+										<f:facet name="header">
+											<h:outputText value="Percent" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-2 Percent')}" style="#{x.get('Recruiter-2 Percentage-color')}"/>
+									</p:column>
+
+								</p:dataTable>
+
+								<p:dataTable id="crudDataTable2"
+									value="#{analyserCommissionHistoryBean.responseList}" var="x" rows="10"
+									paginator="true" rowIndexVar="index"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,20,50,100" scrollable="false"
+									scrollHeight="200" scrollWidth="100%" widgetVar="dataTable2"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{analyserCommissionHistoryBean.filteredList2}">
+									
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('dataTable2').filter()" style="width:150px"
+												placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>
+									
+									<p:column width="100">
+										<f:facet name="header">
+											<h:outputText value="Record ID" />
+										</f:facet>
+										<h:outputText value="#{index+1}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-2 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('RECRUITER-2 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-2 Amount')}" style="#{x.get('Recruiter-2 Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-2 Split%')}"
+										filterMatchMode="contains" sortable="true"
+										sortBy="#{x.get('RECRUITER-2 Split%')}">
+										<f:facet name="header">
+											<h:outputText value="Recruiter2 Split%" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-2 Split%')}" style="#{x.get('Split Commission Percentage 4-color')}"/>
+									</p:column>
+
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.get('RECRUITER-2 Orphan')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('RECRUITER-2 Orphan')}">
+										<f:facet name="header">
+											<h:outputText value="Recruiter2 Orphan" />
+										</f:facet>
+										<h:outputText value="#{x.get('RECRUITER-2 Orphan')}" style="#{x.get('Other 2 Orphan-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Client ID')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Client ID')}">
+										<f:facet name="header">
+											<h:outputText value="Client ID" />
+										</f:facet>
+										<h:outputText value="#{x.get('Client ID')}" style="#{x.get('Client Id-color')}"/>
+									</p:column>
+
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('TITLE')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('TITLE')}">
+										<f:facet name="header">
+											<h:outputText value="Job Title" />
+										</f:facet>
+										<h:outputText value="#{x.get('TITLE')}" style="#{x.get('Job Title-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('One time bill')}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.get('One time bill')}">
+										<f:facet name="header">
+											<h:outputText value="Onetime Bill" />
+										</f:facet>
+										<h:outputText value="#{x.get('One time bill')}" style="#{x.get('OT Bill-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('One Time Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('One Time Amount')}">
+										<f:facet name="header">
+											<h:outputText value="Onetime Pay" />
+										</f:facet>
+										<h:outputText value="#{x.get('One Time Amount')}" style="#{x.get('One Time Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="175" filterStyle="display:none"
+										filterBy="#{x.get('Approved By Manager')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Approved By Manager')}">
+										<f:facet name="header">
+											<h:outputText value="Approved By Manager" />
+										</f:facet>
+										<h:outputText value="#{x.get('Approved By Manager')}" style="#{x.get('Approved By Manager-color')}"/>
+									</p:column>
+
+									<p:column width="160" filterStyle="display:none"
+										filterBy="#{x.get('Approval Date')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Approval Date')}">
+										<f:facet name="header">
+											<h:outputText value="Approval Date" />
+										</f:facet>
+										<h:outputText value="#{x.get('Approval Date')}" style="#{x.get('Approval Date-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Is Rehired')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Is Rehired')}">
+										<f:facet name="header">
+											<h:outputText value="Is Rehired" />
+										</f:facet>
+										<h:outputText value="#{x.get('Is Rehired')}" style="#{x.get('Is Rehired-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('GA Amount')}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.get('GA Amount')}">
+										<f:facet name="header">
+											<h:outputText value="GA" />
+										</f:facet>
+										<h:outputText value="#{x.get('GA Amount')}" style="#{x.get('GA-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Fringe')}" filterMatchMode="contains" sortable="true"
+										sortBy="#{x.get('Fringe')}">
+										<f:facet name="header">
+											<h:outputText value="Taxes/Fringe" />
+										</f:facet>
+										<h:outputText value="#{x.get('Fringe')}" style="#{x.get('Tax-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="165" filterStyle="display:none"
+										filterBy="#{x.get('Employee Category')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Employee Category')}">
+										<f:facet name="header">
+											<h:outputText value="Employee Category" />
+										</f:facet>
+										<h:outputText value="#{x.get('Employee Category')}" style="#{x.get('Employee Category-color')}"/>
+									</p:column>
+
+									<p:column width="160" filterStyle="display:none"
+										filterBy="#{x.get('Vertical')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Vertical')}">
+										<f:facet name="header">
+											<h:outputText value="Vertical" />
+										</f:facet>
+										<h:outputText value="#{x.get('Vertical')}" style="#{x.get('Vertical-color')}"/>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Product Staff')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Product Staff')}">
+										<f:facet name="header">
+											<h:outputText value="Product" />
+										</f:facet>
+										<h:outputText value="#{x.get('Product Staff')}" style="#{x.get('Product Staff-color')}"/>
+									</p:column>
+
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.get('Employee Class')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Employee Class')}">
+										<f:facet name="header">
+											<h:outputText value="Employee Class" />
+										</f:facet>
+										<h:outputText value="#{x.get('Employee Class')}" style="#{x.get('Employee Class-color')}"/>
+									</p:column>
+
+									<p:column width="150" filterStyle="display:none"
+										filterBy="#{x.get('IMMIGRATION COST')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('IMMIGRATION COST')}">
+										<f:facet name="header">
+											<h:outputText value="Immigration Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('IMMIGRATION COST')}" style="#{x.get('Immigration Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="140" filterStyle="display:none"
+										filterBy="#{x.get('EQUIPMENT COST')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('EQUIPMENT COST')}">
+										<f:facet name="header">
+											<h:outputText value="Equipment Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('EQUIPMENT COST')}" style="#{x.get('Equipment Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Billable Cost')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Billable Cost')}">
+										<f:facet name="header">
+											<h:outputText value="Billable Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('Billable Cost')}" style="#{x.get('Billable Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+
+								</p:dataTable>
+							
+							
+								<p:dataTable id="crudDataTable3"
+									value="#{analyserCommissionHistoryBean.responseList}" var="x" rows="10"
+									paginator="true" rowIndexVar="index"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,20,50,100" scrollable="false"
+									scrollHeight="200" scrollWidth="100%" widgetVar="dataTable3"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{analyserCommissionHistoryBean.filteredList3}">
+									
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('dataTable3').filter()" style="width:150px"
+												placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>
+									
+									<p:column width="100">
+										<f:facet name="header">
+											<h:outputText value="Record ID" />
+										</f:facet>
+										<h:outputText value="#{index+1}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('BILLABLEPTO')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('BILLABLEPTO')}">
+										<f:facet name="header">
+											<h:outputText value="Billable Pto" />
+										</f:facet>
+										<h:outputText value="#{x.get('BILLABLEPTO')}" style="#{x.get('Billable PTO-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('NONBILLABLEPTO')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('NONBILLABLEPTO')}">
+										<f:facet name="header">
+											<h:outputText value="Non Billable Pto" />
+										</f:facet>
+										<h:outputText value="#{x.get('NONBILLABLEPTO')}" style="#{x.get('Non Billable PTO-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('BILLABLEPTOCOST')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('BILLABLEPTOCOST')}">
+										<f:facet name="header">
+											<h:outputText value="Billable Pto Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('BILLABLEPTOCOST')}" style="#{x.get('Billable PTO Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="180" filterStyle="display:none"
+										filterBy="#{x.get('NONBILLABLEPTOCOST')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('NONBILLABLEPTOCOST')}">
+										<f:facet name="header">
+											<h:outputText value="Non Billable Pto Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('NONBILLABLEPTOCOST')}" style="#{x.get('Non Billable PTO Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('TOTALHOLIDAYS')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('TOTALHOLIDAYS')}">
+										<f:facet name="header">
+											<h:outputText value="Total Holidays" />
+										</f:facet>
+										<h:outputText value="#{x.get('TOTALHOLIDAYS')}" style="#{x.get('Total Holidays-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('BILLABLEHOLIDAYS')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('BILLABLEHOLIDAYS')}">
+										<f:facet name="header">
+											<h:outputText value="Billable Holidays" />
+										</f:facet>
+										<h:outputText value="#{x.get('BILLABLEHOLIDAYS')}" style="#{x.get('Billable Holidays-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('NONBILLABLEHOLIDAYS')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('NONBILLABLEHOLIDAYS')}">
+										<f:facet name="header">
+											<h:outputText value="Non Billable Holidays" />
+										</f:facet>
+										<h:outputText value="#{x.get('NONBILLABLEHOLIDAYS')}" style="#{x.get('Non Billable Holidays-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('BILLABLEHOLIDAYSCOST')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('BILLABLEHOLIDAYSCOST')}">
+										<f:facet name="header">
+											<h:outputText value="Billable Holidays Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('BILLABLEHOLIDAYSCOST')}" style="#{x.get('Billable Holidays Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('NONBILLABLEHOLIDAYSCOST')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('NONBILLABLEHOLIDAYSCOST')}">
+										<f:facet name="header">
+											<h:outputText value="Non Billable Holidays Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('NONBILLABLEHOLIDAYSCOST')}" style="#{x.get('Non Billable Holidays Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('GROSSPROFITPERCENTAGE')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('GROSSPROFITPERCENTAGE')}">
+										<f:facet name="header">
+											<h:outputText value="Gross profit Percentage" />
+										</f:facet>
+										<h:outputText value="#{x.get('GROSSPROFITPERCENTAGE')}" style="#{x.get('Gross Profit Percentage-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('COMMISSIONABLEPROFIT')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('COMMISSIONABLEPROFIT')}">
+										<f:facet name="header">
+											<h:outputText value="Commissionable Profit" />
+										</f:facet>
+										<h:outputText value="#{x.get('COMMISSIONABLEPROFIT')}" style="#{x.get('Commissionable Profit-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="140" filterStyle="display:none"
+										filterBy="#{x.get('REJECTIONSTATUS')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('REJECTIONSTATUS')}">
+										<f:facet name="header">
+											<h:outputText value="Rejection Status" />
+										</f:facet>
+										<h:outputText rendered="#{x.get('REJECTIONSTATUS') == 1}"
+												value="Rejected"
+												 style="#{x.get('Rejection Status-color')}" />
+												 
+										<h:outputText rendered="#{x.get('REJECTIONSTATUS') != 1}"
+												value="#{x.get('REJECTIONSTATUS')}"
+												 style="#{x.get('Rejection Status-color')}" />		 
+												 
+									</p:column>
+									
+									<p:column width="250" filterStyle="display:none"
+										filterBy="#{x.get('REJECTIONREASON')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('REJECTIONREASON')}">
+										<f:facet name="header">
+											<h:outputText value="Rejection Reason" />
+										</f:facet>
+										<h:outputText value="#{x.get('REJECTIONREASON')}" style="#{x.get('Rejection Reason-color')}" />
+									</p:column>
+									
+									<p:column width="190" filterStyle="display:none"
+										filterBy="#{x.get('REJECTEDBY')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('REJECTEDBY')}">
+										<f:facet name="header">
+											<h:outputText value="Rejected By" />
+										</f:facet>
+										<h:outputText value="#{x.get('REJECTEDBY')}" style="#{x.get('Rejected By-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('REJECTIONDATE')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('REJECTIONDATE')}">
+										<f:facet name="header">
+											<h:outputText value="Rejection Date" />
+										</f:facet>
+										<h:outputText value="#{x.get('REJECTIONDATE')}" style="#{x.get('Rejection Date-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('GEOOFFICE')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('GEOOFFICE')}">
+										<f:facet name="header">
+											<h:outputText value="Geo office" />
+										</f:facet>
+										<h:outputText value="#{x.get('GEOOFFICE')}" style="#{x.get('Geo Office-color')}" />
+									</p:column>
+									
+								</p:dataTable>
+								
+								<p:dataTable id="crudDataTable4"
+									value="#{analyserCommissionHistoryBean.responseList}" var="x" rows="10"
+									paginator="true" rowIndexVar="index"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,20,50,100" scrollable="false"
+									scrollHeight="200" scrollWidth="100%" widgetVar="dataTable4"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{analyserCommissionHistoryBean.filteredList4}">
+									
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('dataTable4').filter()" style="width:150px"
+												placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>
+									
+									<p:column width="100">
+										<f:facet name="header">
+											<h:outputText value="Record ID" />
+										</f:facet>
+										<h:outputText value="#{index+1}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Sick Leave Cost')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Sick Leave Cost')}">
+										<f:facet name="header">
+											<h:outputText value="Sick Leave Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('Sick Leave Cost')}" style="#{x.get('Sick Leave Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('False Termination')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('False Termination')}">
+										<f:facet name="header">
+											<h:outputText value="False Termination" />
+										</f:facet>
+										<h:outputText value="#{x.get('False Termination')}" style="#{x.get('False Termination-color')}" />
+									</p:column>
+									
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('Commission Person 5')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Person 5')}">
+										<f:facet name="header">
+											<h:outputText value="Vertical Sales" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Person 5')}" style="#{x.get('Vertical Sales-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Commission Percentage 5')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Percentage 5')}">
+										<f:facet name="header">
+											<h:outputText value="Vertical Sales Percentage" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Percentage 5')}" style="#{x.get('Vertical Sales Percentage-color')}" />
+									</p:column>
+									
+									<p:column width="180" filterStyle="display:none"
+										filterBy="#{x.get('Commission 5 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission 5 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="Vertical Sales Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission 5 Amount')}" style="#{x.get('Vertical Sales Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('Commission Person 6')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Person 6')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Practice" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Person 6')}" style="#{x.get('IT-GS-Practice-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Commission Percentage 6')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Percentage 6')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Practice Percentage" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Percentage 6')}" style="#{x.get('IT-GS-Practice Percentage-color')}" />
+									</p:column>
+									
+									<p:column width="180" filterStyle="display:none"
+										filterBy="#{x.get('Commission 6 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission 6 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Practice Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission 6 Amount')}" style="#{x.get('IT-GS-Practice Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('Commission Person 7')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Person 7')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Delivery" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Person 7')}" style="#{x.get('IT-GS-Delivery-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Commission Percentage 7')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Percentage 7')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Delivery Percentage" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Percentage 7')}" style="#{x.get('IT-GS-Delivery Percentage-color')}" />
+									</p:column>
+									
+									<p:column width="180" filterStyle="display:none"
+										filterBy="#{x.get('Commission 7 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission 7 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Delivery Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission 7 Amount')}" style="#{x.get('IT-GS-Delivery Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="180" filterStyle="display:none"
+										filterBy="#{x.get('Commission Person 8')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Person 8')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-BDE" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Person 8')}" style="#{x.get('IT-GS-BDE-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Commission Percentage 8')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Percentage 8')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-BDE Percentage" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Percentage 8')}" style="#{x.get('IT-GS-BDE Percentage-color')}" />
+									</p:column>
+									
+									<p:column width="180" filterStyle="display:none"
+										filterBy="#{x.get('Commission 8 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission 8 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-BDE Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission 8 Amount')}" style="#{x.get('IT-GS-BDE Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="170" filterStyle="display:none"
+										filterBy="#{x.get('Commission Person 9')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Person 9')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Proposal" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Person 9')}" style="#{x.get('IT-GS-Proposal-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Commission Percentage 9')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission Percentage 9')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Proposal Percentage" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission Percentage 9')}" style="#{x.get('IT-GS-Proposal Percentage-color')}" />
+									</p:column>
+									
+									<p:column width="190" filterStyle="display:none"
+										filterBy="#{x.get('Commission 9 Amount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Commission 9 Amount')}">
+										<f:facet name="header">
+											<h:outputText value="IT-GS-Proposal Amount" />
+										</f:facet>
+										<h:outputText value="#{x.get('Commission 9 Amount')}" style="#{x.get('IT-GS-Proposal Amount-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+								</p:dataTable>
+								
+								<p:dataTable id="crudDataTable5"
+									value="#{analyserCommissionHistoryBean.responseList}" var="x" rows="10"
+									paginator="true" rowIndexVar="index"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="10,20,50,100" scrollable="false"
+									scrollHeight="200" scrollWidth="100%" widgetVar="dataTable5"
+									emptyMessage="No data found with given criteria"
+									filteredValue="#{analyserCommissionHistoryBean.filteredList5}">
+									
+									<f:facet name="header">
+										<p:outputPanel>
+											<h:outputText value="Search all fields:" />
+											<p:inputText id="globalFilter"
+												onkeyup="PF('dataTable5').filter()" style="width:150px"
+												placeholder="Enter keyword" />
+										</p:outputPanel>
+									</f:facet>
+									
+									<p:column width="100">
+										<f:facet name="header">
+											<h:outputText value="Record ID" />
+										</f:facet>
+										<h:outputText value="#{index+1}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Project Cost')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Project Cost')}">
+										<f:facet name="header">
+											<h:outputText value="Project Cost" />
+										</f:facet>
+										<h:outputText value="#{x.get('Project Cost')}" style="#{x.get('Project Cost-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Sick Leave Per Hour Rate')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Sick Leave Per Hour Rate')}">
+										<f:facet name="header">
+											<h:outputText value="Sick Leave Per Hour Rate" />
+										</f:facet>
+										<h:outputText value="#{x.get('Sick Leave Per Hour Rate')}" style="#{x.get('Sick Leave Per Hour Rate-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Sick Leave Cap')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Sick Leave Cap')}">
+										<f:facet name="header">
+											<h:outputText value="Sick Leave Cap" />
+										</f:facet>
+										<h:outputText value="#{x.get('Sick Leave Cap')}" style="#{x.get('Sick Leave Cap-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Reason')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Reason')}">
+										<f:facet name="header">
+											<h:outputText value="Reason" />
+										</f:facet>
+										<h:outputText value="#{x.get('Reason')}" style="#{x.get('Reason-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Sick Leave Type')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Sick Leave Type')}">
+										<f:facet name="header">
+											<h:outputText value="Sick Leave Type" />
+										</f:facet>
+										<h:outputText value="#{x.get('Sick Leave Type')}" style="#{x.get('Sick Leave Type-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('PTO')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('PTO')}">
+										<f:facet name="header">
+											<h:outputText value="PTO" />
+										</f:facet>
+										<h:outputText value="#{x.get('PTO')}" style="#{x.get('PTO-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Leave')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Leave')}">
+										<f:facet name="header">
+											<h:outputText value="Leave" />
+										</f:facet>
+										<h:outputText value="#{x.get('Leave')}" style="#{x.get('Leave-color')}" />
+									</p:column>
+									
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Total Holidays')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Total Holidays')}">
+										<f:facet name="header">
+											<h:outputText value="Total Holidays" />
+										</f:facet>
+										<h:outputText value="#{x.get('Total Holidays')}" style="#{x.get('Total Holidays-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Gross Profit')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Gross Profit')}">
+										<f:facet name="header">
+											<h:outputText value="Gross Profit" />
+										</f:facet>
+										<h:outputText value="#{x.get('Gross Profit')}" style="#{x.get('Gross Profit-color')}">
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Spread Week')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Spread Week')}">
+										<f:facet name="header">
+											<h:outputText value="Spread Week" />
+										</f:facet>
+										<h:outputText value="#{x.get('Spread Week')}" style="#{x.get('Spread Week-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Discount Rate')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Discount Rate')}">
+										<f:facet name="header">
+											<h:outputText value="Discount Rate" />
+										</f:facet>
+										<h:outputText value="#{x.get('Discount Rate')}" style="#{x.get('Discount Rate-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Discount')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Discount')}">
+										<f:facet name="header">
+											<h:outputText value="Discount" />
+										</f:facet>
+										<h:outputText value="#{x.get('Discount')}" style="#{x.get('Discount-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('FLSA Status')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('FLSA Status')}">
+										<f:facet name="header">
+											<h:outputText value="FLSA Status" />
+										</f:facet>
+										<h:outputText value="#{x.get('FLSA Status')}" style="#{x.get('Flsa Status-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('PTO Limit To Override Sick')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('PTO Limit To Override Sick')}">
+										<f:facet name="header">
+											<h:outputText value="PTO Limit To Override Sick" />
+										</f:facet>
+										<h:outputText value="#{x.get('PTO Limit To Override Sick')}" style="#{x.get('PTO Limit To Override Sick-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Recruiting Classification')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Recruiting Classification')}">
+										<f:facet name="header">
+											<h:outputText value="Recruiting Classification" />
+										</f:facet>
+										<h:outputText value="#{x.get('Recruiting Classification')}" style="#{x.get('Recruiting Classification-color')}" />
+									</p:column>
+									
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('SubContractor Id')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('SubContractor Id')}">
+										<f:facet name="header">
+											<h:outputText value="SubContractor Id" />
+										</f:facet>
+										<h:outputText value="#{x.get('SubContractor Id')}" style="#{x.get('SubContractor Id-color')}" />
+									</p:column>
+									
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Site Id')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Site Id')}">
+										<f:facet name="header">
+											<h:outputText value="Site Id" />
+										</f:facet>
+										<h:outputText value="#{x.get('Site Id')}" style="#{x.get('Site Id-color')}" />
+									</p:column>
+									
+									<p:column width="130" filterStyle="display:none"
+										filterBy="#{x.get('Client Address Id')}" filterMatchMode="contains"
+										sortable="true" sortBy="#{x.get('Client Address Id')}">
+										<f:facet name="header">
+											<h:outputText value="Client Address Id" />
+										</f:facet>
+										<h:outputText value="#{x.get('Client Address Id')}" style="#{x.get('Client Address Id-color')}" />
+									</p:column>
+									
+								</p:dataTable>	
+									
+							</h:form>
+
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+				</div>
+				<!-- /.col -->
+			</div>
+			<!-- /.row -->
+		</section>
+		<!-- /.content -->
+	</div>
+
+	<ui:include src="../includes/dialog-scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

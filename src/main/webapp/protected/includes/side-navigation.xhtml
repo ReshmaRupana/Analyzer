@@ -1,0 +1,934 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	<aside class="main-sidebar">
+		<!-- sidebar: style can be found in sidebar.less -->
+		<section class="sidebar">
+
+			<!-- /.search form -->
+			<!-- sidebar menu: : style can be found in sidebar.less -->
+			<ui:param name="root" value="#{request.contextPath}" />
+			<ul class="sidebar-menu" data-widget="tree">
+				<li class="header">MAIN NAVIGATION</li>
+				
+				<li class="treeview" id="analyserDiv">
+					<a href="#">
+						<i class="fa fa-pie-chart"></i> <span>DISYS Analyzer</span>
+						<span class="pull-right-container">
+							<i class="fa fa-angle-left pull-right"></i>
+						</span>
+					</a>
+					<ul class="treeview-menu">
+						<c:forEach items="#{titleBean.analyserMenuList}" var="item">
+							<c:choose>
+								<c:when test="#{view.viewId == item.resourceName}">
+									<li class="active"><a href="#{root}${item.resourceName}?compCode=DISYS"><i
+											class="fa fa-long-arrow-right"></i>${item.title} 
+											
+											<SPAN style="color: orange">
+												<h:outputText rendered="#{item.title eq 'Rejected Analyser List'}" id="count" value="(#{ titleBean.rejectedCount })" />
+												<h:outputText rendered="#{item.title ne 'Rejected Analyser List'}" id="count" value="" />
+											</SPAN> </a></li>
+								</c:when>
+								<c:otherwise>
+									<li><a href="#{root}${item.resourceName}?compCode=DISYS"><i
+											class="fa fa-long-arrow-right"></i>${item.title}
+											<SPAN style="color: orange">
+												<h:outputText rendered="#{item.title eq 'Rejected Analyser List'}" id="count" value="(#{ titleBean.rejectedCount })" />
+												<h:outputText rendered="#{item.title ne 'Rejected Analyser List'}" id="count" value="" />
+											</SPAN>
+											</a></li>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</ul>
+				</li>
+				
+				<li class="treeview" id="signatureAnalyserDiv">
+					<a href="#">
+						<i class="fa fa-pie-chart"></i> <span>Signature Analyzer</span>
+						<span class="pull-right-container">
+							<i class="fa fa-angle-left pull-right"></i>
+						</span>
+					</a>
+					<ul class="treeview-menu">
+						<c:forEach items="#{titleBean.signatureAnalyserMenuList}" var="sigAnalyser">
+							<c:choose>
+								<c:when test="#{view.viewId == sigAnalyser.resourceName}">
+									<li class="active"><a href="#{root}${sigAnalyser.resourceName}?compCode=Signature"><i
+											class="fa fa-long-arrow-right"></i>${sigAnalyser.title}</a></li>																						
+								</c:when>
+								<c:otherwise>
+									<li><a href="#{root}${sigAnalyser.resourceName}?compCode=Signature"><i
+											class="fa fa-long-arrow-right"></i>${sigAnalyser.title}</a></li>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</ul>
+				</li>
+				
+				<li class="treeview" id="analyserCommonDiv">
+					<a href="#">
+						<i class="fa fa-pie-chart"></i> <span>Analyzer Common</span>
+						<span class="pull-right-container">
+							<i class="fa fa-angle-left pull-right"></i>
+						</span>
+					</a>
+					<ul class="treeview-menu">
+						<c:forEach items="#{titleBean.analyserCommonMenuList}" var="item">
+							<c:choose>
+								<c:when test="#{view.viewId == item.resourceName}">
+									<li class="active"><a href="#{root}${item.resourceName}"><i
+											class="fa fa-long-arrow-right"></i>${item.title}</a></li>								
+								</c:when>
+								<c:otherwise>
+									<li><a href="#{root}${item.resourceName}"><i
+											class="fa fa-long-arrow-right"></i>${item.title}</a></li>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</ul>
+				</li>
+				
+
+				<li class="treeview" id="reportsDiv" style="display:none;">
+					<a href="#">
+						<i class="fa fa-bar-chart"></i> <span>Reports</span>
+						<span class="pull-right-container">
+							<i class="fa fa-angle-left pull-right"></i>
+						</span>
+					</a>
+					<ul class="treeview-menu">
+						<c:forEach items="#{titleBean.reportsMenuList}" var="item">
+							<c:if test="#{ item.title == 'Activity' and  titleBean.reportActivityMenuList.size() > 0}">
+									<li class="treeview" id="activityDiv"><a href="#"><span
+										class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+									</span>${item.title}<span class="pull-right-container"> <i
+											class="fa fa-angle-left pull-right"></i>
+									</span> </a>
+									<ul class="treeview-menu">
+										<c:forEach items="#{titleBean.reportActivityMenuList}" var="actvityItem">
+											<c:choose>
+												<c:when test="#{view.viewId == actvityItem.resourceName}">
+													<li class="active"><a
+														href="#{root}${actvityItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${actvityItem.title}
+													</a></li>
+												</c:when>
+												<c:otherwise>
+													<li><a href="#{root}${actvityItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${actvityItem.title}
+													</a></li>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</ul></li>
+							</c:if>
+							
+							<c:if test="#{ item.title == 'Revenue' and  titleBean.reportRevenueMenuList.size() > 0}">
+									<li class="treeview" id="revenueDiv"><a href="#"><span
+										class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+									</span>${item.title}<span class="pull-right-container"> <i
+											class="fa fa-angle-left pull-right"></i>
+									</span> </a>
+									<ul class="treeview-menu">
+										<c:forEach items="#{titleBean.reportRevenueMenuList}" var="revenueItem">
+											<c:choose>
+												<c:when test="#{view.viewId == revenueItem.resourceName}">
+													<li class="active"><a
+														href="#{root}${revenueItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${revenueItem.title}
+													</a></li>
+												</c:when>
+												<c:otherwise>
+													<li><a href="#{root}${revenueItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${revenueItem.title}
+													</a></li>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</ul></li>
+							</c:if>
+							
+							<c:if test="#{ item.title == 'Consultants' and  titleBean.reportConsultantMenuList.size() > 0}">
+									<li class="treeview" id="consultantsDiv"><a href="#"><span
+										class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+									</span>${item.title}<span class="pull-right-container"> <i
+											class="fa fa-angle-left pull-right"></i>
+									</span> </a>
+									<ul class="treeview-menu">
+										<c:forEach items="#{titleBean.reportConsultantMenuList}" var="consItem">
+											<c:choose>
+												<c:when test="#{view.viewId == consItem.resourceName}">
+													<li class="active"><a
+														href="#{root}${consItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${consItem.title}
+													</a></li>
+												</c:when>
+												<c:otherwise>
+													<li><a href="#{root}${consItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${consItem.title}
+													</a></li>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</ul></li>
+							</c:if>
+							
+							<c:if test="#{ item.title == 'Commission' and  titleBean.reportCommissionMenuList.size() > 0}">
+									<li class="treeview" id="commissionDiv"><a href="#"><span
+										class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+									</span>${item.title}<span class="pull-right-container"> <i
+											class="fa fa-angle-left pull-right"></i>
+									</span> </a>
+									<ul class="treeview-menu">
+										<c:forEach items="#{titleBean.reportCommissionMenuList}" var="commItem">
+											<c:choose>
+												<c:when test="#{view.viewId == commItem.resourceName}">
+													<li class="active"><a
+														href="#{root}${commItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${commItem.title}
+													</a></li>
+												</c:when>
+												<c:otherwise>
+													<li><a href="#{root}${commItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${commItem.title}
+													</a></li>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</ul></li>
+							</c:if>
+							
+							<c:if test="#{ item.title == 'Others' and  titleBean.reportOthersMenuList.size() > 0}">
+									<li class="treeview" id="othersDiv"><a href="#"><span
+										class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+									</span>${item.title}<span class="pull-right-container"> <i
+											class="fa fa-angle-left pull-right"></i>
+									</span> </a>
+									<ul class="treeview-menu">
+										<c:forEach items="#{titleBean.reportOthersMenuList}" var="othersItem">
+											<c:choose>
+												<c:when test="#{view.viewId == othersItem.resourceName}">
+													<li class="active"><a
+														href="#{root}${othersItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${othersItem.title}
+													</a></li>
+												</c:when>
+												<c:otherwise>
+													<li><a href="#{root}${othersItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${othersItem.title}
+													</a></li>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</ul></li>
+							</c:if>
+							
+						</c:forEach>
+						
+						
+						
+						<!-- <li class="treeview" id="activityDiv"><a href="#"><span
+								class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+							</span>Activity <span class="pull-right-container"> <i
+									class="fa fa-angle-left pull-right"></i>
+							</span> </a>
+							<ul class="treeview-menu">
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/monthly-activity.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/monthly-activity.xhtml"> <i
+												class="fa fa-long-arrow-right"></i>Monthly Activity
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/monthly-activity.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Monthly Activity
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/analyser-activity.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/analyser-activity.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Analyzer Activity
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/analyser-activity.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Analyzer Activity
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+							</ul></li>
+
+						<li class="treeview" id="revenueDiv"><a href="#"><span
+								class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+							</span>Revenue <span class="pull-right-container"> <i
+									class="fa fa-angle-left pull-right"></i>
+							</span> </a>
+							<ul class="treeview-menu">
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/revenue-by-recruiter.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/revenue-by-recruiter.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Revenue by Recruiter
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/revenue-by-recruiter.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Revenue by Recruiter
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/revenue-by-location.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/revenue-by-location.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Revenue by Location
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/revenue-by-location.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Revenue by Location
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/revenue-by-client.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/revenue-by-client.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Revenue by Client
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/revenue-by-client.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Revenue by Client
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+							</ul></li>
+
+						<li class="treeview" id="consultantsDiv"><a href="#"><span
+								class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+							</span>Consultants <span class="pull-right-container"> <i
+									class="fa fa-angle-left pull-right"></i>
+							</span> </a>
+							<ul class="treeview-menu">
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/consultants-by-subcontractors.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/consultants-by-subcontractors.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Consultants By
+												Subcontractors
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/consultants-by-subcontractors.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Consultants By
+												Subcontractors
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/consultants-by-liaison.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/consultants-by-liaison.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Consultants By
+												Liaison
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/consultants-by-liaison.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Consultants By
+												Liaison
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/consultants-by-client.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/consultants-by-client.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Consultants By Client
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/consultants-by-client.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Consultants By Client
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/consultants-total-hours.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/consultants-total-hours.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Consultants Total
+												Hours
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/consultants-total-hours.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Consultants Total
+												Hours
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+							</ul></li>
+
+						<li class="treeview" id="commissionDiv"><a href="#"><span
+								class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+							</span>Commission <span class="pull-right-container"> <i
+									class="fa fa-angle-left pull-right"></i>
+							</span> </a>
+							<ul class="treeview-menu">
+
+								<c:forEach items="#{titleBean.commissionMenuList}" var="item">
+									<c:choose>
+										<c:when test="#{view.viewId == item.resourceName}">
+											<li class="active"><a href="#{root}${item.resourceName}"><i
+													class="fa fa-long-arrow-right"></i>${item.title} </a></li>
+										</c:when>
+										<c:otherwise>
+											<li><a href="#{root}${item.resourceName}"><i
+													class="fa fa-long-arrow-right"></i>${item.title}</a></li>
+										</c:otherwise>
+									</c:choose>
+								</c:forEach>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/commission-report-new-model.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/commission-report-new-model.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Commission New Model
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/commission-report-new-model.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Commission New Model
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/quota-attainment.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/quota-attainment.xhtml">
+												<i class="fa fa-long-arrow-right"></i>Quota Attainment
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/quota-attainment.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Quota Attainment
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+
+							</ul></li>
+						<li class="treeview" id="othersDiv"><a href="#"><span
+								class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+							</span>Others <span class="pull-right-container"> <i
+									class="fa fa-angle-left pull-right"></i>
+							</span> </a>
+							<ul class="treeview-menu">
+
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/analyser-entry.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/analyser-entry.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> Analyzer Entry
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/analyser-entry.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> Analyzer Entry
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/end-date.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/end-date.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> End Date
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a href="#{root}/protected/reports/end-date.xhtml">
+												<i class="fa fa-long-arrow-right"></i> End Date
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/subcontractors-by-branch-liaison.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/subcontractors-by-branch-liaison.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Subcontractors by
+												Branch/Liaison
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/subcontractors-by-branch-liaison.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Subcontractors by
+												Branch/Liaison
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/permanent-placement.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/permanent-placement.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> Permanent Placement
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/permanent-placement.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Permanent Placement
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/hr-termination.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/hr-termination.xhtml"> <i
+												class="fa fa-long-arrow-right"></i>HR Termination
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/hr-termination.xhtml"> <i
+												class="fa fa-long-arrow-right"></i>HR Termination
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/zero-split.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/zero-split.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> Zero Split
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a href="#{root}/protected/reports/zero-split.xhtml">
+												<i class="fa fa-long-arrow-right"></i> Zero Split
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/sick-leave-cost.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/sick-leave-cost.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> Sickleave Cost
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/reports/sick-leave-cost.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> Sickleave Cost
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/reports/new-hire.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/reports/new-hire.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> New Hire
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a href="#{root}/protected/reports/new-hire.xhtml">
+												<i class="fa fa-long-arrow-right"></i> New Hire
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+							</ul></li> -->
+					</ul>
+				</li>
+
+
+				<li class="treeview" id="commissionProcessingDiv" style="display:none;">
+					<a href="#">
+						<i class="fa fa-percent"></i> <span>Commission Management</span>
+						<span class="pull-right-container">
+							<i class="fa fa-angle-left pull-right"></i>
+						</span>
+					</a>
+					<ul class="treeview-menu">
+						<c:forEach items="#{titleBean.commissionMenuList}" var="item">
+							<c:choose>
+								<c:when test="#{view.viewId == item.resourceName}">
+									<li class="active"><a href="#{root}${item.resourceName}"><i
+											class="fa fa-long-arrow-right"></i>${item.title}</a></li>
+								</c:when>
+								<c:otherwise>
+									<li><a href="#{root}${item.resourceName}"><i
+											class="fa fa-long-arrow-right"></i>${item.title}</a></li>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+
+						<!-- <c:choose>
+							<c:when
+								test="#{view.viewId == '/protected/execute-commission-process.xhtml'}">
+								<li class="active"><a
+									href="#{root}/protected/execute-commission-process.xhtml"><i
+										class="fa fa-long-arrow-right"></i>Execute Commission Process</a></li>
+							</c:when>
+							<c:otherwise>
+								<li><a
+									href="#{root}/protected/execute-commission-process.xhtml"><i
+										class="fa fa-long-arrow-right"></i>Execute Commission Process
+								</a></li>
+							</c:otherwise>
+						</c:choose>
+
+						<c:choose>
+							<c:when
+								test="#{view.viewId == '/protected/finalize-draft-commission.xhtml'}">
+								<li class="active"><a
+									href="#{root}/protected/finalize-draft-commission.xhtml"><i
+										class="fa fa-long-arrow-right"></i>Finalize Draft Commission </a></li>
+							</c:when>
+							<c:otherwise>
+								<li><a
+									href="#{root}/protected/finalize-draft-commission.xhtml"><i
+										class="fa fa-long-arrow-right"></i>Finalize Draft Commission</a></li>
+							</c:otherwise>
+						</c:choose>
+
+						<c:choose>
+							<c:when
+								test="#{view.viewId == '/protected/commission-extraction-list.xhtml'}">
+								<li class="active"><a
+									href="#{root}/protected/commission-extraction-list.xhtml"><i
+										class="fa fa-long-arrow-right"></i>Extract Commission Data</a></li>
+							</c:when>
+							<c:otherwise>
+								<li><a
+									href="#{root}/protected/commission-extraction-list.xhtml"><i
+										class="fa fa-long-arrow-right"></i>Extract Commission Data</a></li>
+							</c:otherwise>
+						</c:choose> -->
+
+					</ul>
+				</li>
+
+				<!-- 10-10-2018 Analyser setup menu start -->
+
+				<li class="treeview" id="analyzerSetupDiv" style="display:none;">
+					<a href="#"> <i
+							class="fa fa-pie-chart"></i> <span>Analyzer Setup</span> <span
+							class="pull-right-container"> <i
+								class="fa fa-angle-left pull-right"></i>
+						</span>
+					</a>
+					<ul class="treeview-menu">
+						<c:forEach items="#{titleBean.setupMenuList}" var="item">
+							<c:choose>
+								<c:when test="#{view.viewId == item.resourceName}">
+									<li class="active"><a href="#{root}${item.resourceName}"><i
+											class="fa fa-long-arrow-right"></i>${item.title}</a></li>
+								</c:when>
+								<c:otherwise>
+									<li><a href="#{root}${item.resourceName}"><i
+											class="fa fa-long-arrow-right"></i>${item.title}</a></li>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</ul>
+				</li>
+
+				<!-- Analyser setup menu end -->
+
+				<li class="treeview" id="userManagementDiv" style="display:none;"><a href="#"> <i
+						class="fa fa-users"></i> <span>User Management</span> <span
+						class="pull-right-container"> <i
+							class="fa fa-angle-left pull-right"></i>
+					</span>
+				</a>
+					<ul class="treeview-menu">
+
+						<c:forEach items="#{titleBean.userManageMenuList}" var="item">
+							<c:if test="#{ item.title == 'Users' and  titleBean.usersMenuList.size() > 0}">
+									<li class="treeview" id="usersDiv"><a href="#"><span
+										class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+									</span>${item.title}<span class="pull-right-container"> <i
+											class="fa fa-angle-left pull-right"></i>
+									</span> </a>
+									<ul class="treeview-menu">
+
+
+										<c:forEach items="#{titleBean.usersMenuList}" var="userItem">
+											<c:choose>
+												<c:when test="#{view.viewId == userItem.resourceName}">
+													<li class="active"><a
+														href="#{root}${userItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${userItem.title}
+													</a></li>
+												</c:when>
+												<c:otherwise>
+													<li><a href="#{root}${userItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${userItem.title}
+													</a></li>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</ul></li>
+							</c:if>
+							
+							<c:if test="#{ item.title == 'Groups' and  titleBean.groupsMenuList.size() > 0}">
+									<li class="treeview" id="groupsDiv"><a href="#"><span
+										class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+									</span>${item.title}<span class="pull-right-container"> <i
+											class="fa fa-angle-left pull-right"></i>
+									</span> </a>
+									<ul class="treeview-menu">
+										<c:forEach items="#{titleBean.groupsMenuList}" var="groupItem">
+											<c:choose>
+												<c:when test="#{view.viewId == groupItem.resourceName}">
+													<li class="active"><a
+														href="#{root}${groupItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${groupItem.title}
+													</a></li>
+												</c:when>
+												<c:otherwise>
+													<li><a href="#{root}${groupItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${groupItem.title}
+													</a></li>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</ul></li>
+							</c:if>
+							
+							<c:if test="#{ item.title == 'Roles Management' and  titleBean.roleManageMenuList.size() > 0}">
+									<li class="treeview" id="rolesDiv"><a href="#"><span
+										class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+									</span>${item.title}<span class="pull-right-container"> <i
+											class="fa fa-angle-left pull-right"></i>
+									</span> </a>
+									<ul class="treeview-menu">
+										<c:forEach items="#{titleBean.roleManageMenuList}" var="roleItem">
+											<c:choose>
+												<c:when test="#{view.viewId == roleItem.resourceName}">
+													<li class="active"><a
+														href="#{root}${roleItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${roleItem.title}
+													</a></li>
+												</c:when>
+												<c:otherwise>
+													<li><a href="#{root}${roleItem.resourceName}"> <i
+															class="fa fa-long-arrow-right"></i>${roleItem.title}
+													</a></li>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</ul></li>
+							</c:if>
+							
+							<c:if test="#{item.title == 'Application Titles'}">
+								<c:choose>
+									<c:when test="#{view.viewId == item.resourceName}">
+										<li class="active"><a
+											href="#{root}${item.resourceName}"> <i
+												class="fa fa-long-arrow-right"></i>${item.title}
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a href="#{root}${item.resourceName}"> <i
+												class="fa fa-long-arrow-right"></i>${item.title}
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+							</c:if>
+							
+						</c:forEach>
+
+						<!-- <li class="treeview" id="usersDiv"><a href="#"><span
+								class="pull-left-container"> <i class="fa fa-arrows-h"></i>
+							</span>Users <span class="pull-right-container"> <i
+									class="fa fa-angle-left pull-right"></i>
+							</span> </a>
+							<ul class="treeview-menu">
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/application-users.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/application-users.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> View All Users
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a href="#{root}/protected/application-users.xhtml">
+												<i class="fa fa-long-arrow-right"></i> View All Users
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/create-application-user.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/create-application-user.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> Add new user
+										</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/create-application-user.xhtml"> <i
+												class="fa fa-long-arrow-right"></i> Add new user
+										</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<li><a href="#{root}/protected/assign-role-user.xhtml"> <i
+										class="fa fa-long-arrow-right"></i> Assign a role
+								</a></li>
+							</ul></li>
+
+						<li class="treeview" id="groupsDiv"><a href="#"> <i
+								class="fa fa-arrows-h"></i> Groups<span
+								class="pull-right-container"> <i
+									class="fa fa-angle-left pull-right"></i></span>
+						</a>
+							<ul class="treeview-menu">
+
+								<c:choose>
+									<c:when test="#{view.viewId == '/protected/add-group.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/add-group.xhtml"><i
+												class="fa fa-long-arrow-right"></i> Add Group</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a href="#{root}/protected/add-group.xhtml"><i
+												class="fa fa-long-arrow-right"></i> Add Group</a></li>
+									</c:otherwise>
+								</c:choose>
+
+							</ul></li>
+
+						<li class="treeview" id="rolesDiv"><a href="#"> <i
+								class="fa fa-arrows-h"></i> Roles Management<span
+								class="pull-right-container"> <i
+									class="fa fa-angle-left pull-right"></i></span>
+						</a>
+							<ul class="treeview-menu">
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/application-roles.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/application-roles.xhtml"><i
+												class="fa fa-long-arrow-right"></i> View All Roles</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a href="#{root}/protected/application-roles.xhtml"><i
+												class="fa fa-long-arrow-right"></i> View All Roles</a></li>
+									</c:otherwise>
+								</c:choose>
+
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/application-privileges.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/application-privileges.xhtml"><i
+												class="fa fa-long-arrow-right"></i> Privileges</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/application-privileges.xhtml"><i
+												class="fa fa-long-arrow-right"></i>Privileges</a></li>
+									</c:otherwise>
+								</c:choose>
+
+								<c:choose>
+									<c:when
+										test="#{view.viewId == '/protected/custom-user-privileges.xhtml'}">
+										<li class="active"><a
+											href="#{root}/protected/custom-user-privileges.xhtml"><i
+												class="fa fa-long-arrow-right"></i> Custom User Privileges</a></li>
+									</c:when>
+									<c:otherwise>
+										<li><a
+											href="#{root}/protected/custom-user-privileges.xhtml"><i
+												class="fa fa-long-arrow-right"></i>Custom User Privileges</a></li>
+									</c:otherwise>
+								</c:choose>
+
+							</ul></li>
+						<c:choose>
+							<c:when
+								test="#{view.viewId == '/protected/application-titles.xhtml'}">
+								<li class="active"><a
+									href="#{root}/protected/application-titles.xhtml"><i
+										class="fa fa-long-arrow-right"></i>Application Titles </a></li>
+							</c:when>
+							<c:otherwise>
+								<li><a href="#{root}/protected/application-titles.xhtml"><i
+										class="fa fa-long-arrow-right"></i>Application Titles</a></li>
+							</c:otherwise>
+						</c:choose> -->
+
+					</ul></li>
+			</ul>
+		</section>
+		<!-- /.sidebar -->
+	</aside>
+</ui:composition>

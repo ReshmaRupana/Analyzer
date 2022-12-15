@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Commission Effective Date Detail</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-6 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Name" />
+											<p:inputText id="name" required="true"
+												styleClass="form-control input-sm"
+												value="#{commissionEffectiveDateReportsBean.name}" />
+										</div>
+									</div>
+									<div class="col-xs-6 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Parent ID" />
+											<p:inputText id="parentId" required="true"
+												styleClass="form-control input-sm"
+												value="#{commissionEffectiveDateReportsBean.parentId}" />
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate
+												Report</span>
+											<f:ajax event="click"
+												listener="#{commissionEffectiveDateReportsBean.generateReport}"
+												execute="@form"
+												render=":dataTableForm :dataTableForm:recordTotal :dataTableForm:recordTotalZero" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{commissionEffectiveDateReportsBean.eraseFilter}"
+												execute="@form" render=":filterForm :dataTableForm"
+												oncomplete="initializeComponents();" />
+										</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{commissionEffectiveDateReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{commissionEffectiveDateReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{commissionEffectiveDateReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{commissionEffectiveDateReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{commissionEffectiveDateReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable"
+												value="#{commissionEffectiveDateReportsBean.reportData}"
+												var="x" rows="10" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,20,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{commissionEffectiveDateReportsBean.filteredList}">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.get('ANALYSERID')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('ANALYSERID')}">
+													<f:facet name="header">
+														<h:outputText value="Analyzer ID" />
+													</f:facet>
+													<h:outputText value="#{x.get('ANALYSERID')}" />
+												</p:column>
+
+												<p:column width="110" filterStyle="display:none"
+													filterBy="#{x.get('PARENTID')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PARENTID')}">
+													<f:facet name="header">
+														<h:outputText value="Parent ID" />
+													</f:facet>
+													<h:outputText value="#{x.get('PARENTID')}" />
+												</p:column>
+
+												<p:column width="130" filterStyle="display:none"
+													filterBy="#{x.get('NEWPARENTID')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('NEWPARENTID')}">
+													<f:facet name="header">
+														<h:outputText value="New Parent ID" />
+													</f:facet>
+													<h:outputText value="#{x.get('NEWPARENTID')}" />
+												</p:column>
+
+												<p:column width="160" filterStyle="display:none"
+													filterBy="#{x.get('LNAME')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('LNAME')}">
+													<f:facet name="header">
+														<h:outputText value="Last Name" />
+													</f:facet>
+													<h:outputText value="#{x.get('LNAME')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('FNAME')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('FNAME')}">
+													<f:facet name="header">
+														<h:outputText value="First Name" />
+													</f:facet>
+													<h:outputText value="#{x.get('FNAME')}" />
+												</p:column>
+
+												<p:column width="200" filterStyle="display:none"
+													filterBy="#{x.get('STARTDATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('STARTDATE')}">
+													<f:facet name="header">
+														<h:outputText value="Start Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('STARTDATE')}" />
+												</p:column>
+
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.get('EFFECTIVEDATE')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('EFFECTIVEDATE')}">
+													<f:facet name="header">
+														<h:outputText value="Effective Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('EFFECTIVEDATE')}" />
+												</p:column>
+
+												<p:column width="200" filterStyle="display:none"
+													filterBy="#{x.get('TERMINATEDATE')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('TERMINATEDATE')}">
+													<f:facet name="header">
+														<h:outputText value="Terminate Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('TERMINATEDATE')}" />
+												</p:column>
+
+												<p:column width="220" filterStyle="display:none"
+													filterBy="#{x.get('COMMEFFDATE')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('COMMEFFDATE')}">
+													<f:facet name="header">
+														<h:outputText value="Comm Eff Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('COMMEFFDATE')}" />
+												</p:column>
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('ENDDATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('ENDDATE')}">
+													<f:facet name="header">
+														<h:outputText value="End Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('ENDDATE')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('SUBMISSIONDATE')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('SUBMISSIONDATE')}">
+													<f:facet name="header">
+														<h:outputText value="Submission Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('SUBMISSIONDATE')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('MODIFIEDBY')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('MODIFIEDBY')}">
+													<f:facet name="header">
+														<h:outputText value="Modified By" />
+													</f:facet>
+													<h:outputText value="#{x.get('MODIFIEDBY')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('BRANCH')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('BRANCH')}">
+													<f:facet name="header">
+														<h:outputText value="Branch" />
+													</f:facet>
+													<h:outputText value="#{x.get('BRANCH')}" />
+												</p:column>
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('RECORDSTATUS')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('RECORDSTATUS')}">
+													<f:facet name="header">
+														<h:outputText value="Record Status" />
+													</f:facet>
+													<h:outputText value="#{x.get('RECORDSTATUS')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('EMPTYPE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('EMPTYPE')}">
+													<f:facet name="header">
+														<h:outputText value="Employee Type" />
+													</f:facet>
+													<h:outputText value="#{x.get('EMPTYPE')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('PAYRATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PAYRATE')}">
+													<f:facet name="header">
+														<h:outputText value="Pay Rate" />
+													</f:facet>
+													<h:outputText value="#{x.get('PAYRATE')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('BILLRATE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('BILLRATE')}">
+													<f:facet name="header">
+														<h:outputText value="Bill Rate" />
+													</f:facet>
+													<h:outputText value="#{x.get('BILLRATE')}" />
+												</p:column>
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('PROFIT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PROFIT')}">
+													<f:facet name="header">
+														<h:outputText value="Profit" />
+													</f:facet>
+													<h:outputText value="#{x.get('PROFIT')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('GP%')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('GP%')}">
+													<f:facet name="header">
+														<h:outputText value="GP%" />
+													</f:facet>
+													<h:outputText value="#{x.get('GP%')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('COM')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('COM')}">
+													<f:facet name="header">
+														<h:outputText value="COM" />
+													</f:facet>
+													<h:outputText value="#{x.get('COM')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('COMMISSION_NAME1')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('COMMISSION_NAME1')}">
+													<f:facet name="header">
+														<h:outputText value="Account Exec-1" />
+													</f:facet>
+													<h:outputText value="#{x.get('COMMISSION_NAME1')}" />
+												</p:column>
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('COMMISSION_PERCENT1')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('COMMISSION_PERCENT1')}">
+													<f:facet name="header">
+														<h:outputText value="Percent" />
+													</f:facet>
+													<h:outputText value="#{x.get('COMMISSION_PERCENT1')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('AMOUNT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('AMOUNT')}">
+													<f:facet name="header">
+														<h:outputText value="Amount" />
+													</f:facet>
+													<h:outputText value="#{x.get('AMOUNT')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('AE1 SPLIT%')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('AE1 SPLIT%')}">
+													<f:facet name="header">
+														<h:outputText value="AE1 Split%" />
+													</f:facet>
+													<h:outputText value="#{x.get('AE1 SPLIT%')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('AE1 ORPHAN')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('AE1 ORPHAN')}">
+													<f:facet name="header">
+														<h:outputText value="AE1 Orphan" />
+													</f:facet>
+													<h:outputText value="#{x.get('AE1 ORPHAN')}" />
+												</p:column>
+
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('RECRUITER-1')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('RECRUITER-1')}">
+													<f:facet name="header">
+														<h:outputText value="Recruiter 1" />
+													</f:facet>
+													<h:outputText value="#{x.get('RECRUITER-1')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('PERCENT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PERCENT')}">
+													<f:facet name="header">
+														<h:outputText value="Percent" />
+													</f:facet>
+													<h:outputText value="#{x.get('PERCENT')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('AMOUNT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('AMOUNT')}">
+													<f:facet name="header">
+														<h:outputText value="Amount" />
+													</f:facet>
+													<h:outputText value="#{x.get('AMOUNT')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('RECRUITER1 SPLIT%')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('RECRUITER1 SPLIT%')}">
+													<f:facet name="header">
+														<h:outputText value="Recruiter1 Split%" />
+													</f:facet>
+													<h:outputText value="#{x.get('RECRUITER1 SPLIT%')}" />
+												</p:column>
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('RECRUITER1 ORPHAN')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('RECRUITER1 ORPHAN')}">
+													<f:facet name="header">
+														<h:outputText value="Recruiter1 Orphan" />
+													</f:facet>
+													<h:outputText value="#{x.get('RECRUITER1 ORPHAN')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('ACCOUNT EXEC-2')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('ACCOUNT EXEC-2')}">
+													<f:facet name="header">
+														<h:outputText value="Account Exec-2" />
+													</f:facet>
+													<h:outputText value="#{x.get('ACCOUNT EXEC-2')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('PERCENT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PERCENT')}">
+													<f:facet name="header">
+														<h:outputText value="Percent" />
+													</f:facet>
+													<h:outputText value="#{x.get('PERCENT')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('AMOUNT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('AMOUNT')}">
+													<f:facet name="header">
+														<h:outputText value="Amount" />
+													</f:facet>
+													<h:outputText value="#{x.get('AMOUNT')}" />
+												</p:column>
+
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('AE2 SPLIT%')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('AE2 SPLIT%')}">
+													<f:facet name="header">
+														<h:outputText value="AE2 Split%" />
+													</f:facet>
+													<h:outputText value="#{x.get('AE2 SPLIT%')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('AE2 ORPHAN')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('AE2 ORPHAN')}">
+													<f:facet name="header">
+														<h:outputText value="AE2 Orphan" />
+													</f:facet>
+													<h:outputText value="#{x.get('AE2 ORPHAN')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('RECRUITER-2')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('RECRUITER-2')}">
+													<f:facet name="header">
+														<h:outputText value="Recruiter-2" />
+													</f:facet>
+													<h:outputText value="#{x.get('RECRUITER-2')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('PERCENT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PERCENT')}">
+													<f:facet name="header">
+														<h:outputText value="Percent" />
+													</f:facet>
+													<h:outputText value="#{x.get('PERCENT')}" />
+												</p:column>
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('AMOUNT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('AMOUNT')}">
+													<f:facet name="header">
+														<h:outputText value="Amount" />
+													</f:facet>
+													<h:outputText value="#{x.get('AMOUNT')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('RECRUITER2 SPLIT%')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('RECRUITER2 SPLIT%')}">
+													<f:facet name="header">
+														<h:outputText value="Recruiter2 Split%" />
+													</f:facet>
+													<h:outputText value="#{x.get('RECRUITER2 SPLIT%')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('RECRUITER2ORPHAN')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('RECRUITER2ORPHAN')}">
+													<f:facet name="header">
+														<h:outputText value="Recruiter2 Orphan" />
+													</f:facet>
+													<h:outputText value="#{x.get('RECRUITER2ORPHAN')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('CLIENTID')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('CLIENTID')}">
+													<f:facet name="header">
+														<h:outputText value="Client ID" />
+													</f:facet>
+													<h:outputText value="#{x.get('CLIENTID')}" />
+												</p:column>
+
+												<p:column width="240" filterStyle="display:none"
+													filterBy="#{x.get('JOBTITLE')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('JOBTITLE')}">
+													<f:facet name="header">
+														<h:outputText value="Job Title" />
+													</f:facet>
+													<h:outputText value="#{x.get('JOBTITLE')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('ONETIME_BILL')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('ONETIME_BILL')}">
+													<f:facet name="header">
+														<h:outputText value="Ont time bill" />
+													</f:facet>
+													<h:outputText value="#{x.get('ONETIME_BILL')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('ONETIME_PAY')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('ONETIME_PAY')}">
+													<f:facet name="header">
+														<h:outputText value="One time pay" />
+													</f:facet>
+													<h:outputText value="#{x.get('ONETIME_PAY')}" />
+												</p:column>
+
+												<p:column width="170" filterStyle="display:none"
+													filterBy="#{x.get('APPROVED_BY_MANAGER')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('APPROVED_BY_MANAGER')}">
+													<f:facet name="header">
+														<h:outputText value="Approved by manager" />
+													</f:facet>
+													<h:outputText value="#{x.get('APPROVED_BY_MANAGER')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('APPROVALDATE')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('APPROVALDATE')}">
+													<f:facet name="header">
+														<h:outputText value="Approval Date" />
+													</f:facet>
+													<h:outputText value="#{x.get('APPROVALDATE')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('ISREHIRED')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('ISREHIRED')}">
+													<f:facet name="header">
+														<h:outputText value="Is Rehired" />
+													</f:facet>
+													<h:outputText value="#{x.get('ISREHIRED')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('GA')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('GA')}">
+													<f:facet name="header">
+														<h:outputText value="GA" />
+													</f:facet>
+													<h:outputText value="#{x.get('GA')}" />
+												</p:column>
+
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('TAXES/FRINGE')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('TAXES/FRINGE')}">
+													<f:facet name="header">
+														<h:outputText value="Taxes/Fringe" />
+													</f:facet>
+													<h:outputText value="#{x.get('TAXES/FRINGE')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('EMPLOYEECATEGORY')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('EMPLOYEECATEGORY')}">
+													<f:facet name="header">
+														<h:outputText value="Employee Category" />
+													</f:facet>
+													<h:outputText value="#{x.get('EMPLOYEECATEGORY')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('VERTICAL')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('VERTICAL')}">
+													<f:facet name="header">
+														<h:outputText value="Vertical" />
+													</f:facet>
+													<h:outputText value="#{x.get('VERTICAL')}" />
+												</p:column>
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('PRODUCT')}" filterMatchMode="contains"
+													sortable="true" sortBy="#{x.get('PRODUCT')}">
+													<f:facet name="header">
+														<h:outputText value="Product" />
+													</f:facet>
+													<h:outputText value="#{x.get('PRODUCT')}" />
+												</p:column>
+
+
+												<p:column width="150" filterStyle="display:none"
+													filterBy="#{x.get('EMPLOYEECLASS')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('EMPLOYEECLASS')}">
+													<f:facet name="header">
+														<h:outputText value="Employee Class" />
+													</f:facet>
+													<h:outputText value="#{x.get('EMPLOYEECLASS')}" />
+												</p:column>
+
+												<p:column width="180" filterStyle="display:none"
+													filterBy="#{x.get('IMMIGRATIONCOST')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('IMMIGRATIONCOST')}">
+													<f:facet name="header">
+														<h:outputText value="Immigration Cost" />
+													</f:facet>
+													<h:outputText value="#{x.get('IMMIGRATIONCOST')}" />
+												</p:column>
+
+												<p:column width="140" filterStyle="display:none"
+													filterBy="#{x.get('EQUIPMENTCOST')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('EQUIPMENTCOST')}">
+													<f:facet name="header">
+														<h:outputText value="Equipment Cost" />
+													</f:facet>
+													<h:outputText value="#{x.get('EQUIPMENTCOST')}" />
+												</p:column>
+
+												<p:column width="120" filterStyle="display:none"
+													filterBy="#{x.get('BILLABLECOST')}"
+													filterMatchMode="contains" sortable="true"
+													sortBy="#{x.get('BILLABLECOST')}">
+													<f:facet name="header">
+														<h:outputText value="Billable Cost" />
+													</f:facet>
+													<h:outputText value="#{x.get('BILLABLECOST')}" />
+												</p:column>
+
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var currentDate = new Date();
+			
+			//due to time of 0000, it was setting it to one day before, so set 2 as start date.
+			var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 2);
+			
+			var from = firstDay.toJSON().slice(0,10).split('-');
+			firstDay = from[1]+"/"+from[2]+"/"+from[0];
+			$("#filterForm\\:startDate").val(firstDay);
+			
+			var to = currentDate.toJSON().slice(0,10).split('-');
+			currentDate = to[1]+"/"+to[2]+"/"+to[0];
+			$("#filterForm\\:endDate").val(currentDate);
+			
+			
+			$('#filterForm\\:startDate').datepicker({
+				autoclose : true
+			})
+
+			$('#filterForm\\:endDate').datepicker({
+				autoclose : true
+			})
+		});
+	</script>
+
+</body>
+
+</html>

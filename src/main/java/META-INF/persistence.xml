@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1"
+	xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+	<persistence-unit name="Analyzer">
+		
+		<class>com.disys.analyzer.model.Analyser</class>
+		<class>com.disys.analyzer.model.AnalyserClient</class>
+		<class>com.disys.analyzer.model.AnalyserClientAddress</class>
+		<class>com.disys.analyzer.model.AnalyserClientSite</class>
+		<class>com.disys.analyzer.model.AnalyserCommisionPerson</class>
+		<class>com.disys.analyzer.model.AnalyserCommisionPersonPK</class>
+		<class>com.disys.analyzer.model.AnalyserLiaison</class>
+		<class>com.disys.analyzer.model.AnalyserSubContractor</class>
+		<class>com.disys.analyzer.model.AnalyzerAdjustment</class>
+		<class>com.disys.analyzer.model.AnalyzerAdjustmentPK</class>
+		<class>com.disys.analyzer.model.CommissionAdjustment</class>
+		<class>com.disys.analyzer.model.CommissionAdjustmentPK</class>
+		<class>com.disys.analyzer.model.ManagerGroup</class>
+		<class>com.disys.analyzer.model.ManagerGroupPK</class>
+		<class>com.disys.analyzer.model.Organization</class>
+		<class>com.disys.analyzer.model.OrganizationGroup</class>
+		<class>com.disys.analyzer.model.PSBillingType</class>
+		<class>com.disys.analyzer.model.PSOperatingUnitOrVertical</class>
+		<class>com.disys.analyzer.model.PSProduct</class>
+		<class>com.disys.analyzer.model.PSSalesforceClient</class>
+		<class>com.disys.analyzer.model.PSServiceArea</class>
+		<class>com.disys.analyzer.model.RolePrivilege</class>
+		<class>com.disys.analyzer.model.RolePrivilegePK</class>
+		<class>com.disys.analyzer.model.Role</class>
+		<class>com.disys.analyzer.model.UserGroup</class>
+		<class>com.disys.analyzer.model.UserGroupPK</class>
+		<class>com.disys.analyzer.model.User</class>
+		<class>com.disys.analyzer.model.WorkSiteAddress</class>
+		<class>com.disys.analyzer.model.WorkSiteAddressPK</class>
+		<class>com.disys.analyzer.model.Resource</class>
+		<class>com.disys.analyzer.model.Title</class>
+		<class>com.disys.analyzer.model.SickLeaveCost</class>
+		
+		<!-- <properties>
+			Configuring JDBC properties
+			<property name="javax.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=Analyser" />
+			<property name="javax.persistence.jdbc.user" value="analyzer" />
+			<property name="javax.persistence.jdbc.password" value="Analyzer@123" />
+			<property name="javax.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+
+			Hibernate properties
+			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.format_sql" value="true" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.SQLServerDialect" />
+			<property name="hibernate.hbm2ddl.auto" value="validate" />
+			
+
+			Configuring Connection Pool
+			<property name="hibernate.c3p0.min_size" value="5" />
+			<property name="hibernate.c3p0.max_size" value="20" />
+			<property name="hibernate.c3p0.timeout" value="500" />
+			<property name="hibernate.c3p0.max_statements" value="50" />
+			<property name="hibernate.c3p0.idle_test_period" value="2000" />
+		</properties> -->
+
+
+		
+	</persistence-unit>
+</persistence>

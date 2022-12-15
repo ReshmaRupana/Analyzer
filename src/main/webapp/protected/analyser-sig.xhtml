@@ -1,0 +1,3578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+<!-- Modified 03/09/2019 -->
+
+<ui:include src="includes/header.xhtml"></ui:include>
+<style type="text/css">
+.row {
+	background: aliceblue;
+	/*border: 1px solid;
+	border-bottom: 1px solid;*/
+}
+/*.row>div {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}*/
+.inner {
+	background: aliceblue;
+	border-right: 1px solid blue;
+	padding: 0px 15px;
+}
+
+.inner-end {
+	/* background: aliceblue; */
+	padding: 0px 15px;
+}
+
+.title {
+	background: #99d9f7;
+	padding-top: 5px;
+	text-transform: uppercase;
+	font-size: 16px;
+	text-align: center !important;
+	margin-bottom: 0px;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+}
+
+.ui-input-invalid {
+	background-color: red
+}
+
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+
+.ui-button-icon-only .ui-button-text {
+	padding: 0.18em;
+}
+
+/*
+This property will add a border to the drop down.
+Only apply this when the value is not selected, condition css attribute apply.
+1 - Selec the child container with this class and apply attribute
+*/
+/* .select2-container--default {
+  border: 1px solid red;
+} */
+.input-sm {
+	height: 34px !important;
+}
+
+select[readonly].select2+.select2-container {
+	pointer-events: none;
+	touch-action: none; 
+	. select2-selection {
+		background : #eee;
+		box-shadow: none;
+	}
+
+	.select2-selection__arrow, .select2-selection__clear {
+		display: none;
+	}
+}
+
+.red-asterisk{
+	color: red;
+}
+</style>
+
+<h:outputScript name="js/analyzer-functions.js" target="head" />
+<h:outputScript name="jsf.js" library="javax.faces" target="head" />
+
+
+<body class="hold-transition skin-blue sidebar-mini">
+
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+
+
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<p:outputPanel autoUpdate="true">
+			<p:dialog id="msgDialog" widgetVar="messageDialog" modal="true"
+				appendToBody="true" visible="#{not empty facesContext.messageList}"
+				header="Validation Messages" width="400px;" height="400px;"
+				closeOnEscape="true" closable="true">
+				<p:messages id="messagesInDialog" showDetail="true"
+					rendered="#{facesContext.postback or facesContext.validationFailed}" />
+			</p:dialog>
+		</p:outputPanel>
+
+		<div id="dialog" title="Alert message" style="display: none">
+			<div class="ui-dialog-content ui-widget-content">
+				<p>
+					<span class="ui-icon ui-icon-alert"
+						style="float: left; margin: 0 7px 20px 0"></span> <label
+						id="lblMessage"> </label>
+				</p>
+			</div>
+		</div>
+
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+							<div class="box-header"
+								style="text-align: center; background: aliceblue;">
+								<h1 class="box-title" style="font-size: 30px !important;"><h:outputText value="#{param.compCode.toUpperCase().trim()}" />
+									ANALYZER</h1>
+							</div>
+							<!-- /.box-header -->
+							<h:form role="form" name="analyserForm" id="analyserForm">
+								<div class="box-body inner-end">
+
+									<div class="row" id="rejectedDetailHeader"
+										style="display: none">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Rejection Details</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+
+									<div class="row" id="rejectedDetailSub" style="display: none">
+										<div class="col-md-6 inner-end">
+											<div class="form-group" id="rejectionReasonDiv">
+												<h:outputLabel value="Rejection Reason" />
+												<p:inputTextarea id="rejectedReason" autoResize="false"
+													readonly="true"
+													value="#{analyserBean.analyser.rejectionReason}"
+													style="width: 100%;max-width: 100%;min-width: 100%; 
+													height:60px; font-size: 14px; border: 1px solid #dddddd; background:#f7ca82"></p:inputTextarea>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group" id="rejectedByDiv">
+												<h:outputLabel for="rejectedBy" value="Rejected By" />
+												<p:inputText id="rejectedBy" disabled="true"
+													styleClass="form-control input-sm"
+													style="background:#f7ca82"
+													value="#{analyserBean.analyser.rejectedBy}">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group" id="rejectionDateDiv">
+												<h:outputLabel for="rejectionDate" value="Rejection Time" />
+												<p:inputText id="rejectionDate" style="background:#f7ca82"
+													styleClass="form-control input-sm" disabled="true"
+													value="#{analyserBean.analyser.rejectionDate}">
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+
+									<!--  / end of row -->
+
+									<!--  / start of branch of row -->
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Office and Region</h:outputLabel>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="branchDiv">
+												<h:outputLabel for="branch" value="Office"/><h:outputLabel styleClass="red-asterisk">*</h:outputLabel>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.branch}" id="branch" 
+													onchange="branchChanged();">
+													<p:ajax listener="#{analyserBean.onChangeOffice}"
+														update="region, distance" />
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{officeBean.getOfficeByCompanyCodeList(param.compCode)}"
+														var="branch" itemLabel="#{branch.label}"
+														itemValue="#{branch.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="distanceDiv">
+												<h:outputLabel for="distance"
+													value="Distance from Worksite(miles)" />
+												<p:inputText id="distance"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.distance}" readonly="true" />
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="portfolioDiv">
+												<h:outputLabel for="portfolio" value="GL Portfolio" />												
+													<p:inputText id="portfolio"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.portfolio}" readonly="#{analyserBean.enableCompanySpecificFields == false ? 'true': 'false'}" />												
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="portfolioDescriptionDiv">
+												<h:outputLabel for="portfolioDescription"
+													value="GL Portfolio Description" />													
+												<p:inputText id="portfolioDescription"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.portfolioDescription}" readonly="#{analyserBean.enableCompanySpecificFields == false ? 'true': 'false'}"/>											
+											</div>
+										</div>																		
+										
+										<div class="col-md-3" style="display: none">
+											<div class="form-group" id="regionDiv">
+												<h:outputLabel for="region" value="Region" />
+												<p:inputText id="region" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.geoOffice}" readonly="true" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of branch of row -->
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Office Commission Information</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="verticalDiv">
+												<h:outputLabel for="vertical" value="Vertical" /><h:outputLabel styleClass="red-asterisk">*</h:outputLabel>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.vertical}" id="vertical"
+													onchange="changeVertical();">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{verticalBean.getVerticalByCompanyCodeList(param.compCode)}"
+														var="vertical" itemLabel="#{vertical.label}"
+														itemValue="#{vertical.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="productDiv">
+												<h:outputLabel for="product" value="Product" /><h:outputLabel styleClass="red-asterisk">*</h:outputLabel>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.product}" id="product"
+													onchange="changeVertical();">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{productBean.getProductByCompanyCodeList(param.compCode)}"
+														var="product" itemLabel="#{product.label}"
+														itemValue="#{product.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="managingDirectorDiv">
+												<h:outputLabel value="Managing Director" /><h:outputLabel styleClass="red-asterisk">*</h:outputLabel>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.managingDirector}"
+													id="managingDirector" >
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{analyserCommissionPersonBean.getMDCommissionPersonList(param.compCode)}"
+														var="branch" itemLabel="#{branch.label}"
+														itemValue="#{branch.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-5">
+											<div class="form-group" id="commentsDiv">
+												<h:outputLabel for="comments" value="Comments" />
+												<h:inputTextarea id="comments"
+													value="#{analyserBean.analyser.comments}"
+													style="width: 100%; height: 35px; font-size: 14px; border: 1px solid #dddddd;"></h:inputTextarea>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-2">
+											<h:outputLabel for="commName1" value="Account Exec-1" />
+											<div class="form-group" id="commName1Div">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commName1}" id="commName1">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserCommissionPersonBean.getAECommissionPersonList(param.compCode)}"
+														var="person" itemLabel="#{person}" itemValue="#{person}" />
+												</h:selectOneMenu>
+
+												<p:commandButton id="ae1Button" style="display:none;">
+													<f:ajax listener="#{analyserBean.ircCommissionPersons}"
+														process="@form" partialSubmit="true"
+														render="ircCommissionPersonStatusForAe1"/>
+												</p:commandButton>
+
+											</div>
+										</div>
+										
+										
+										<div class="col-md-2">
+											<div class="form-group" id="commissionModel1Div">
+												<h:outputLabel for="commissionModel1"
+													value="Commission Model1" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commissionModel1}"
+													id="commissionModel1">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{commissionModelBean.getCommissionModelByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/>														
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-1">
+											<div class="form-group" id="commPer1Div">
+												<h:outputLabel for="commPer1" value="Percent" />
+												<p:inputText id="commPer1"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commPer1}"
+													onchange="calculator();" maxlength="6">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-1">
+											<div class="form-group" id="ae1Grade1Div">
+												<h:outputLabel for="commissionPersonGrade1" value="Grade" />
+												<p:inputText id="commissionPersonGrade1"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commissionPersonGrade1}"
+													readonly="true">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+											<p:commandButton id="ae1Grade1Button" style="display:none;">
+												<p:ajax listener="#{analyserBean.aeGrade}" process="@form" update="commissionPersonGrade1"
+													partialSubmit="true"/>
+											</p:commandButton>
+										</div>
+
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="commision1Div">
+												<h:outputLabel for="commision1" value="Amount" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="commision1"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.commision1}" maxlength="6"
+														readonly="true">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+
+										</div>
+										
+									<!-- 	<h:panelGroup rendered="#{analyserBean.enableCompanySpecificFields == true ? 'true': 'false'}"> -->
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="dealPortfolio1AE1Div">
+												<h:outputLabel for="dealPortfolio1AE1" value="Portfolio AE1" />
+												<div class="input-group">													
+													<p:inputText id="dealPortfolio1AE1"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.dealPortfolio1AE1}"  readonly="true"/>														
+												</div>
+											</div>
+										</div>
+										<!-- </h:panelGroup> -->
+
+										<div class="col-md-1 inner-end">
+											<div class="form-group" id="splitCommissionPercentage1Div">
+												<h:outputLabel for="splitCommissionPercentage1"
+													value="AE-1 Split%" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.splitCommissionPercentage1}"
+													id="splitCommissionPercentage1">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{splitPercentageBean.getSplitPercentageByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-1">
+											<h:outputLabel for="execOrphan" value="Orphan" />
+											<div class="form-group" id="execOrphanDiv">
+												<h:selectBooleanCheckbox id="execOrphan"
+													disabled="#{analyserBean.showSaveButton}"
+													styleClass="form-control minimal"
+													value="#{analyserBean.analyser.execOrphan}">
+													<!-- <p:ajax update="growl commPer1" process="@form"
+														listener="#{analyserBean.calculatePercentage}">
+													</p:ajax> -->
+												</h:selectBooleanCheckbox>
+												<h:inputHidden id="execOrphanHdnVal"
+													value="#{analyserBean.analyser.execOrphanHdnVal}" />
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+																	
+									<div class="row">
+										<div class="col-md-2 inner-end">
+											<h:outputLabel for="commName2" value="Recruiter-1" />
+											<div class="form-group" id="commName2Div">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commName2}" id="commName2">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserCommissionPersonBean.getRecruiterCommissionPersonList(param.compCode)}"
+														var="person" itemLabel="#{person}" itemValue="#{person}" />
+												</h:selectOneMenu>
+												<p:commandButton type="button" id="rec1Button"
+													style="display:none;">
+													<f:ajax listener="#{analyserBean.ircCommissionPersons}"
+														partialSubmit="true" process="@this"
+														render="ircCommissionPersonStatusForRec1"/>
+												</p:commandButton>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="commissionModel2Div">
+												<h:outputLabel for="commissionModel2"
+													value="Commission Model2" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commissionModel2}"
+													id="commissionModel2">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{commissionModelBean.getCommissionModelByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="commPer2Div">
+												<h:outputLabel for="commPer2" value="Percent" />
+												<p:inputText id="commPer2"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commPer2}"
+													onchange="calculator();" maxlength="6">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="commision2Div">
+												<h:outputLabel for="commision2" value="Amount" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="commision2"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.commision2}"
+														readonly='true' maxlength="6">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+										<!-- <h:panelGroup rendered="#{analyserBean.enableCompanySpecificFields == true ? 'true': 'false'}"> -->
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="dealPortfolio2REC1Div">
+												<h:outputLabel for="dealPortfolio2REC1" value="Portfolio REC1" />
+												<div class="input-group">													
+													<p:inputText id="dealPortfolio2REC1"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.dealPortfolio2REC1}"  readonly="true" />														
+												</div>
+											</div>
+										</div>
+										<!-- </h:panelGroup> -->
+										<div class="col-md-1 inner-end">
+											<div class="form-group" id="splitCommissionPercentage2Div">
+												<h:outputLabel for="splitCommissionPercentage2"
+													value="REC1 Splt%" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.splitCommissionPercentage2}"
+													id="splitCommissionPercentage2">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{splitPercentageBean.getSplitPercentageByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-1">
+											<h:outputLabel for="recruiterOrphan" value="Orphan" />
+											<div class="form-group" id="recruiterOrphanDiv">											
+												<h:selectBooleanCheckbox
+													disabled="#{analyserBean.showSaveButton}"
+													styleClass="form-control input-sm minimal"
+													id="recruiterOrphan"
+													value="#{analyserBean.analyser.recruiterOrphan}">
+												</h:selectBooleanCheckbox>
+												<h:inputHidden id="recruiterOrphanHdnVal"
+													value="#{analyserBean.analyser.recruiterOrphanHdnVal}" />
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-2 inner-end">
+											<h:outputLabel for="commName3" value="Account Exec-2" />
+											<div class="form-group" id="commName3Div">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commName3}" id="commName3">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserCommissionPersonBean.getAECommissionPersonList(param.compCode)}"
+														var="person" itemLabel="#{person}" itemValue="#{person}" />
+												</h:selectOneMenu>
+												<p:commandButton id="ae2Button" style="display:none;">
+													<f:ajax listener="#{analyserBean.ircCommissionPersons}"
+														process="@form" partialSubmit="true"
+														render="ircCommissionPersonStatusForAe2"/>
+												</p:commandButton>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="commissionModel3Div">
+												<h:outputLabel for="commissionModel3"
+													value="Commission Model3" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commissionModel3}"
+													id="commissionModel3">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{commissionModelBean.getCommissionModelByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person}" itemValue="#{person}" />
+												</h:selectOneMenu>
+
+												<!-- <p:selectOneMenu id="commissionModel3" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commissionModel3}"
+													effect="fade" filter="true" onchange="updateCommission();IRC('ae2');"
+													filterMatchMode="startsWith" widgetVar="comModel3">
+													<f:selectItems value="#{selectOneMenuView.themes}"
+														var="theme" itemLabel="#{theme.displayName}"
+														itemValue="#{theme}" />
+
+													<f:selectItem itemLabel="Pleae select..." itemValue="" />
+													<f:selectItems value="#{analyserBean.commissionModels}"
+														var="person" itemLabel="#{person}" itemValue="#{person}" />
+												</p:selectOneMenu> -->
+
+											</div>
+										</div>
+										<div class="col-md-1">
+											<div class="form-group" id="commPer3Div">
+												<h:outputLabel for="commPer3" value="Percent" />
+												<p:inputText id="commPer3"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commPer3}"
+													onchange="calculator();" maxlength="6">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-1">
+											<div class="form-group" id="ae1Grade2Div">
+												<h:outputLabel for="commissionPersonGrade3" value="Grade" />
+												<p:inputText id="commissionPersonGrade3"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commissionPersonGrade3}"
+													readonly="true">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+											
+											<p:commandButton id="ae1Grade2Button" style="display:none;">
+												<p:ajax listener="#{analyserBean.aeGrade}" process="@form" update="commissionPersonGrade3"
+													partialSubmit="true"/>
+											</p:commandButton>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="commision3Div">
+												<h:outputLabel for="commision3" value="Amount" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="commision3" readonly='true'
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.commision3}" maxlength="6">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+
+										</div>
+										<div class="col-md-2 inner-end">
+											<!-- <h:panelGroup rendered="#{analyserBean.enableCompanySpecificFields == true ? 'true': 'false'}">
+											<div class="form-group" id="dealPortfolio3AE2Div">
+												<h:outputLabel for="dealPortfolio3AE2" value="Portfolio AE2" />
+												<div class="input-group">													
+													<p:inputText id="dealPortfolio3AE2"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.dealPortfolio3AE2}">														
+													</p:inputText>
+												</div>
+											</div>
+											</h:panelGroup> -->
+										</div>
+										
+
+										<div class="col-md-1 inner-end">
+											<div class="form-group" id="splitCommissionPercentage3Div">
+												<h:outputLabel for="splitCommissionPercentage3"
+													value="AE-2 Split%" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.splitCommissionPercentage3}"
+													id="splitCommissionPercentage3">
+
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{splitPercentageBean.getSplitPercentageByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-1">
+										<h:outputLabel for="other1Orphan" value="Orphan" />
+											<div class="form-group" id="other1OrphanDiv">												
+												<h:selectBooleanCheckbox
+													disabled="#{analyserBean.showSaveButton}"
+													styleClass="form-control input-sm minimal"
+													id="other1Orphan"
+													value="#{analyserBean.analyser.other1Orphan}">
+												</h:selectBooleanCheckbox>
+												<h:inputHidden id="other1OrphanHdnVal"
+													value="#{analyserBean.analyser.other1OrphanHdnVal}" />
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-2 inner-end">
+											<h:outputLabel for="commName4" value="Recruiter-2" />
+											<div class="form-group" id="commName4Div">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commName4}" id="commName4">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserCommissionPersonBean.getRecruiterCommissionPersonList(param.compCode)}"
+														var="person" itemLabel="#{person}" itemValue="#{person}" />
+												</h:selectOneMenu>
+												<p:commandButton id="rec2Button" style="display:none;">
+													<f:ajax listener="#{analyserBean.ircCommissionPersons}"
+														process="@form" partialSubmit="true"
+														render="ircCommissionPersonStatusForRec2" />
+												</p:commandButton>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="commissionModel4Div">
+												<h:outputLabel for="commissionModel4"
+													value="Commission Model4" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commissionModel4}"
+													id="commissionModel4">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{commissionModelBean.getCommissionModelByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person}" itemValue="#{person}" />
+												</h:selectOneMenu>
+												<p:commandButton id="changeCommissionPersonsListButton4"
+													style="display:none;">
+													<p:ajax
+														listener="#{analyserBean.changeCommissionPersonsList}"
+														process="@form" update="commName4" partialSubmit="true"
+														event="click" oncomplete="commandButtons();" />
+													<f:param name="listId" value="4" />
+												</p:commandButton>
+											</div>
+
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="commPer4Div">
+												<h:outputLabel for="commPer4" value="Percent" />
+												<p:inputText id="commPer4"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commPer4}"
+													onchange="calculator();" maxlength="6">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="commision4Div">
+												<h:outputLabel for="commision4" value="Amount" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="commision4"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.commision4}"
+														readonly="true" maxlength="6" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-2 inner-end">
+											<!-- <h:panelGroup rendered="#{analyserBean.enableCompanySpecificFields == true ? 'true': 'false'}">
+											<div class="form-group" id="dealPortfolio4REC2Div">
+												<h:outputLabel for="dealPortfolio4REC2" value="Portfolio REC2" />
+												<div class="input-group">													
+													<p:inputText id="dealPortfolio4REC2"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.dealPortfolio4REC2}" >														
+													</p:inputText>
+												</div>
+											</div>
+											</h:panelGroup> -->
+										</div>
+										
+										<div class="col-md-1 inner-end">
+											<div class="form-group" id="splitCommissionPercentage4Div">
+												<h:outputLabel for="splitCommissionPercentage4"
+													value="REC2 Splt%" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.splitCommissionPercentage4}"
+													id="splitCommissionPercentage4">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{splitPercentageBean.getSplitPercentageByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-1">
+										<h:outputLabel for="other2Orphan" value="Orphan" />
+											<div class="form-group" id="other2OrphanDiv">												
+												<h:selectBooleanCheckbox
+													disabled="#{analyserBean.showSaveButton}"
+													styleClass="form-control input-sm minimal"
+													id="other2Orphan"
+													value="#{analyserBean.analyser.other2Orphan}">
+												</h:selectBooleanCheckbox>
+												<h:inputHidden id="other2OrphanHdnVal"
+													value="#{analyserBean.analyser.other2OrphanHdnVal}" />
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+
+									<!--  This should be only visible to Services Deals role -->
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<h:outputLabel value="MSP Client Partner" />
+											<div class="form-group" id="commName5Div">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.commissionPerson5}"
+													id="commName5">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems
+														value="#{analyserCommissionPersonBean.getMSPCommissionPersonList(param.compCode)}"
+														var="person" itemLabel="#{person}" itemValue="#{person}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="commPer5Div">
+												<h:outputLabel value="Percent" />
+												<p:inputText id="commPer5"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commissionPercentage5}"
+													onchange="calculator();" maxlength="6" readonly="true">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="commision5Div">
+												<h:outputLabel value="Amount" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="commision5"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.commission5}"
+														readonly='true' maxlength="6" />
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="employeeCategoryDiv">
+												<h:outputLabel for="employeeCategory"
+													value="Employee Category" /><h:outputLabel styleClass="red-asterisk">*</h:outputLabel>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.temps}"
+													id="employeeCategory" >
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{employeeCategoryBean.getEmployeeCategoryByCompanyCodeList(param.compCode)}"
+														var="category" itemLabel="#{category.label}"
+														itemValue="#{category.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="dealTypeDiv">
+												<h:outputLabel for="dealType" value="Deal Type" /><h:outputLabel styleClass="red-asterisk">*</h:outputLabel>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.dealType}" id="dealType">
+
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{dealTypeBean.getDealTypeByCompanyCodeList(param.compCode)}"
+														var="category" itemLabel="#{category.label}"
+														itemValue="#{category.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<h:outputLabel for="h1Employee" value="H1 Employee" />
+											<div class="form-group" id="h1EmployeeDiv">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal" id="h1Employee"
+													value="#{analyserBean.analyser.h1}" />
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="analyzerCategory2Div">
+												<!-- Need to put a blank value here as well -->
+												<h:outputLabel for="analyzerCategory2"
+													value="Classification" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.analyzerCategory2}"
+													id="analyzerCategory2">
+
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{analyserCategory2Bean.getAnalyserCategory2ByCompanyCodeList(param.compCode)}"
+														var="category" itemLabel="#{category.label}"
+														itemValue="#{category.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<h:panelGroup rendered="#{analyserBean.enableCompanySpecificFields == true ? 'true': 'false'}">
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="analyzerCategory1Div">
+												<h:outputLabel for="analyzerCategory1"
+													value="Benefits Group" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.analyzerCategory1}"
+													id="analyzerCategory1">
+
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{analyzerCategory1Bean.getAnalyzerCategory1ByCompanyCodeList(param.compCode)}"
+														var="category" itemLabel="#{category.label}"
+														itemValue="#{category.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										</h:panelGroup>
+
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+
+										<div class="col-md-3 inner-end">
+											<h:outputLabel for="checkedReferences"
+												value="Checked References" />
+											<div class="form-group" id="checkedReferencesDiv">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal"
+													id="checkedReferences"
+													value="#{analyserBean.analyser.references}" />
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="commEffDateDiv">
+												<h:outputLabel for="commEffDate"
+													value="Comm Effective Date" /><h:outputLabel styleClass="red-asterisk">*</h:outputLabel>
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+
+													<p:inputMask value="#{analyserBean.analyser.commEffDate}"
+														styleClass="form-control input-sm pull-right"
+														id="commEffDate" mask="99/99/9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="liaisonDiv">
+												<h:outputLabel for="liaison" value="HR Business Partner" /><h:outputLabel styleClass="red-asterisk">*</h:outputLabel>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.liaisonName}" id="liaison">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{analyserLiaisonBean.getAnalyserLiaisonByCompanyCodeList(param.compCode)}"
+														var="liaison" itemLabel="#{liaison.label}"
+														itemValue="#{liaison.value}" />
+												</h:selectOneMenu>
+
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="recruitingClassificationDiv">
+												<!-- Need to put a blank value here as well -->
+												<h:outputLabel for="recruitingClassification"
+													value="Recruiting Team" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.recruitingClassification}"
+													id="recruitingClassification" >
+												<!--	onchange="empTypeChanged(); validateFlsa(0);"> -->
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{recruitingClassificationBean.getRecruitingClassificationsByCompanyCodeList(param.compCode)}"
+														var="liaison" itemLabel="#{liaison.label}"
+														itemValue="#{liaison.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="coSellStatusDiv">
+												<h:outputLabel for="coSellStatus"
+													value="CoSellStatus" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.coSellStatus}"
+													id="coSellStatus">
+
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{coSellStatusBean.getCoSellStatusByCompanyCodeList(param.compCode)}"
+														var="category" itemLabel="#{category.label}"
+														itemValue="#{category.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									
+									</div>
+									<!--  / end of row -->
+
+									<!-- / Branch Commission Information ended -->
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Employee Information</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="empTypeDiv">
+												<h:outputLabel for="empType" value="Employee Type" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.empType}" id="empType"
+													onchange="empTypeChanged(); validateFlsa(0);">														
+											<f:selectItems value="#{employeeTypeBean.getEmployeeTypeByCompanyCodeList(param.compCode)}"
+														var="eType" itemLabel="#{eType.label}"
+														itemValue="#{eType.value}" /> 
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="lastNameDiv">
+												<h:outputLabel for="lastName" value="Last Name" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="lastName"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.lName}" />
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="initialDiv">
+												<h:outputLabel for="initial" value="Initial" />
+												<p:inputText id="initial" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.initial}" />
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="firstNameDiv">
+												<h:outputLabel for="firstName" value="First Name" /><h:outputLabel styleClass="red-asterisk" value="*"/>												<p:inputText id="firstName"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.fName}" />
+											</div>
+										</div>
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="genderDiv">
+												<h:outputLabel for="gender" value="Gender" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.gender}" id="gender">
+													<f:selectItem itemLabel="" itemValue="" />
+												 <f:selectItems value="#{genderBean.getGenderByCompanyCodeList(param.compCode)}" var="gender"
+														itemLabel="#{gender.label}" itemValue="#{gender.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="address1Div">
+												<h:outputLabel for="address1" value="Address 1" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="address1"
+													required="#{!analyserBean.clientCompanyDialog}"
+													requiredMessage="Address 1 is required"
+													styleClass="#{not component.valid ? 'form-control input-sm ui-input-invalid' : 'form-control input-sm'}"
+													value="#{analyserBean.analyser.address1}">
+													<p:message for="address1"></p:message>
+												</p:inputText>
+
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="address2Div">
+												<h:outputLabel for="address2" value="Address 2" />
+												<p:inputText id="address2"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.address2}" />
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="cityDiv">
+												<h:outputLabel for="city" value="City" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="city" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.city}" />
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="stateDiv">
+												<h:outputLabel for="state" value="State" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.state}" id="state">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{statesBean.getList()}"
+														var="states" itemLabel="#{states.label}"
+														itemValue="#{states.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="zipDiv">
+												<h:outputLabel for="zip" value="Zip" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group">
+													<p:inputMask styleClass="form-control input-sm" id="zip"
+														name="zip" value="#{analyserBean.analyser.zip}"
+														mask="*****-?****" placeholder="12345-6789" maxlength="10" >
+														<p:ajax event="valueChange" listener="#{analyserBean.onWorkSourceChange}" execute="@this" 
+														update="@this, sickLeavePerHourRate,sickLeaveCap, pTOLimitToOverrideSick, sickLeaveSource"/>
+														</p:inputMask>
+													<!-- mask="*****-**** -->
+													<span class="input-group-btn"> <p:commandButton
+															process="@this, address1, address2,city, state, zip"
+															update=":msgDialog,validZipCode" partialSubmit="true"
+															icon="fa fa-check" style="height:34px;" id="zipButton"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{analyserBean.checkZipCode}"
+															oncomplete="commandButtons(); showZipCodeMessage();">
+															<p:ajax event="dialogReturn"
+																listener="#{analyserBean.onUspsAddressChosen}"
+																update="@this, address1, address2, city, hiddenState, zip"
+																oncomplete="showZipCodeMessage(); updateState();" />
+														</p:commandButton>
+													</span>
+													<p:inputText type="hidden" id="validZipCode"
+														value="#{analyserBean.validZipCode}" />
+													<p:inputText type="hidden" id="hiddenState"
+														value="#{analyserBean.state}" />
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="homePhoneDiv">
+												<h:outputLabel for="homePhone" value="Home Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="homePhone" value="#{analyserBean.analyser.telephone}"
+														mask="(999) 999-9999" autoClear="true"
+														placeholder="(999) 999-9999" />
+												</div>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="workPhoneDiv">
+												<h:outputLabel for="workPhone" value="Work Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="workPhone" value="#{analyserBean.analyser.workPhone}"
+														mask="(999) 999-9999" autoClear="true"
+														placeholder="(999) 999-9999" />
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="workEmailDiv">
+												<h:outputLabel for="workEmail" value="Work Email" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-envelope"></i></span>
+													<p:inputText id="workEmail"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.workEmail}">
+														<p:keyFilter preventPaste="false" regEx="/[a-z0-9_\.\-@]/i" />
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="faxDiv">
+												<h:outputLabel for="fax" value="Fax" />
+												<p:inputMask styleClass="form-control input-sm" id="fax"
+													value="#{analyserBean.analyser.fax}" mask="(999) 999-9999"
+													autoClear="true" placeholder="(999) 999-9999" />
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="emailDiv">
+												<h:outputLabel for="email" value="Personal Email" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-envelope"></i></span>
+													<p:inputText id="email" styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.email}">
+														<p:keyFilter preventPaste="false" regEx="/[a-z0-9_\.\-@]/i" />
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="dobDiv">
+												<h:outputLabel for="dob" value="Date of Birth" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="dob" value="#{analyserBean.analyser.dob}"
+														mask="99/99/9999" />
+												</div>
+
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="jobCategoryDiv">
+												<h:outputLabel for="jobCategory" value="Job Category" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.jobCategory}"
+													id="jobCategory">
+													
+													<f:selectItem itemLabel="" itemValue="" />
+												  <f:selectItems value="#{jobCategoryBean.getJobCategoryByCompanyCodeList(param.compCode)}"
+														var="branch" itemLabel="#{branch}" /> 
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="jobTitleDiv">
+												<h:outputLabel for="jobTitle" value="Job Title" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="jobTitle"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.jobTitle}">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="mobilePagerDiv">
+												<h:outputLabel for="mobilePager" value="Mobile" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="mobilePager"
+														value="#{analyserBean.analyser.mobilePager}"
+														mask="(999) 999-9999" autoClear="true"
+														placeholder="(999) 999-9999" />
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="ssnDiv">
+												<h:outputLabel for="ssn" value="SSN #" />
+												<h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group">
+													<p:inputMask styleClass="form-control input-sm" id="ssn"
+														name="ssn" value="#{analyserBean.analyser.ssn}"
+														disabled="#{!analyserBean.showSsn}">
+													</p:inputMask>
+													<span class="input-group-btn"> <p:commandButton
+															process="@this, ssn" update=":msgDialog, ssn, validSsn, prevSsn"
+															partialSubmit="true" icon="fa fa-check" id="ssnButton"
+															style="height: 34px;" disabled="#{!analyserBean.showSsn}"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{analyserBean.checkSsn}"
+															oncomplete="commandButtons(); showSsnMessage();">
+														</p:commandButton>
+													</span>
+													<p:inputText type="hidden" id="validSsn"
+														value="#{analyserBean.validSsn}" />
+													<p:inputText type="hidden" id="prevSsn" name="prevSsn"
+														value="#{analyserBean.prevSsn}" />
+														
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<!--  need to add a blank item here -->
+											<div class="form-group" id="flsaStatusDiv">
+												<h:outputLabel for="flsaStatus" value="FLSA Status" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.flsaStatus}" id="flsaStatus">
+													<f:selectItem itemLabel="" itemValue="" />
+												 <f:selectItems value="#{fLSAStatusBean.getFLSAStatusByCompanyCodeList(param.compCode)}"
+														var="branch" itemLabel="#{branch.label}"
+														itemValue="#{branch.value}" />  
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="flsaReferenceDiv">
+												<h:outputLabel for="flsaReference" value="FLSA Reference" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<div class="input-group">
+													<p:inputText id="flsaReference"
+														readonly="#{analyserBean.flsaReferenceFlag}"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.flsaReference}"
+														onchange="validateFlsa(0);" maxlength="10">
+													</p:inputText>
+													<span class="input-group-btn"> <p:commandButton
+															process="@this, flsaReference"
+															update=":msgDialog,validFlsaRefernce, prevFlsaRef"
+															partialSubmit="true" icon="fa fa-check"
+															style="height:34px;" id="flsaReferenceButton"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{analyserBean.checkFlsaReference}"
+															oncomplete="commandButtons(); showFlsaMessage();">
+														</p:commandButton>
+													</span>
+												</div>
+												<p:inputText type="hidden" id="validFlsaRefernce"
+													value="#{analyserBean.validFlsaRefernce}" />
+													
+												<p:inputText type="hidden" id="prevFlsaRef"
+													value="#{analyserBean.prevFlsaRef}" />
+												
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<h:outputLabel for="isBonusEligible" value="Bonus Eligible" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+											<div class="form-group" id="isBonusEligibleDiv">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal"
+													id="isBonusEligible"
+													value="#{analyserBean.analyser.isBonusEligible}">
+												</h:selectBooleanCheckbox>
+
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<h:outputLabel for="bonusPercentage" value="Annual Bonus %" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+											<div class="form-inline" id="bonusPercentageDiv">
+												<h:selectOneMenu styleClass="input-sm select2"
+													value="#{analyserBean.analyser.bonusPercentage}"
+													onchange="validateFlsa(0);" id="bonusPercentage">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{bonusPercentageBean.getBonusPercentageByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/>
+												</h:selectOneMenu>
+												<p:inputText id="bonusAmount" readonly="true"
+													styleClass="form-control input-sm" style="width: 93px;"
+													value="#{analyserBean.analyser.bonusAmount}">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group" id="employeeClassDiv">
+												<h:outputLabel for="employeeClass" value="Employee Class" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.employeeClass}"
+													id="employeeClass">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{employeeClassBean.getEmployeeClassByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/>
+												</h:selectOneMenu>
+
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="skillCategoryDiv">
+												<h:outputLabel for="skillCategory" value="Skill Category" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.skillCategory}"
+													id="skillCategory">
+													<f:selectItem itemLabel="" itemValue="" />
+													 <f:selectItems value="#{skillCategoryBean.getSkillCategoryByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/> 													
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="travelRequiredDiv">
+												<h:outputLabel for="travelRequired" value="Travel Required" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.travelRequired}"
+													id="travelRequired">
+													<f:selectItem itemLabel="" itemValue="" />
+													<f:selectItems value="#{travelStatusBean.getTravelStatusByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/>
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<h:outputLabel for="employeeVeteran" value="Veteran" />
+											<div class="form-group" id="employeeVeteranDiv">
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.employeeVeteran}"
+													id="employeeVeteran">
+													<f:selectItem itemLabel="" itemValue="" />
+													<!-- <f:selectItem itemLabel="Yes" itemValue="Y" />
+													<f:selectItem itemLabel="No" itemValue="N" /> -->
+													<f:selectItems value="#{veteranStatusBean.getVeteranStatusByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/>
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="consultantJobBoardDiv">
+												<h:outputLabel for="consultantJobBoard" value="Job Board" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.consultantJobBoard}"
+													id="consultantJobBoard">
+													<f:selectItem itemLabel="" itemValue="" />													
+													 <f:selectItems value="#{jobBoardBean.getJobBoardByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/> 
+												</h:selectOneMenu>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="unEmployedForTwoMonthsDiv">
+												<h:outputLabel for="unEmployedForTwoMonths"
+													value="Unemployed for last 60 days" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.unEmployedForTwoMonths}"
+													id="unEmployedForTwoMonths">
+													<f:selectItem itemLabel="" itemValue="" />
+													 <f:selectItems value="#{unemployedStatusBean.getUnemployedStatusByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/>
+												</h:selectOneMenu>
+											</div>
+										</div>
+									</div>
+									<!--  / end row -->
+										<div class = "row">										
+										    <div class="col-md-3 inner-end">
+												<!--  need to add a blank item here -->
+												<div class="form-group" id="workFromSourceDiv">
+													<h:outputLabel for="workFromSource" value="Work From" />
+												 	<h:outputLabel styleClass="red-asterisk" value="*"/> 
+												  
+													<h:selectOneMenu styleClass="form-control input-sm select2"
+														value="#{analyserBean.analyser.workFromSource}" id="workFromSource"  onchange="validateMajorityWorkPerformed();" >
+														 <f:ajax event="change" execute="@this" 
+												            render="sickLeavePerHourRate sickLeaveCap pTOLimitToOverrideSick sickLeaveSource"
+												            listener= "#{analyserBean.onWorkSourceChange}" />
+														<f:selectItem itemLabel="" itemValue="" />
+													 <f:selectItems value="#{workFromSourceBean.getWorkFromSourceByCompanyCodeList(param.compCode)}"
+															var="workFromSource" itemLabel="#{workFromSource.label}"
+															itemValue="#{workFromSource.value}"/> 
+													</h:selectOneMenu>
+													
+												</div>
+											</div>
+												
+											<div class="col-md-2 inner-end">
+											<!--  need to add a blank item here -->
+										
+											<div class="form-group" id="majorityWorkPerformedDiv" >
+												<h:outputLabel for="majorityWorkPerformed" value="Majority of Work Location" />
+												 <h:outputLabel styleClass="red-asterisk" value="**"/> 
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.majorityWorkPerformed}" id="majorityWorkPerformed" >
+													<f:selectItem itemLabel="" itemValue="" />
+												 <f:selectItems value="#{majorityWorkPerformedBean.getMajorityWorkPerformedByCompanyCodeList(param.compCode)}"
+														var="majorityWorkPerformed" itemLabel="#{majorityWorkPerformed.label}"
+														itemValue="#{majorityWorkPerformed.value}" />  		
+												</h:selectOneMenu>
+											</div>
+											
+											
+										</div>
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="bullhornPlacementIdDiv">
+												<h:outputLabel for="bullhornPlacementId" value="BH Placement ID" />
+												<p:inputText id="bullhornPlacementId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.bullhornPlacementId}" >	
+													<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>												
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									<!--  / end row -->
+									<div class="row">
+										<div class="col-md-7 inner-end">
+											<div class="form-group" id="contCompanyNameDiv">
+												<h:outputLabel for="contCompanyName"
+													value="Sub Company Name" />
+												<div class="input-group">
+													<p:inputText id="contCompanyName" readonly="true"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.contCompanyName}">
+														<span class="input-group-btn"> <!-- disabled="#{analyserBean.searchSubcontractorFlag}" -->
+															<button type="button"
+																class="btn btn-sm btn-info btn-flat"
+																onclick="searchContractor();" style="height: 34px;">
+																<i class="fa fa-search"></i>
+															</button> 
+															<p:commandButton style="display:none;"
+																process="@form"
+																icon="fa fa-search"
+																styleClass="btn btn-sm btn-info btn-flat"
+																actionListener="#{analyserBean.chooseAnalyserSubcontractor}"
+																id="subContractorSearch">
+																<p:ajax event="dialogReturn"
+																	listener="#{analyserBean.onSubcontractorChosen}"
+																	update="@form"
+																	oncomplete="commandButtons(); validateFlsa(0);" />
+															</p:commandButton>
+															
+														</span>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="contFinDiv">
+												<h:outputLabel for="contFin" value="Sub Company FIN #" />
+												<p:inputText id="contFin" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.contFin}" readonly="true">
+													<p:keyFilter regEx="/[a-z0-9_\.\-@]/i" />
+												</p:inputText>
+											</div>
+										</div>
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="vendorCompanyCodeDiv">
+												<h:outputLabel for="vendorCompanyCode" value="Vendor Company Code" />
+												<p:inputText id="vendorCompanyCode"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.vendorCompanyCode}" readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-7 inner-end">
+											<div class="form-group" id="contEmailDiv">
+												<h:outputLabel for="contEmail" value="Sub Email" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-envelope"></i></span>
+													<p:inputText id="contEmail"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.contEmail}" readonly="true">
+														<p:keyFilter regEx="/[a-z0-9_\.\-@]/i" />
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="contPayTermDiv">
+												<h:outputLabel for="contPayTerm" value="Sub Payment Term" />
+												<p:inputText id="contPayTerm"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.contPayTerm}" readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group" id="contPhoneDiv">
+												<h:outputLabel for="contPhone" value="Sub Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="contPhone" value="#{analyserBean.analyser.contPhone}"
+														mask="(999) 999-9999" readonly="true" />
+												</div>
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="contPocNameDiv">
+												<h:outputLabel for="contPocName" value="Sub POC Name" />
+												<p:inputText id="contPocName"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.contPocName}" readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-4">
+											<div class="form-group" id="contAddressDiv">
+												<h:outputLabel for="contAddress" value="Sub Address" />
+												<p:inputText id="contAddress"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.contAddress}" readonly="true" >
+												</p:inputText>
+											</div>
+										</div>
+
+
+									</div>
+									<!--  / end of row -->
+
+									<!-- / Employee Information ended -->
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Permanent Placement Details</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="salaryAmountDiv">
+												<h:outputLabel for="salaryAmount" value="Salary Amount" />
+
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="salaryAmount"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.salaryAmount}"
+														maxlength="10">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="placementPercentageDiv">
+												<h:outputLabel for="placementPercentage" value="Placement%" />
+												<p:inputText id="placementPercentage"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.placementPercentage}"
+													maxlength="5">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="placementAmountDiv">
+												<h:outputLabel for="placementAmount"
+													value="Placement Amount" />
+												<p:inputText id="placementAmount"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.placementAmount}"
+													maxlength="10">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="placementDateDiv">
+												<h:outputLabel for="placementDate" value="Date" />
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="placementDate"
+														value="#{analyserBean.analyser.placementDate}"
+														mask="99/99/9999" />
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end" style="padding-top: 25px;">
+											<div class="form-group">
+												<input id="compute" type="button"
+													class="btn btn-primary btn-sm" value="Compute"
+													onclick="calculateProfit();" />
+											</div>
+										</div>
+									</div>
+
+									<!--  / end of row -->
+
+									<!-- / Permanent Placement Details ended -->
+
+									<!-- <div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Analyzer Details Status : </h:outputLabel>
+											</div>
+										</div>
+									</div> -->
+
+									<!-- / Analyzer Status -->
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Analyzer Details</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="totHoursWorkedDiv">
+												<h:outputLabel for="totHoursWorked"
+													value="Total Hours Worked" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="totHoursWorked"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.totHoursWorked}"
+													onchange="calculator();calculateProfit();" maxlength="7">
+													<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													<!-- Can't validate here, because total work depends on employee type -->
+													<!-- <f:validateLongRange minimum="1000" maximum="1920" /> -->
+												</p:inputText>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="billRateDiv">
+												<h:outputLabel for="billRate" value="Bill Rate" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="billRate"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.billRate}" maxlength="6"
+														onchange="changeBillRate();calculateProfit(); ">
+														<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="annualPayDiv">
+												<h:outputLabel for="annualPay" value="Annual Salary" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<p:inputText id="annualPay"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.annualPay}" maxlength="10"
+													onchange="validateFlsa(0);">
+													<p:keyFilter regEx="/[\d\.\s]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="payRateDiv">
+												<h:outputLabel for="payRate" value="Pay Rate" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="payRate"
+														styleClass="form-control input-sm has-error"
+														value="#{analyserBean.analyser.payRate}" maxlength="8"
+														onchange="calculator();calculateProfit(); ">
+														<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group" id="gaDiv">
+												<h:outputLabel for="ga" value="G&amp;A" />
+												<p:inputText id="ga" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.ga}" maxlength="5"
+													readonly="true">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-3" style="display: none;">
+											<div class="form-group" id="healthDiv">
+												<input type="checkbox" id="chkHealth" checked="checked"
+													 onclick="amtHealth();" />
+												<h:inputHidden value="#{analyserBean.healthCheck}"
+													id="chkHealth"></h:inputHidden>
+												<h:outputLabel for="health" value="Health/HR" />
+												<p:inputText id="health" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.health}"
+													onchange="calculator();" readonly="true">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="odDiv">
+												<h:outputLabel for="od" value="Other $" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="od" styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.od}"
+														onchange="calculator();calculateProfit();">
+														<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="otherAmountsDiv">
+												<h:outputLabel for="otherAmounts" value="Other/Hr" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="otherAmounts"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.otherAmounts}"
+														onchange="calculator();calculateProfit();">
+														<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="discountRateDiv">
+												<h:outputLabel for="discountRate" value="Discount %" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<p:inputText id="discountRate"
+													styleClass="form-control input-sm" readonly="true"
+													value="#{analyserBean.analyser.discountRate}" maxlength="5"
+													onchange="calculator();calculateProfit();">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="discountDiv">
+												<h:outputLabel for="discount" value="Discount" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="discount"
+														styleClass="form-control input-sm" readonly="true"
+														value="#{analyserBean.analyser.discount}" maxlength="5">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="commissionDiv">
+												<h:outputLabel for="commission" value="Commission" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="commission"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.commission}" maxlength="5"
+														readonly="true">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="gpDiv">
+												<h:outputLabel for="gp" value="Gross Profit %" />
+												<p:inputText id="gp" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.grossProfitPercentage}"
+													style="#{analyserBean.grossProfitStyle}" readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="gProfitDiv">
+												<h:outputLabel for="gProfit" value="Gross Profit" />
+												<p:inputText id="gProfit" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.grossProfit}"
+													readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="spreadWeekDiv">
+												<h:outputLabel for="spreadWeek" value="Spread (W)" />
+												<p:inputText id="spreadWeek"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.spreadWeek}" readonly="true">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end" style="display: none;">
+											<div class="form-group" id="ogpDiv">
+												<h:outputLabel for="ogp" value="Original Gross Profit %" />
+												<p:inputText id="ogp" styleClass="form-control input-sm"
+													value="#{analyserBean.oldGp}" readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="cmpDiv">
+												<h:outputLabel for="cmProfit" value="Commissionable Profit" />
+												<p:inputText id="cmProfit"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.commissionableProfit}"
+													readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="profitDiv">
+												<h:outputLabel for="profit" value="Profit" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="profit" styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.profit}" maxlength="10"
+														onchange="adjustEffectiveDates();" readonly="true">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-1 inner-end" style="padding-top: 25px;">
+											<div class="form-group">
+												<input id="calculate" type="button"
+													class="btn btn-primary btn-sm" value="Calculate"
+													onclick="calculateProfit();" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="taxDiv">
+												<h:outputLabel for="tax" value="Taxes/Fringe Expenses" />
+												<p:inputText id="tax" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.tax}" maxlength="10"
+													readonly="true">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="startDateDiv">
+												<h:outputLabel for="startDate" value="Start Date" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="startDate" value="#{analyserBean.analyser.startDate}"
+														mask="99/99/9999" />
+												</div>
+
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="endDateDiv">
+												<h:outputLabel for="endDate" value="End Date" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="endDate" value="#{analyserBean.analyser.endDate}"
+														mask="99/99/9999" />
+												</div>
+
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="effectiveDateDiv">
+												<h:outputLabel for="effectiveDate" value="Effective Date" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<p:inputMask styleClass="form-control input-sm pull-right"
+														id="effectiveDate"
+														value="#{analyserBean.analyser.effectiveDate}"
+														mask="99/99/9999" />
+												</div>
+
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="perdiemDiv">
+												<h:outputLabel for="perdiem" value="Daily Per-Diem Amount" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="perdiem"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.perdiem}" maxlength="5">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!--  / end of row -->
+
+									<div class="row">
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="otbDiv">
+												<h:outputLabel for="otb" value="OT Bill" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="otb" styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.otb}"
+														onchange="calculator();calculateProfit();" maxlength="10">
+														<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="oneTimeAmountDiv">
+												<h:outputLabel for="oneTimeAmount" value="OT Pay" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="oneTimeAmount"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.oneTimeAmount}"
+														maxlength="10" onchange="calculator();calculateProfit();">
+														<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group" id="doubleTimeBillDiv">
+												<h:outputLabel for="doubleTimeBill" value="DT Bill" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="doubleTimeBill"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.doubleTimeBill}"
+														maxlength="10" onchange="validateFlsa(0);">
+														<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="doubleTimeDiv">
+												<h:outputLabel for="doubleTime" value="DT Pay" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="doubleTime"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.doubleTime}" maxlength="10"
+														onchange="validateFlsa(0);">
+														<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+									</div>
+
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-3 inner-end" style="display: none;">
+											<div class="form-group" id="chk401kDiv">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal" id="chk401k"
+													value="#{analyserBean.k401Check}" />
+												<h:outputLabel for="k401" value="401K" />
+												<p:inputText id="k401" styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.k401}" readonly="true">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="projectCostDiv">
+												<h:outputLabel value="Project Cost/Hr" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="projectCost"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.projectCost}"
+														maxlength="10">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="equipmentCostDiv">
+												<h:outputLabel for="equipmentCost" value="Equipment Cost" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="equipmentCost"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.equipmentCost}"
+														maxlength="10" onchange="calculator();calculateProfit();">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="nonBillableCostDiv">
+												<h:outputLabel for="nonBillableCost" value="Billable Cost" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="nonBillableCost"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.nonBillableCost}"
+														maxlength="10" onchange="calculator();calculateProfit();">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="immigrationCostDiv">
+												<h:outputLabel for="immigrationCost"
+													value="Immigration/Visa Cost" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="immigrationCost"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.immigrationCost}"
+														maxlength="10" onchange="calculator();calculateProfit();">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+													<span class="input-group-btn"> <p:commandButton
+															id="immigrationCostButton" immediate="true"
+															icon="fa fa-search" style="height:34px;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{analyserBean.openImmigrationCost}">
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="referralFeeAmountDiv">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal"
+													id="chkReferralFee"
+													value="#{analyserBean.analyser.chkReferralFee}" />
+												<h:outputLabel for="referralFeeAmount" value="Referral Fee" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="referralFeeAmount"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.referralFeeAmount}"
+														maxlength="10" onchange="calculateProfit();">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<h:outputLabel value="STD/LTD Benefits" />
+											<div class="form-group" id="stdBenefitsDiv">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal" id="stdBenefits"
+													value="#{analyserBean.analyser.stdBenefit}"> STD </h:selectBooleanCheckbox>
+
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal" id="ltdBenefits"
+													value="#{analyserBean.analyser.ltdBenefit}"> LTD </h:selectBooleanCheckbox>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<h:outputLabel for="dentalInsurance" value="Dental Insurance" />
+											<div class="form-group" id="dentalInsuranceDiv">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal"
+													id="dentalInsurance"
+													value="#{analyserBean.analyser.dentalInsurance}" />
+											</div>
+										</div>
+
+									</div>
+									<!--  / end of row -->
+
+									<!--  16.08.2018 -->
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>PTO Details</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-5 inner-end">
+											<div class="form-group" id="rdoPTODiv">
+												<p:outputLabel for="rdoPTO" value="PTO Days" /><h:outputLabel styleClass="red-asterisk" value="**"/>
+												<h:panelGrid columns="2" style="margin-bottom:10px"
+													cellpadding="5">
+													<h:selectOneRadio widgetVar="test"
+														styleClass="ui-selectoneradio ui-widget form-control input-sm minimal"
+														id="rdoPTO" value="#{analyserBean.analyser.rdoPTO}"
+														onclick="ptoValueChanged(); calculateProfit();">
+														<f:selectItem itemLabel="None" itemValue="0" />
+														<f:selectItem itemLabel="5" itemValue="5" />
+														<f:selectItem itemLabel="7" itemValue="7" />
+														<f:selectItem itemLabel="10" itemValue="10" />
+														<f:selectItem itemLabel="15" itemValue="15" />
+														<f:selectItem itemLabel="16" itemValue="16" />
+														<f:selectItem itemLabel="17" itemValue="17" />
+														<f:selectItem itemLabel="20" itemValue="20" />
+														<f:selectItem itemLabel="21" itemValue="21" />
+														<f:selectItem itemLabel="23" itemValue="23" />
+														<f:selectItem itemLabel="25" itemValue="25" />
+														<f:selectItem itemLabel="27" itemValue="27" />
+													</h:selectOneRadio>
+												</h:panelGrid>
+											</div>
+										</div>
+										
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="sickLeaveCostDiv">
+												<h:outputLabel for="sickLeaveCost" value="Sick Leave Cost" /><h:outputLabel styleClass="red-asterisk" value=""/>
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="sickLeaveCost"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.sickLeaveCost}"
+														maxlength="10" readonly="true">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+										
+										<div class="col-md-4 inner-end">
+											<div class="form-group" id="leaveDiv">
+												<h:outputLabel for="leave" value="Leave" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="leave" styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.leave}" maxlength="5"
+														onchange="calculator();" readonly="true">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+
+									</div>
+									<div class="row">
+									
+										<div class="col-md-3">
+											<div class="form-group" id="sickLeaveTypeDiv">
+												<h:outputLabel for="sickLeaveType" value="Sickleave Type" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.sickLeaveType}"
+													id="sickLeaveType">
+													<f:selectItem itemLabel="" itemValue="" />
+													<!-- <f:selectItem itemLabel="Billable" itemValue="B" />
+													<f:selectItem itemLabel="Non-Billable" itemValue="NB" /> -->
+													<f:selectItems value="#{sickLeaveTypeBean.getSickLeaveTypeByCompanyCodeList(param.compCode)}"
+														var="person" itemLabel="#{person.label}"
+														itemValue="#{person.value}"/>
+												</h:selectOneMenu>
+											</div>
+										</div>
+										
+										
+										<div class="col-md-3">
+											<div class="form-group" id="sickLeavePerHourRateDiv">
+												<h:outputLabel value="Sick leave per Hour Rate" /><h:outputLabel styleClass="red-asterisk" value=""/>
+												<p:inputText id="sickLeavePerHourRate"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.sickLeavePerHourRate}"
+													readonly="true" maxlength="10" />
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group" id="sickLeaveCapDiv">
+												<h:outputLabel value="Sick Leave Cap" /><h:outputLabel styleClass="red-asterisk" value=""/>
+												<p:inputText id="sickLeaveCap"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.sickLeaveCap}"
+													readonly="true" maxlength="10" />
+											</div>
+										</div>
+										
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="sickLeaveCostDiv">
+												<h:outputLabel for="sickLeaveCost" value="PTO Limit To Override Sick" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="pTOLimitToOverrideSick" styleClass="form-control input-sm"
+														name="rejectionStatus" readonly="true"
+														value="#{analyserBean.analyser.pTOLimitToOverrideSick}" />
+												</div>
+											</div>
+										</div>
+										
+									</div>
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="nonBillablePTODiv">
+												<h:outputLabel for="nonBillablePTO" value="Non-Billable PTO" />
+												<p:inputText id="nonBillablePTO"
+													onchange="ptoValueChanged(); calculateAllLeaveFieldsAndCost(1);"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.nonBillablePTO}">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+										
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="nonBillablePTOCostDiv">
+												<h:outputLabel for="nonBillablePTOCost"
+													value="Non-Billable PTO Cost" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="nonBillablePTOCost"
+														styleClass="form-control input-sm" readonly="true"
+														value="#{analyserBean.analyser.nonBillablePTOCost}">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+										
+										
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="billablePTODiv">
+												<h:outputLabel for="billablePTO" value="Billable PTO" />
+												<p:inputText id="billablePTO"
+													onchange="ptoValueChanged(); calculateAllLeaveFieldsAndCost(1);"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.billablePTO}">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+										
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="billablePTOCostDiv">
+												<h:outputLabel for="billablePTOCost"
+													value="Billable PTO Cost" />
+
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="billablePTOCost" readonly="true"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.billablePTOCost}">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										
+										<div class="col-md-3">
+											<div class="form-group" id="totalHolidaysDiv">
+												<h:outputLabel for="totalHolidays" value="Holiday" />
+												<h:selectOneMenu styleClass="form-control input-sm select2"
+													value="#{analyserBean.analyser.totalHolidays}" id="totalHolidays">
+													<f:selectItem itemLabel="" itemValue="" />													
+													<f:selectItems value="#{holidayBean.getHolidayByCompanyCodeList(param.compCode)}"
+														var="totalHolidays" itemLabel="#{totalHolidays.label}"
+														itemValue="#{totalHolidays.value}" />
+												</h:selectOneMenu>
+											</div>
+										</div>	
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="nonBillableHolidaysDiv">
+												<h:outputLabel for="nonBillableHolidays"
+													value="Non-Billable Holiday" />
+												<p:inputText id="nonBillableHolidays"
+													onchange="holidaysValueChanged(); calculateAllLeaveFieldsAndCost(1);"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.nonBillableHolidays}">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+										
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="nonBillableHolidayCostDiv">
+												<h:outputLabel for="nonBillableHolidayCost"
+													value="Non-Billable Holiday Cost" />
+
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="nonBillableHolidayCost"
+														styleClass="form-control input-sm" readonly="true"
+														value="#{analyserBean.analyser.nonBillableHolidaysCost}">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="billableHolidaysDiv">
+												<h:outputLabel for="billableHolidays"
+													value="Billable Holiday" />
+												<p:inputText id="billableHolidays"
+													onchange="holidaysValueChanged(); calculateAllLeaveFieldsAndCost(1);"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.billableHolidays}">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="billableHolidayCostDiv">
+												<h:outputLabel for="billableHolidayCost"
+													value="Billable Holiday Cost" />
+
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="billableHolidayCost"
+														styleClass="form-control input-sm" readonly="true"
+														value="#{analyserBean.analyser.billableHolidaysCost}">
+														<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- / Analyzer Details ended -->
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Client Information - Invoice Address</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="clientCompanyNameDiv">
+												<h:outputLabel for="clientCompanyName"
+													value="Client Company Name" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<div class="input-group">
+													<p:inputText id="clientCompanyName"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.clientCompany}"
+														onchange="clientChanged();" readonly="true">
+														<span class="input-group-btn">
+															<button type="button"
+																class="btn btn-sm btn-info btn-flat"
+																onclick="searchClient();" id="cCompanyButton"
+																style="height: 34px;">
+																<i class="fa fa-search"></i>
+															</button> <p:commandButton process="@form"
+																id="clientCompanyButton" style="display:none;"
+																icon="fa fa-search"
+																styleClass="btn btn-sm btn-info btn-flat"
+																actionListener="#{analyserBean.chooseAnalyserClient}">
+																<f:param name="ccn" value="1"></f:param>
+																<p:ajax event="dialogReturn"
+																	listener="#{analyserBean.onClientChosen}"
+																	update="@form"
+																	oncomplete="clientChanged();commandButtons();calculateProfiBtnClick();calculateProfiBtnClick();" />
+															</p:commandButton>
+														</span>
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group" id="invoiceAddressDiv">
+												<h:outputLabel for="invoiceAddress" value="Invoice Address" />
+												<div class="input-group">
+													<p:inputText id="invoiceAddress"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.invoiceAddress}"
+														maxlength="80" />
+													<span class="input-group-btn">
+														<button type="button" class="btn btn-sm btn-info btn-flat"
+															onclick="searchClientAddress();" id="cInvoiceButton"
+															style="height: 34px;">
+															<i class="fa fa-search"></i>
+														</button> <p:commandButton process="@form" id="clientInvoiceButton"
+															icon="fa fa-search" style="display:none;"
+															styleClass="btn btn-sm btn-info btn-flat"
+															actionListener="#{analyserBean.chooseClientInvoice}">
+															<p:ajax event="dialogReturn"
+																listener="#{analyserBean.onClientInvoiceChosen}"
+																update="@form"
+																oncomplete="clientChanged();commandButtons();calculateProfit();" />
+														</p:commandButton>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="poContractVehicleDiv">
+												<h:outputLabel for="poContractVehicle"
+													value="PO # / Contract Vehicle" />
+												<p:inputText id="poContractVehicle"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.contractVehicle}"
+													maxlength="10" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-5 inner-end">
+											<div class="form-group" id="attentionDiv">
+												<h:outputLabel for="attention" value="Attention" />
+												<p:inputText id="attention"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.attention}" readonly="true"
+													maxlength="25">
+												</p:inputText>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" id="paymentTermsDiv">
+												<h:outputLabel for="paymentTerms" value="Payment Terms" />
+												<p:inputText id="paymentTerms"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.paymentTerms}"
+													maxlength="12" readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="distributionMethodDiv">
+												<h:outputLabel for="distributionMethod"
+													value="Distribution Method" />
+												<p:inputText id="distributionMethod"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.distributionMethod}"
+													readonly="true" maxlength="20">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group" id="specialNotesDiv">
+												<h:outputLabel for="specialNotes" value="Special Notes" />
+												<h:inputTextarea id="specialNotes"
+													value="#{analyserBean.analyser.specialNotes}"
+													readonly="true"
+													style="width: 100%; height: 35px; font-size: 14px; border: 1px solid #dddddd;"></h:inputTextarea>
+											</div>
+										</div>
+
+									</div>
+
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-5 inner-end">
+											<div class="form-group" id="invoiceEmailDiv">
+												<h:outputLabel for="invoiceEmail" value="Email" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="invoiceEmail"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.clientEmail}"
+													readonly="true" maxlength="60">
+												</p:inputText>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group" id="invoiceFrequencyDiv">
+												<h:outputLabel for="invoiceFrequency"
+													value="Invoice Frequency" />
+												<p:inputText id="invoiceFrequency"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.invoiceFrequency}"
+													readonly="true" maxlength="15">
+												</p:inputText>
+											</div>
+										</div>
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="clientCompanyCodeDiv">
+												<h:outputLabel for="clientCompanyCode" value="Client Company Code" />
+												<p:inputText id="clientCompanyCode"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.clientCompanyCode}" readonly="true">
+												</p:inputText>
+											</div>
+										</div>
+										
+									</div>
+
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-5 inner-end">
+											<div class="form-group" id="billingTypeDiv">
+												<h:outputLabel for="billingType" value="Billing Type" />
+												<p:inputText id="billingType"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.billingType}"
+													readonly="true" maxlength="25">
+												</p:inputText>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group" id="deliveryTypeDiv">
+												<h:outputLabel for="deliveryType" value="Delivery Type" />
+												<p:inputText id="deliveryType"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.deliveryType}"
+													readonly="true" maxlength="25">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="practiceAreaDiv">
+												<h:outputLabel for="practiceArea" value="Practice Area" />
+												<p:inputText id="practiceArea"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.practiceArea}"
+													readonly="true" maxlength="25">
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+
+									<!--  / end of row -->
+
+									<!-- / Client Information - Invoice Address ended -->
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group title">
+												<h:outputLabel>Client Information - Manager Contact</h:outputLabel>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-xs-12">
+											<h:outputText style="color: red;line-height:22px;" value="#{analyserBean.analyser.worksiteSelectionMessage}" />
+										</div>
+									</div>
+									
+									<div class="row">
+
+										<div class="col-md-5 inner-end">
+
+											<div class="form-group" id="siteLocationDiv">
+												<h:outputLabel for="siteLocation" value="Work Site" />
+												<div class="input-group">
+													<p:inputText id="siteLocation"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.siteLocation}"
+														readonly="true" maxlength="70">
+														<span class="input-group-btn">
+															<button type="button"
+																class="btn btn-sm btn-info btn-flat"
+																onclick="searchClientSite();" id="wSiteButton"
+																style="height: 34px;">
+																<i class="fa fa-search"></i>
+															</button> <p:commandButton icon="fa fa-search" process="@form"
+																style="display:none;"
+																styleClass="btn btn-sm btn-info btn-flat"
+																actionListener="#{analyserBean.chooseAnalyserClientSite}"
+																id="workSiteButton">
+																<p:ajax event="dialogReturn"
+																	listener="#{analyserBean.onClientSiteChosen}"
+																	update="@form"
+																	oncomplete="commandButtons(); calculateProfiBtnClick(); calculateProfiBtnClick();" />
+															</p:commandButton>
+														</span>
+													</p:inputText>
+													<span class="input-group-btn"> <p:commandButton
+															process="@form" style="display:none;"
+															actionListener="#{analyserBean.chooseAnalyserWorkSiteLocation}"
+															id="addWorkSiteButton">
+															<p:ajax event="dialogReturn"
+																listener="#{analyserBean.onClientWorkSiteAdded}"
+																update="@form"
+																oncomplete="commandButtons();calculateProfit();searchClientSite();" />
+														</p:commandButton>
+														<button type="button" class="btn btn-sm btn-info btn-flat"
+															onclick="addWorkSite();" style="height: 34px;">
+															<i class="fa fa-plus"></i>
+														</button>
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="managerPhoneDiv">
+												<h:outputLabel for="managerPhone" value="Manager Phone" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-phone"></i></span>
+													<p:inputMask styleClass="form-control input-sm"
+														id="managerPhone" readonly="true"
+														value="#{analyserBean.analyser.managerPhone}"
+														mask="(999) 999-9999" maxlength="12" />
+												</div>
+
+											</div>
+										</div>
+
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="clientManagerNameDiv">
+												<h:outputLabel for="clientManagerName" value="Manager" />
+												<div class="input-group">
+													<p:inputText id="clientManagerName" readonly="true"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.clientManagerName}"
+														maxlength="25" />
+												</div>
+											</div>
+										</div>
+
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="managerEmailDiv">
+												<h:outputLabel for="managerEmail" value="Manager Email" />
+												<p:inputText id="managerEmail"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.managerEmail}"
+													readonly="true" maxlength="40" />
+											</div>
+										</div>
+									</div>
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-3 inner-end">
+											<div class="form-group" id="termDateDiv">
+												<h:outputLabel for="termDate" value="Termination" />
+												<p:inputText id="termDate"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.termDate}" readonly="true"
+													maxlength="10">
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<h:outputLabel for="falseTermination"
+												value="False Termination" />
+											<div class="form-group" id="falseTermination">
+												<h:selectBooleanCheckbox
+													styleClass="form-control input-sm minimal"
+													id="falseTermination"
+													value="#{analyserBean.analyser.falseTermination}" />
+											</div>
+										</div>
+
+										<div class="col-md-4">
+											<div class="form-group" id="reasonDiv">
+												<h:outputLabel for="reason" value="Reason" />
+												<h:inputTextarea id="reason"
+													value="#{analyserBean.analyser.reason}" disabled='true'
+													style="width: 100%; height: 35px; font-size: 14px; border: 1px solid #dddddd;"></h:inputTextarea>
+											</div>
+										</div>
+
+										<div class="col-md-3">
+											<div class="form-group" id="backgroundCheckAmountDiv">
+												<h:outputLabel for="backgroundCheckAmount"
+													value="Background Check Amount" />
+												<div class="input-group">
+													<span class="input-group-addon"><i
+														class="fa fa-dollar"></i></span>
+													<p:inputText id="backgroundCheckAmount"
+														styleClass="form-control input-sm"
+														value="#{analyserBean.analyser.backgroundCheckAmount}"
+														readonly='true' maxlength="10">
+													</p:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!--  / end of row -->
+									<div class="row">
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="parentIdDiv">
+												<h:outputLabel for="parentId" value="Parent Id" />
+												<p:inputText id="parentId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.parentId}" readonly="true"
+													maxlength="10">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+										<div class="col-md-1">
+											<div class="form-group" id="analyzerIdDiv">
+												<h:outputLabel for="analyzerId" value="Analyzer Id" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="analyzerId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.analyserId}" readonly="true"												
+													maxlength="10">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" id="clientAddressIdDiv">
+												<h:outputLabel for="clientAddressId"
+													value="Client Address Id" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="clientAddressId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.clientAddressId}"
+													readonly="true" maxlength="10">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>
+
+										<div class="col-md-1">
+											<div class="form-group" id="clientSiteIdDiv">
+												<h:outputLabel for="clientSiteId" value="Site Id" /><h:outputLabel styleClass="red-asterisk" value="*"/>
+												<p:inputText id="clientSiteId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.clientSiteId}"
+													readonly="true" maxlength="10">
+													<p:keyFilter regEx="/[\d\-\.]/"></p:keyFilter>
+												</p:inputText>
+											</div>
+										</div>																				
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="companyCodeDiv">
+												<h:outputLabel for="companyCode" value="Company Code" />
+												<p:inputText id="companyCode"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.companyCode}" readonly="true" >													
+												</p:inputText>												
+											</div>
+										</div>
+										
+											<div class="col-md-2 inner-end">
+											<div class="form-group" id="placementTypeDiv">
+												<h:outputLabel for="placementType" value="Placement Type" />
+												<p:inputText id="placementType"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.placementType}" readonly="true">													
+												</p:inputText>
+											</div>
+										</div>
+										
+											<div class="col-md-2 inner-end">
+											<div class="form-group" id="bullhornBatchCodeDiv">
+												<h:outputLabel for="bullhornBatchCode" value="Batch Code" />
+												<p:inputText id="bullhornBatchCode"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.bullhornBatchCode}" readonly="true">													
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									
+									<!--  / end of row -->
+
+									<div class="row">
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="bullhornBatchDataProcessedIdDiv">
+												<h:outputLabel for="bullhornBatchDataProcessedId" value="Batch Data Id" />
+												<p:inputText id="bullhornBatchDataProcessedId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.bullhornBatchDataProcessedId}" readonly="true">
+													<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>													
+												</p:inputText>
+											</div>
+										</div>
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="bullhornBatchAnalyzerStagingIdDiv">
+												<h:outputLabel for="bullhornBatchAnalyzerStagingId" value="Staging Id" />
+												<p:inputText id="bullhornBatchAnalyzerStagingId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.bullhornBatchAnalyzerStagingId}" readonly="true">
+													<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>													
+												</p:inputText>
+											</div>
+										</div>
+										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="dataSourceDiv">
+												<h:outputLabel for="dataSource" value="Data Source" />
+												<p:inputText id="dataSource"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.dataSource}" readonly="true">													
+												</p:inputText>
+											</div>
+										</div>
+										
+		<!--  Added as part of Tax and SickLeave Project -->
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="bullhornBatchInfoIdDiv">
+												<h:outputLabel for="bullhornBatchInfoId" value="BH Batch Info ID" />
+												<p:inputText id="bullhornBatchInfoId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.bullhornBatchInfoId}" readonly="true" >
+													<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>													
+												</p:inputText>
+											</div>
+										</div>										
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="overrideTerminationDiv">
+												<h:outputLabel for="overrideTermination" value="Override Termination" />
+												<p:inputText id="overrideTermination"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.overrideTermination}" readonly="true">													
+												</p:inputText>
+											</div>
+										</div>
+										<div class="col-md-2 inner-end">
+											<div class="form-group" id="isModificationRequired">
+												<h:outputLabel for="isModificationRequired" value="Is Modification Required" />
+												<p:inputText id="isModificationRequired"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.isModificationRequired}" readonly="true">													
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+											<div class="col-md-3 inner-end">
+											<div class="form-group" id="bullhornTerminationDataProcessedIdDiv">
+												<h:outputLabel for="bullhornTerminationDataProcessedId" value="BH Termination Data Processed ID" />
+												<p:inputText id="bullhornTerminationDataProcessedId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.bullhornTerminationDataProcessedId}" readonly="true">
+													<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>													
+												</p:inputText>
+											</div>
+										</div>
+										
+									<div class="col-md-3 inner-end">
+											<div class="form-group" id="bullhornTerminationDataStagingIdDiv">
+												<h:outputLabel for="bullhornTerminationDataStagingId" value="BH Termination Data Staging ID" />
+												<p:inputText id="bullhornTerminationDataStagingId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.bullhornTerminationDataStagingId}" readonly="true" >
+													<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>													
+												</p:inputText>
+											</div>
+										</div>
+										
+									<div class="col-md-2 inner-end">
+											<div class="form-group" id="terminationBullhornBatchInfoIdDiv">
+												<h:outputLabel for="terminationBullhornBatchInfoId" value="BH Termination Batch Info ID" />
+												<p:inputText id="terminationBullhornBatchInfoId"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.terminationBullhornBatchInfoId}" readonly="true">
+													<p:keyFilter regEx="/[\d\.\s,]/"></p:keyFilter>													
+												</p:inputText>
+											</div>
+										</div>									
+										<div class="col-md-2 inner-end">											
+										   <div class="form-group" id="sickLeaveSource">
+												<h:outputLabel for="sickLeaveSource" value="Sick Leave Source" />
+												<p:inputText id="sickLeaveSource"
+													styleClass="form-control input-sm"
+													value="#{analyserBean.analyser.sickLeaveSource}" readonly="true">													
+												</p:inputText>
+											</div>
+										</div>											
+								</div>		
+									<p:inputText type="hidden" id="rejectionStatus"
+										name="rejectionStatus"
+										value="#{analyserBean.showRejectionDiv}" />
+									<p:inputText type="hidden" id="contractorId"
+										name="contractorId" />
+									<p:inputText type="hidden" id="clientId" name="clientId" value="#{analyserBean.analyser.clientId}" />
+									<p:inputText type="hidden" id="action" name="action"
+										value="#{analyserBean.action}" />
+									<p:inputText type="hidden" id="submitType" name="submitType" />
+									<p:inputText type="hidden" id="dropDownChanged"
+										name="dropDownChanged" />
+									<p:inputText type="hidden" id="internalAccounting"
+										name="internalAccounting" />
+									<p:inputText type="hidden" id="chkOptimize" name="chkOptimize" />
+									<p:inputText type="hidden" id="placement" name="placement"
+										value="true" />
+
+									<p:inputText type="hidden" id="wstate" name="wstate"
+										value="#{analyserBean.siteState}" />
+									<p:inputText type="hidden" id="isRehired" name="isRehired"
+										value="#{analyserBean.isRehired}" />
+									<p:inputText type="hidden" id="varOldStartDate"
+										name="varOldStartDate" value="#{analyserBean.oldStartDate}" />
+									<p:inputText type="hidden" id="varCommStartDate"
+										name="varCommStartDate" value="#{analyserBean.commStartDate}" />
+									<p:inputText type="hidden" id="varEffectiveDate"
+										name="varEffectiveDate" value="#{analyserBean.effectiveDate}" />
+									<p:inputText type="hidden" id="varProfitValue"
+										name="varProfitValue" value="#{analyserBean.profitValue}" />
+									<p:inputText type="hidden" id="flsaStatusChangeCounter"
+										value="0" />
+
+									<p:inputText type="hidden" id="commissionPerson" value="20190426" />
+									<p:inputText type="hidden" id="commissionModel" value="Qureshi" />
+
+									<p:inputText type="hidden" id="isFalseTerminated"
+										name="isFalseTerminated"
+										value="#{analyserBean.isFalseTerminated}" />
+
+									<p:inputText type="hidden" id="siteZipCode" name="siteZipCode"
+										value="#{analyserBean.siteZipCode}" />
+
+									<p:inputText type="hidden" id="siteZipCodeValue"
+										name="siteZipCodeValue"
+										value="#{analyserBean.siteZipCodeValue}" />
+
+					
+					
+									<p:inputText type="hidden" id="ircCommissionPersonStatusForAe1"
+										name="ircCommissionPersonStatusForAe1"
+										value="#{analyserBean.ircCommissionPersonStatusForAe1}" />
+										
+									<p:inputText type="hidden" id="ircCommissionPersonStatusForAe2"
+										name="ircCommissionPersonStatusForAe2"
+										value="#{analyserBean.ircCommissionPersonStatusForAe2}" />	
+
+									<p:inputText type="hidden" id="ircCommissionPersonStatusForRec1"
+										name="ircCommissionPersonStatusForRec1"
+										value="#{analyserBean.ircCommissionPersonStatusForRec1}" />
+										
+									<p:inputText type="hidden" id="ircCommissionPersonStatusForRec2"
+										name="ircCommissionPersonStatusForRec2"
+										value="#{analyserBean.ircCommissionPersonStatusForRec2}" />
+
+									<p:inputText type="hidden" id="ptoStatus" name="ptoStatus"
+										value="#{analyserBean.ptoStatus}" />
+										
+									<p:inputText type="hidden" id="showPtoFields" name="showPtoFields"
+										value="#{analyserBean.showPtoFields}" />
+									
+									<p:inputText type="hidden" id="roleId" name="roleId"
+										value="#{analyserBean.roleId}" />
+
+								</div>
+								<!-- /.box-body -->
+
+								<div class="box-footer" id="buttonsDiv"
+									style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+									
+									<h:commandButton style="display:none;" id="actualSaveButton"
+										value="Save" validateClient="true"
+										action="#{analyserBean.saveAnalyser}" />										
+										
+									<input id="saveButton" style="display: none;" type="button"
+										class="btn btn-md btn-primary" value="Save"
+										onclick="submitForm();" />
+
+									<h:commandButton style="display:none;" id="actualUpdateButton"
+										value="Update Button" validateClient="true"
+										action="#{analyserBean.updateAnalyser}" />
+
+									<input id="updateButton" style="display: none;" type="button"
+										class="btn btn-md btn-primary" value="Update"
+										onclick="submitForm();" /> &#160;
+									<h:commandButton rendered="#{!analyserBean.showSaveButton}"
+										id="discardButton" value="Discard Changes" immediate="true"
+										action="#{analyserBean.discardChanges}"
+										styleClass="btn btn-md btn-primary" />
+
+
+								</div>
+								<div>
+									<div class="col-md-4">
+										<div class="form-group" id="informationDiv">
+											<h:outputLabel value= "* - Required"/>
+										</div>
+									</div>
+									
+									<div class="col-md-4">
+										<div class="form-group" id="informationDiv">
+											<h:outputLabel value= "** - Conditionally Required"/>
+										</div>
+									</div>
+								</div>	
+							</h:form>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</section>
+
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+	<script type="text/javascript">
+		var $ = jQuery.noConflict();
+	</script>
+	<script type="text/javascript">
+		function initializeComponents() {
+			$('.select2').select2({
+				allowClear : true,
+				placeholder : 'Select...'
+			});
+
+			$("#analyserForm\\:commName1").on('change', function(e) {
+				console.log("commName1 Value changed .... ");
+				changeAccountExecutive(e.target.value);
+				$("#analyserForm\\:commissionPerson").val(e.target.value);
+				$("#analyserForm\\:ae1Button").click();
+				
+				$("#analyserForm\\:ae1Grade1Button").click();
+			});
+
+			$("#analyserForm\\:commName2").on('change', function(e) {
+				console.log("commName2 Value changed .... ");
+				$("#analyserForm\\:commissionPerson").val(e.target.value);
+				changeRecruiter(e.target.value);
+				$("#analyserForm\\:rec1Button").click();
+				
+			});
+
+			$("#analyserForm\\:commName3").on('change', function(e) {
+				console.log("commName3 Value changed .... ");
+				changeAccountExecutive2(e.target.value);
+				$("#analyserForm\\:commissionPerson").val(e.target.value);
+				$("#analyserForm\\:ae2Button").click();
+				
+				$("#analyserForm\\:ae1Grade2Button").click();
+				
+			});
+
+			$("#analyserForm\\:commName4").on('change', function(e) {
+				console.log("commName4 Value changed .... ");
+				changeRecruiter2(e.target.value);
+				$("#analyserForm\\:commissionPerson").val(e.target.value);
+				$("#analyserForm\\:rec2Button").click();
+				
+			});
+
+			$("#analyserForm\\:commissionModel1").on('change', function(e) {
+				console.log("commissionModel1 Value changed .... ");
+				$("#analyserForm\\:commissionPerson").val($("#analyserForm\\:commName1").val());
+				$("#analyserForm\\:ae1Button").click();
+				
+			});
+
+			$("#analyserForm\\:commissionModel2").on('change', function(e) {
+				console.log("commissionModel2 Value changed .... ");
+				$("#analyserForm\\:commissionPerson").val($("#analyserForm\\:commName2").val());
+				$("#analyserForm\\:rec1Button").click();
+				
+			});
+
+			$("#analyserForm\\:commissionModel3").on('change', function(e) {
+				console.log("commissionModel3 Value changed .... ");
+				$("#analyserForm\\:commissionPerson").val($("#analyserForm\\:commName3").val());
+				$("#analyserForm\\:ae2Button").click();
+				
+			});
+
+			$("#analyserForm\\:commissionModel4").on('change', function(e) {
+				console.log("commissionModel4 Value changed .... ");
+				$("#analyserForm\\:commissionPerson").val($("#analyserForm\\:commName2").val());
+				$("#analyserForm\\:rec2Button").click();
+				
+			});
+
+			$("#analyserForm\\:splitCommissionPercentage1")
+					.on(
+							'change',
+							function(e) {
+								//e.stopImmediatePropagation();
+								console
+										.log("splitCommissionPercentage1 Value changed .... ");
+								
+								calculateProfit();
+								console.log("splitCommissionPercentage1 process complete");
+							});
+
+			$("#analyserForm\\:splitCommissionPercentage2")
+					.on(
+							'change',
+							function(e) {
+								console
+										.log("splitCommissionPercentage2 Value changed .... ");
+								
+								calculateProfit();
+							});
+
+			$("#analyserForm\\:splitCommissionPercentage3")
+					.on(
+							'change',
+							function(e) {
+								console
+										.log("splitCommissionPercentage3 Value changed .... ");
+								
+								calculateProfit();
+							});
+
+			$("#analyserForm\\:splitCommissionPercentage4")
+					.on(
+							'change',
+							function(e) {
+								console
+										.log("splitCommissionPercentage4 Value changed .... ");
+								
+								calculateProfit();
+							});
+			//01/18/2019
+			$('#analyserForm\\:flsaStatus').on("change", function(e, state) {
+				//Check state if exists and is true then event was triggered
+				/* <![CDATA[ */
+				if (typeof state != 'undefined' && state) 
+				{
+					console.log('Change in flsaStatus is triggered from code, dont process it');
+					return false;
+				}
+				/* ]]> */
+				console.log('Change in flsaStatus is from UI, we can continue');
+				flsaStatusChanged(); 
+				console.log('Based upon FLSA Status Holiday value is set to default.');
+				calculateAllLeaveFieldsAndCost(1); calculateProfit();
+			});						
+			$("#analyserForm\\:totalHolidays").on('change', function(e) {
+				console.log(" 1 totalHolidays changed .... ");
+				holidaysValueChanged();
+				calculateAllLeaveFieldsAndCost(0);
+			});
+
+			$('.select2').on('change.select2', function(e) {
+				//console.log("I am changing");
+				//if it is a call to reset the drop down value. stop propogation here.
+				if (e.currentTarget.selectedIndex == 0) {
+					console.log("Not changing");
+					e.preventDefault();
+					return false;
+				}
+				
+			});
+
+			//06/03/2020
+			$("#analyserForm\\:employeeClass").on('change', function(e) {
+				console.log(" 1 employeeClass changed Page Level Change Event .... ");
+				calculateAllLeaveFieldsAndCost(0);
+			});
+			
+			//11/25/2019
+			//$("#analyserForm\\:totalHolidays").on('change', function(e) {
+			//	console.log("2 total holidays Value changed .... ");
+			//	holidaysValueChanged();
+			//});
+			
+			//Date picker
+			$('#analyserForm\\:commEffDate').datepicker({
+				autoclose : true,
+				useCurrent : false,
+				todayHighlight : true,
+				enableOnReadonly: false
+			})
+
+			$('#analyserForm\\:dob').datepicker({
+				autoclose : true,
+				todayHighlight : true,
+				enableOnReadonly: false
+			})
+
+			$('#analyserForm\\:placementDate').datepicker({
+				autoclose : true,
+				todayBtn : 'linked',
+				todayHighlight : true,
+				enableOnReadonly: false
+			})
+
+			$('#analyserForm\\:startDate').datepicker({
+				autoclose : true,
+				todayBtn : 'linked',
+				todayHighlight : true,
+				enableOnReadonly: false
+			})
+
+			$('#analyserForm\\:endDate').datepicker({
+				autoclose : true,
+				todayBtn : 'linked',
+				todayHighlight : true,
+				enableOnReadonly: false
+			})
+
+			$('#analyserForm\\:effectiveDate').datepicker({
+				autoclose : true,
+				todayBtn : 'linked',
+				todayHighlight : true,
+				enableOnReadonly: false
+			})
+		}
+
+		function bindCheckboxes() {
+
+			$('input[type="checkbox"].minimal').iCheck({
+				checkboxClass : 'icheckbox_flat-blue'
+			})
+
+			//Executive Orphan Check box
+			$('#analyserForm\\:execOrphan').on('ifChecked ifUnchecked',
+					function(event) {
+						//alert(event.type + ' callback');
+						processOrphanClick(5);
+					});
+
+			//binding comm
+			$('#analyserForm\\:com').on('ifChecked ifUnchecked',
+					function(event) {
+						//alert(event.type + ' callback');
+						
+					});
+
+			//recruiterOrphan
+			$('#analyserForm\\:recruiterOrphan').on('ifChecked ifUnchecked',
+					function(event) {
+						//alert(event.type + ' callback');
+						processOrphanClick(6);
+					});
+
+			//other1Orphan
+			$('#analyserForm\\:other1Orphan').on('ifChecked ifUnchecked',
+					function(event) {
+						//alert(event.type + ' callback');
+						processOrphanClick(7);
+					});
+
+			//other2Orphan
+			$('#analyserForm\\:other2Orphan').on('ifChecked ifUnchecked',
+					function(event) {
+						//alert(event.type + ' callback');
+						processOrphanClick(8);
+					});
+
+			//isBonusEligible
+			$('#analyserForm\\:isBonusEligible').on('ifChecked ifUnchecked',
+					function(event) {
+						checkBoxProcessing("isBonusEligible")
+						validateFlsa(1);
+						setIsBonusEligible()
+					});
+
+			//chk401k
+			$('#analyserForm\\:chk401k').on('ifChecked ifUnchecked',
+					function(event) {
+						//1 means its from checkbox, dont set its value to false in the function;
+						amt401(1);
+					});
+
+			//chkReferralFee
+			var screen = $("#analyserForm\\:action")[0].value;
+			$('#analyserForm\\:chkReferralFee').on(
+					'ifChecked ifUnchecked',
+					function(event) {
+						calculateProfit();
+						showTextBox('chkReferralFee', 'referralFeeAmount',
+								screen);
+					});
+		}
+
+		function checkBoxProcessing(element) {
+			if ($("#analyserForm\\:" + element).is(':checked')) {
+				//alert('checked');
+				$('#analyserForm\\:' + element).iCheck('check');
+			} else if ($("#analyserForm\\:" + element).not(':checked')) {
+				//alert('un-checked');
+				$('#analyserForm\\:' + element).iCheck('uncheck');
+				//$('#analyserForm\\:'+element).iCheck('disable');
+			}
+		}
+
+		function loadPageEvents(screen) {
+			console.log('Screen ::', screen)
+			if (screen == "Modify") {
+				//disableRadioOptions();	//06/03/2020
+				disableFields();
+				//empTypeChanged();
+				showTextBox('chkReferralFee', 'referralFeeAmount', screen);
+				CalculateGP();
+				//setHealth();
+				//flsaRehire();	//01/18/2019 Tayyab
+				changeEmptype();
+				calculateAllLeaveFieldsAndCost(0);
+				//disableVertical();
+				disableOrphan();
+				
+				//enablePTORadioOptions();
+				//calculateLeave(getRadioValue());
+				calculateProfit();
+				//hidePTOSection();
+				controlPTOFields();
+
+			} else if (screen == "View") {
+				document.getElementById("buttonsDiv").style.display = 'none';
+				disableFields();
+				//empTypeChanged();
+				showTextBox('chkReferralFee', 'referralFeeAmount', screen);
+				CalculateGP();
+				changeEmptype();
+				//hidePTOSection();
+				//disableVertical();
+			}
+			if (screen != "Add") {
+				//$("#analyserForm\\:lastName").prop("readonly", true);
+				//$("#analyserForm\\:firstName").prop("readonly", true);
+				//$("#analyserForm\\:dob").prop("readonly", true);
+				$("#analyserForm\\:contFin").prop("readonly", true);
+				$("#analyserForm\\:contEmail").prop("readonly", true);
+				$("#analyserForm\\:contPayTerm").prop("readonly", true);
+				$("#analyserForm\\:contPhone").prop("readonly", true);
+				$("#analyserForm\\:contPocName").prop("readonly", true);
+				$("#analyserForm\\:contAddress").prop("readonly", true);
+			}
+
+			if (screen == "Add") {
+				disableFields();
+				//hidePTOSection();
+				selectRadioOption(0);
+				controlPTOFields();
+			}
+
+			if ($("#analyserForm\\:rejectionStatus").val() == 'true') {
+				document.getElementById("rejectedDetailHeader").style.display = '';
+				document.getElementById("rejectedDetailSub").style.display = '';
+			} else {
+				document.getElementById("rejectedDetailHeader").style.display = 'none';
+				document.getElementById("rejectedDetailSub").style.display = 'none';
+			}
+		}
+
+		function commandButtons() {
+			initializeComponents();
+			bindCheckboxes();
+			//alert(screen);
+			if (screen == "Add") {
+				$("#saveButton").show();
+				$("#updateButton").hide();
+			} else if (screen == "Modify") {
+				$("#saveButton").hide();
+				$("#updateButton").show();
+			} else if (screen == "View") {
+				$("#saveButton").hide();
+				$("#updateButton").hide();
+				//document.getElementById("saveButton").style.display = 'none';
+				//document.getElementById("updateButton").style.display = 'none';
+			}
+			//disableFields();
+			disableModificationFields();
+			//hidePTOSection();
+		}
+
+		$(document).ready(function() {
+			var screen = $("#analyserForm\\:action")[0].value;
+			initializeComponents();
+			bindCheckboxes();
+			//var screen = "View";
+
+			getInitialValues();
+
+			loadPageEvents(screen);
+
+			//var screen = $("#analyserForm\\:action")[0].value;
+			commandButtons();
+			/* <![CDATA[ */
+			if ($("#analyserForm\\:ogp").val() == -6.73 || $("#analyserForm\\:ogp").val() == 0.0) {
+				var gpp = $("#analyserForm\\:gp").val();
+				$("#analyserForm\\:ogp").val(gpp);
+				$("#analyserForm\\:ogp").css("fontWeight", "bold");// .style.fontWeight =
+			    $("#analyserForm\\:ogp").css("color", "#000000");// .style.color = "#000000";
+				if (gpp < 22) {
+					$("#analyserForm\\:ogp").css("background-color", "#FF4500");// style.background
+				} else {
+					$("#analyserForm\\:ogp").css("background-color", "#7CFC00");// .style.background
+				}
+			}
+				
+			/* ]]> */
+			
+			disableFields();
+			
+		});
+	</script>
+</body>
+
+</html>

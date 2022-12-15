@@ -1,0 +1,658 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+	<!-- jQuery 3 -->
+	<!-- <h:outputScript name="bower_components/jquery/dist/jquery.min.js" target="head" /> -->
+
+	<h:outputScript library="primefaces" name="jquery/jquery.js"
+		target="head" />
+	<h:outputScript library="primefaces" name="jquery/jquery-plugins.js"
+		target="head" />
+
+	<!-- Bootstrap 3.3.7 -->
+	<h:outputScript
+		name="bower_components/bootstrap/dist/js/bootstrap.min.js"
+		target="head" />
+
+	<!-- DataTables -->
+	<h:outputScript
+		name="bower_components/datatables.net/js/jquery.dataTables.min.js"
+		target="head" />
+
+	<h:outputScript
+		name="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"
+		target="head" />
+
+
+	<h:outputScript
+		name="bower_components/datatables.net-bs/js/dataTables.fixedColumns.min.js"
+		target="head" />
+
+	<!-- SlimScroll -->
+	<h:outputScript
+		name="bower_components/jquery-slimscroll/jquery.slimscroll.min.js"
+		target="head" />
+
+	<!-- FastClick -->
+	<h:outputScript name="bower_components/fastclick/lib/fastclick.js"
+		target="head" />
+
+	<!-- AdminLTE App -->
+	<h:outputScript name="dist/js/adminlte.min.js" target="head" />
+
+
+	<!-- iCheck 1.0.1 -->
+	<h:outputScript name="plugins/iCheck/icheck.min.js" target="head" />
+
+
+	<!-- Select2 -->
+	<h:outputScript
+		name="bower_components/select2/dist/js/select2.full.min.js"
+		target="head" />
+
+
+	<!-- InputMask -->
+	<h:outputScript name="plugins/input-mask/jquery.inputmask.js"
+		target="head" />
+
+	<h:outputScript
+		name="plugins/input-mask/jquery.inputmask.date.extensions.js"
+		target="head" />
+
+	<h:outputScript
+		name="plugins/input-mask/jquery.inputmask.extensions.js" target="head" />
+
+
+	<!-- date-range-picker -->
+	<h:outputScript name="bower_components/moment/min/moment.min.js"
+		target="head" />
+
+	<h:outputScript
+		name="bower_components/bootstrap-daterangepicker/daterangepicker.js"
+		target="head" />
+
+	<!-- bootstrap datepicker -->
+	<h:outputScript
+		name="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"
+		target="head" />
+
+
+
+	<!-- bootstrap time picker -->
+	<h:outputScript target="head"
+		name="plugins/timepicker/bootstrap-timepicker.min.js" />
+
+
+	<!-- page script -->
+	<script type="text/javascript">
+		/* <![CDATA[ */
+		$(function() {
+			/*$('#dataTableForm\\:crudDataTable').DataTable({
+				"pagingType": "full_numbers",
+				'paging' : true,
+				'lengthChange' : false,
+				'searching' : true,
+				'ordering' : true,
+				'info' : true,
+				'autoWidth' : false
+			}); */
+			/* debugger;
+		var table = $('#applicationRolesTable').DataTable();
+			alert(table);
+			console.log(table);
+	
+			 $('#applicationRolesTable').DataTable({
+				'paging' : true,
+				'lengthChange' : false,
+				'searching' : true,
+				'ordering' : true,
+				'info' : true,
+				'autoWidth' : false
+			}) */
+	
+	
+			//debugger;
+			//var cls = $('#usersDiv').attr('class');
+			var val = $('#menuForm\\:menuNumber')[0].value;
+			//alert("val "+val);
+			var displayAnalyserMenu = $('#menuForm\\:displayAnalyserMenu')[0].value;
+			var displayUserManagementMenu = $('#menuForm\\:displayUserManagementMenu')[0].value;
+			var displayReportsMenu = $('#menuForm\\:displayReportsMenu')[0].value;
+			var displayCommissionManagementMenu = $('#menuForm\\:displayCommissionManagementMenu')[0].value;
+			var displaySetupMenu =  $('#menuForm\\:displaySetupMenu')[0].value;
+			var displayAnalyserCommonMenu =  $('#menuForm\\:displayAnalyserCommonMenu')[0].value;
+			var displaySignatureAnalyserMenu =  $('#menuForm\\:displaySignatureAnalyserMenu')[0].value;
+			//get user role id from the title bean
+			var roleId = $('#menuForm\\:roleId')[0].value;
+	
+			//var displayCommissionManagementMenu = true;
+			//var displayReportsMenu = true;
+			//var displayUserManagementMenu = true;
+	
+			console.log('val :: ' + val);
+			console.log('UserManagement Menu :: ', displayUserManagementMenu);
+			console.log('Report Menu :: ', displayReportsMenu);
+			console.log('Commission Menu :: ', displayCommissionManagementMenu);
+			console.log('Setup Menu :: ', displaySetupMenu);
+			document.getElementById('reportsDiv').style.display = 'none';
+			document.getElementById('commissionProcessingDiv').style.display = 'none';
+			document.getElementById('analyzerSetupDiv').style.display = 'none';
+			document.getElementById('userManagementDiv').style.display = 'none';
+			document.getElementById('analyserCommonDiv').style.display = 'none';
+			document.getElementById('signatureAnalyserDiv').style.display = 'none';
+			if (displayReportsMenu && displayReportsMenu == 'true') {
+				document.getElementById('reportsDiv').style.display = '';
+			}
+			if (displayCommissionManagementMenu && displayCommissionManagementMenu == 'true') {
+				document.getElementById('commissionProcessingDiv').style.display = '';
+			}
+			if (displaySetupMenu && displaySetupMenu == 'true') {
+				document.getElementById('analyzerSetupDiv').style.display = '';
+			} 
+			if (displayUserManagementMenu && displayUserManagementMenu == 'true') {
+				document.getElementById('userManagementDiv').style.display = '';
+			}
+			if (displayAnalyserCommonMenu && displayAnalyserCommonMenu == 'true') {
+				document.getElementById('analyserCommonDiv').style.display = '';
+			} 
+			if (displaySignatureAnalyserMenu && displaySignatureAnalyserMenu == 'true') {
+				document.getElementById('signatureAnalyserDiv').style.display = '';
+			} 
+			
+			if (val == "1") {
+				$('#analyserDiv').attr('class', 'treeview');
+				if (displayReportsMenu && displayReportsMenu == 'true') {
+					$('#reportsDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#reportsDiv').remove();
+				}
+				if (displayCommissionManagementMenu && displayCommissionManagementMenu == 'true') {
+					$('#commissionProcessingDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#commissionProcessingDiv').remove();
+				}
+				if (displaySetupMenu && displaySetupMenu == 'true') {
+					$('#analyzerSetupDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyzerSetupDiv').remove();
+				}
+				if (displayAnalyserCommonMenu && displayAnalyserCommonMenu == 'true') {
+					$('#analyserCommonDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyserCommonDiv').remove();
+				}
+				if (displaySignatureAnalyserMenu && displaySignatureAnalyserMenu == 'true') {
+					$('#signatureAnalyserDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#signatureAnalyserDiv').remove();
+				}
+				if (displayUserManagementMenu && displayUserManagementMenu == 'true') {
+					$('#userManagementDiv').attr('class', 'treeview active');
+					var usersVal = $('#menuForm\\:usersTreeMenu')[0].value;
+					var groupsVal = $('#menuForm\\:groupsTreeMenu')[0].value;
+					var rolesVal = $('#menuForm\\:rolesTreeMenu')[0].value;
+					var resourcesVal = $('#menuForm\\:resourcesTreeMenu')[0].value;
+					//debugger;
+					if (usersVal == "true") {
+						$('#usersDiv')[0].className = 'treeview active';
+						$('#groupsDiv')[0].className = 'treeview';
+						$('#rolesDiv')[0].className = 'treeview';
+					/* $('#resourcesDiv')[0].className = 'treeview'; */
+					} else if (groupsVal == "true") {
+						$('#usersDiv')[0].className = 'treeview';
+						$('#groupsDiv')[0].className = 'treeview active';
+						$('#rolesDiv')[0].className = 'treeview';
+					/* $('#resourcesDiv')[0].className = 'treeview'; */
+					} else if (rolesVal == "true") {
+						$('#usersDiv')[0].className = 'treeview';
+						$('#groupsDiv')[0].className = 'treeview';
+						$('#rolesDiv')[0].className = 'treeview active';
+					/* $('#resourcesDiv')[0].className = 'treeview'; */
+					} else if (resourcesVal == "true") {
+						$('#usersDiv')[0].className = 'treeview';
+						$('#groupsDiv')[0].className = 'treeview';
+						$('#rolesDiv')[0].className = 'treeview';
+						$('#resourcesDiv')[0].className = 'treeview active';
+					}
+				} else {
+					$('#analyserDiv').attr('class', 'treeview active');
+					$('#userManagementDiv').remove();
+				}
+	
+			} else if (val == "2") {
+				$('#analyserDiv').attr('class', 'treeview active');
+				if (displayUserManagementMenu && displayUserManagementMenu == 'true') {
+					$('#userManagementDiv').attr('class', 'treeview');
+				} else {
+					$('#userManagementDiv').remove();
+				}
+				if (displayReportsMenu && displayReportsMenu == 'true') {
+					$('#reportsDiv').attr('class', 'treeview');
+				} else {
+					$('#reportsDiv').remove();
+				}
+				if (displayCommissionManagementMenu && displayCommissionManagementMenu == 'true') {
+					$('#commissionProcessingDiv').attr('class', 'treeview');
+				} else {
+					$('#commissionProcessingDiv').remove();
+				}
+				if (displaySetupMenu && displaySetupMenu == 'true') {
+					$('#analyzerSetupDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyzerSetupDiv').remove();
+				}
+				if (displayAnalyserCommonMenu && displayAnalyserCommonMenu == 'true') {
+					$('#analyserCommonDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyserCommonDiv').remove();
+				}
+				if (displaySignatureAnalyserMenu && displaySignatureAnalyserMenu == 'true') {
+					$('#signatureAnalyserDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#signatureAnalyserDiv').remove();
+				}
+			} else if (val == "3") {
+				$('#analyserDiv').attr('class', 'treeview');
+				//$('#userManagementDiv').attr('class','treeview');
+				//$('#reportsDiv').attr('class','treeview active');
+				//$('#commissionProcessingDiv').attr('class','treeview');
+	
+				if (displayUserManagementMenu && displayUserManagementMenu == 'true') {
+					$('#userManagementDiv').attr('class', 'treeview');
+				} else {
+					$('#userManagementDiv').remove();
+				}
+				if (displayCommissionManagementMenu && displayCommissionManagementMenu == 'true') {
+					$('#commissionProcessingDiv').attr('class', 'treeview');
+				} else {
+					$('#commissionProcessingDiv').remove();
+				}
+				if (displaySetupMenu || displaySetupMenu == 'true') {
+					$('#analyzerSetupDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyzerSetupDiv').remove();
+				}
+				if (displayAnalyserCommonMenu && displayAnalyserCommonMenu == 'true') {
+					$('#analyserCommonDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyserCommonDiv').remove();
+				}
+				if (displaySignatureAnalyserMenu && displaySignatureAnalyserMenu == 'true') {
+					$('#signatureAnalyserDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#signatureAnalyserDiv').remove();
+				}
+				if (displayReportsMenu && displayReportsMenu == 'true') {
+					$('#reportsDiv').attr('class', 'treeview active');
+					var revenueVal = $('#menuForm\\:revenueTreeMenu')[0].value;
+					var consultantsVal = $('#menuForm\\:consultantsTreeMenu')[0].value;
+					var commissionVal = $('#menuForm\\:commissionTreeMenu')[0].value;
+					var othersVal = $('#menuForm\\:othersTreeMenu')[0].value;
+					var activityVal = $('#menuForm\\:activityTreeMenu')[0].value;
+	
+					if (revenueVal == "true") {
+						$('#revenueDiv')[0].className = 'treeview active';
+						$('#consultantsDiv')[0].className = 'treeview';
+						$('#commissionDiv')[0].className = 'treeview';
+						$('#othersDiv')[0].className = 'treeview';
+						$('#activityDiv')[0].className = 'treeview';
+					} else if (consultantsVal == "true") {
+						$('#revenueDiv')[0].className = 'treeview';
+						$('#consultantsDiv')[0].className = 'treeview active';
+						$('#commissionDiv')[0].className = 'treeview';
+						$('#othersDiv')[0].className = 'treeview';
+						$('#activityDiv')[0].className = 'treeview';
+					} else if (commissionVal == "true") {
+						$('#revenueDiv')[0].className = 'treeview';
+						$('#consultantsDiv')[0].className = 'treeview';
+						$('#commissionDiv')[0].className = 'treeview active';
+						$('#othersDiv')[0].className = 'treeview';
+						$('#activityDiv')[0].className = 'treeview';
+					} else if (othersVal == "true") {
+						$('#revenueDiv')[0].className = 'treeview';
+						$('#consultantsDiv')[0].className = 'treeview';
+						$('#commissionDiv')[0].className = 'treeview';
+						$('#othersDiv')[0].className = 'treeview active';
+						$('#activityDiv')[0].className = 'treeview'; 
+					} else if (activityVal == "true") {
+						$('#revenueDiv')[0].className = 'treeview';
+						$('#consultantsDiv')[0].className = 'treeview';
+						$('#commissionDiv')[0].className = 'treeview';
+						$('#othersDiv')[0].className = 'treeview';
+						$('#activityDiv')[0].className = 'treeview active'; 
+					}
+				} else {
+					$('#reportsDiv').remove();
+				}
+			} else if (val == "4") {
+				$('#analyserDiv').attr('class', 'treeview');
+				//$('#commissionProcessingDiv').attr('class','treeview active');
+				//$('#userManagementDiv').attr('class','treeview');
+				//$('#reportsDiv').attr('class','treeview');
+				if (displayUserManagementMenu && displayUserManagementMenu == 'true') {
+					$('#userManagementDiv').attr('class', 'treeview');
+				} else {
+					$('#userManagementDiv').remove();
+				}
+				if (displayReportsMenu && displayReportsMenu == 'true') {
+					$('#reportsDiv').attr('class', 'treeview');
+				} else {
+					$('#reportsDiv').remove();
+				}
+				if (displayCommissionManagementMenu && displayCommissionManagementMenu == 'true') {
+					$('#commissionProcessingDiv').attr('class', 'treeview active');
+				} else {
+					$('#commissionProcessingDiv').remove();
+				}
+				if (displaySetupMenu || displaySetupMenu == 'true') {
+					$('#analyzerSetupDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyzerSetupDiv').remove();
+				}
+				if (displayAnalyserCommonMenu && displayAnalyserCommonMenu == 'true') {
+					$('#analyserCommonDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyserCommonDiv').remove();
+				}
+				if (displaySignatureAnalyserMenu && displaySignatureAnalyserMenu == 'true') {
+					$('#signatureAnalyserDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#signatureAnalyserDiv').remove();
+				}
+			}
+			else if (val == "5"){
+				$('#analyserDiv').attr('class', 'treeview');
+				if (displayUserManagementMenu && displayUserManagementMenu == 'true') {
+					$('#userManagementDiv').attr('class', 'treeview');
+				} else {
+					$('#userManagementDiv').remove();
+				}
+				if (displayReportsMenu && displayReportsMenu == 'true') {
+					$('#reportsDiv').attr('class', 'treeview');
+				} else {
+					$('#reportsDiv').remove();
+				}
+				if (displayCommissionManagementMenu && displayCommissionManagementMenu == 'true') {
+					$('#commissionProcessingDiv').attr('class', 'treeview');
+				} else {
+					$('#commissionProcessingDiv').remove();
+				}
+				if (displaySetupMenu && displaySetupMenu == 'true') {
+					$('#analyzerSetupDiv').attr('class', 'treeview active');
+				} 
+				else {
+					$('#analyzerSetupDiv').remove();
+				}
+				if (displayAnalyserCommonMenu && displayAnalyserCommonMenu == 'true') {
+					$('#analyserCommonDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyserCommonDiv').remove();
+				}
+				if (displaySignatureAnalyserMenu && displaySignatureAnalyserMenu == 'true') {
+					$('#signatureAnalyserDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#signatureAnalyserDiv').remove();
+				}
+			}
+			else if (val == "6"){
+				$('#analyserDiv').attr('class', 'treeview');
+				if (displayUserManagementMenu && displayUserManagementMenu == 'true') {
+					$('#userManagementDiv').attr('class', 'treeview');
+				} else {
+					$('#userManagementDiv').remove();
+				}
+				if (displayReportsMenu && displayReportsMenu == 'true') {
+					$('#reportsDiv').attr('class', 'treeview');
+				} else {
+					$('#reportsDiv').remove();
+				}
+				if (displayCommissionManagementMenu && displayCommissionManagementMenu == 'true') {
+					$('#commissionProcessingDiv').attr('class', 'treeview');
+				} else {
+					$('#commissionProcessingDiv').remove();
+				}
+				if (displaySetupMenu && displaySetupMenu == 'true') {
+					$('#analyzerSetupDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyzerSetupDiv').remove();
+				}
+				if (displayAnalyserCommonMenu && displayAnalyserCommonMenu == 'true') {
+					$('#analyserCommonDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyserCommonDiv').remove();
+				}
+				if (displaySignatureAnalyserMenu && displaySignatureAnalyserMenu == 'true') {
+					$('#signatureAnalyserDiv').attr('class', 'treeview active');
+				} 
+				else {
+					$('#signatureAnalyserDiv').remove();
+				}
+			}
+			else if (val == "7"){
+				$('#analyserDiv').attr('class', 'treeview');
+				if (displayUserManagementMenu && displayUserManagementMenu == 'true') {
+					$('#userManagementDiv').attr('class', 'treeview');
+				} else {
+					$('#userManagementDiv').remove();
+				}
+				if (displayReportsMenu && displayReportsMenu == 'true') {
+					$('#reportsDiv').attr('class', 'treeview');
+				} else {
+					$('#reportsDiv').remove();
+				}
+				if (displayCommissionManagementMenu && displayCommissionManagementMenu == 'true') {
+					$('#commissionProcessingDiv').attr('class', 'treeview');
+				} else {
+					$('#commissionProcessingDiv').remove();
+				}
+				if (displaySetupMenu && displaySetupMenu == 'true') {
+					$('#analyzerSetupDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#analyzerSetupDiv').remove();
+				}
+				if (displayAnalyserCommonMenu && displayAnalyserCommonMenu == 'true') {
+					$('#analyserCommonDiv').attr('class', 'treeview active');
+				} 
+				else {
+					$('#analyserCommonDiv').remove();
+				}
+				if (displaySignatureAnalyserMenu && displaySignatureAnalyserMenu == 'true') {
+					$('#signatureAnalyserDiv').attr('class', 'treeview');
+				} 
+				else {
+					$('#signatureAnalyserDiv').remove();
+				}
+			}
+			console.log("Role id is : "+roleId);
+			
+			if(roleId == 3 || roleId == 443 || roleId == 450){
+				$('#clientLink').css('display', 'block');
+				$('#subcontractorLink').css('display', 'block');
+			}else{
+				$('#subcontractorLink').css('display', 'none');
+				$('#clientLink').css('display', 'none');
+			}
+	
+	
+			$('input[type="checkbox"].minimal').iCheck({
+				checkboxClass : 'icheckbox_minimal-blue'
+			});
+	
+			$('input[type="radio"].minimal').iCheck({
+				checkboxClass : 'icheckbox_minimal-blue'
+			});
+	
+			/* 
+			$('input[type="checkbox"].minimal').iCheck('check', function(){
+			  alert('Well done, Sir');
+			}); */
+	
+			/* table.on('click', 'tr', function () {
+				console.log(data);
+			        var id = data.id;
+			        $(this).toggleClass('selected');
+			        alert(id);
+			    } ); */
+	
+		})
+	
+	
+		function clickDownloadButton() {
+			//val = document.getElementById("dataTableForm:completeFilePath").value;
+			document.getElementById("dataTableForm:downlodButton").click();
+		//alert(val);
+		}
+	
+		function clickPdfDownloadButton() {
+			//val = document.getElementById("dataTableForm:completeFilePath").value;
+			document.getElementById("dataTableForm:downlodPdfButton").click();
+		//alert(val);
+		}
+	
+		function clickChildDownloadButton() {
+			//val = document.getElementById("dataTableForm:completeFilePath").value;
+			document.getElementById("dataTableForm:downlodChildButton").click();
+		//alert(val);
+		}
+	
+		function parseMessage(message) {
+			var text,
+				parser,
+				xmlDoc;
+	
+			text = "<bookstore><book>" +
+				"<title>Everyday Italian</title>" +
+				"<author>Giada De Laurentiis</author>" +
+				"<year>2005</year>" +
+				"</book></bookstore>";
+	
+			parser = new DOMParser();
+			xmlDoc = parser.parseFromString(message, "text/xml");
+			//debugger;
+			var errorNode = xmlDoc.getElementsByTagName("error-message")[0];
+			if (errorNode == undefined) {
+				clickDownloadButton();
+			} else {
+				var error = errorNode.childNodes[0].nodeValue;
+				alert(error);
+			}
+		}
+		
+		function parseIRCMessage(message) {
+			var text,
+				parser,
+				xmlDoc;
+			console.log(message);
+			parser = new DOMParser();
+			xmlDoc = parser.parseFromString(message, "text/xml");
+			//debugger;
+			var errorNode = xmlDoc.getElementsByTagName("error-message")[0];
+			if (errorNode == undefined) {
+				document.getElementById("filterForm:downlodButton").click();
+			} else {
+				var error = errorNode.childNodes[0].nodeValue;
+				alert(error);
+			}
+		}
+		
+		function invokeDownload(message) {
+			var text,
+				parser,
+				xmlDoc;
+	
+			parser = new DOMParser();
+			xmlDoc = parser.parseFromString(message, "text/xml");
+			//debugger;
+			var errorNode = xmlDoc.getElementsByTagName("error-message")[0];
+			if (errorNode == undefined) {
+				document.getElementById("filterForm:downlodMonthlyExcelButton").click();
+			} else {
+				var error = errorNode.childNodes[0].nodeValue;
+				alert(error);
+			}
+		}
+
+		
+		function parseHistoricalDataMessage(message) {
+			var text,
+				parser,
+				xmlDoc;
+			console.log(message);
+			parser = new DOMParser();
+			xmlDoc = parser.parseFromString(message, "text/xml");
+			//debugger;
+			var errorNode = xmlDoc.getElementsByTagName("error-message")[0];
+			if (errorNode == undefined) {
+				document.getElementById("filterForm:downlodButton").click();
+			} else {
+				var error = errorNode.childNodes[0].nodeValue;
+				alert(error);
+			}
+		}
+	
+		function parseChildMessage(message) {
+			var text,
+				parser,
+				xmlDoc;
+			parser = new DOMParser();
+			xmlDoc = parser.parseFromString(message, "text/xml");
+			//debugger;
+			var errorNode = xmlDoc.getElementsByTagName("error-message")[0];
+			if (errorNode == undefined) {
+				clickChildDownloadButton();
+			} else {
+				var error = errorNode.childNodes[0].nodeValue;
+				alert(error);
+			}
+		}
+	
+		function parsePdfMessage(message) {
+			console.log("Message is : " + message);
+			var text,
+				parser,
+				xmlDoc;
+			parser = new DOMParser();
+			xmlDoc = parser.parseFromString(message, "text/xml");
+			//debugger;
+			var errorNode = xmlDoc.getElementsByTagName("error-message")[0];
+			if (errorNode == undefined) {
+				clickPdfDownloadButton();
+			} else {
+				var error = errorNode.childNodes[0].nodeValue;
+				alert(error);
+			}
+		}
+		
+		function initializePageComponents(){
+			debugger;
+			$('.select2').select2();
+		}
+		
+		function resetEntirePage(){
+			debugger;
+			$("#filterForm\\:resetButton").click();
+		}
+		/* ]]> */
+	</script>
+</ui:composition>

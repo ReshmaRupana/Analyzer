@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<h:head>
+	<meta charset="utf-8"></meta>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+	<title><ui:insert name="title">Approve / View History</ui:insert></title>
+	<!-- Tell the browser to be responsive to screen width -->
+	<meta
+		content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+		name="viewport"></meta>
+	<!-- Bootstrap 3.3.7 -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+	<!-- <link rel="stylesheet"
+			href="../resources/" /> -->
+	<!-- Font Awesome -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/font-awesome/css/font-awesome.min.css" />
+	<!-- Ionicons -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/bower_components/Ionicons/css/ionicons.min.css" />
+
+	<!-- DataTables -->
+	<!-- <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css" /> -->
+	<link rel="stylesheet" type="text/css"
+		href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+
+	<!-- Theme style -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/AdminLTE.min.css" />
+
+	<!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/dist/css/skins/_all-skins.min.css" />
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+	<!-- Google Font -->
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+	</link>
+
+	<style type="text/css">
+.odd {
+	background: aliceblue;
+	padding: 0px 15px;
+}
+
+.even {
+	background: alicegrey;
+	padding: 0px 15px;
+}
+
+.title {
+	background: #99d9f7;
+	padding-top: 5px;
+	text-transform: uppercase;
+	font-size: 16px;
+	text-align: center !important;
+	margin-bottom: 0px;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+}
+</style>
+
+</h:head>
+
+<body class="hold-transition skin-blue">
+	<!-- Content Wrapper. Contains page content -->
+	<div class="content-wrapper" style="margin-left: 0px !important;">
+
+		<!-- Main content -->
+		<section class="content">
+			<h:form id="analyserHistorForm" role="form">
+				<div class="row title">
+					<div class="col-xs-12">
+						<div class="form-group" style="font-weight: bold;">
+							CURRENT ANALYZER STATUS:
+							<c:choose>
+								<c:when
+									test="#{analyserHistoryBean.selectedAnalyser.recordStatus == 1}">
+									<h:outputText value="Pending Manager Approval"></h:outputText>
+								</c:when>
+								<c:when
+									test="#{analyserHistoryBean.selectedAnalyser.recordStatus == 2}">
+									<h:outputText value="Pending Administrator Approval"></h:outputText>
+								</c:when>
+								<c:when
+									test="#{analyserHistoryBean.selectedAnalyser.recordStatus == 3}">
+									<h:outputText value="Approved"></h:outputText>
+								</c:when>
+							</c:choose>
+							&#160;
+							<p:remoteCommand name="rc"
+								actionListener="#{analyserHistoryBean.approveAnalyser}" />
+							<p:commandButton type="button"
+								styleClass="btn btn-xs btn-primary btn-info" onclick="rc()"
+								value="Approve"
+								rendered="#{analyserHistoryBean.showApprovalButton}" />
+							<h:outputText value=" "/>
+							<p:commandButton type="button" rendered="#{analyserHistoryBean.selectedAnalyser.recordStatus ne 3}"
+								styleClass="btn btn-xs btn-danger"
+								onclick="PF('dlg').show();" value="Reject" />
+
+							<!-- <p:commandButton id="rejectButtonInternal" type="button"
+												actionListener="#{analyserListBean.viewRejectAnalyserDialog}">
+												<f:param name="analyserId" value="#{x.analyserId}" />
+												<f:param name="parentId" value="#{x.parentId}" />
+												<p:ajax event="dialogReturn"
+													listener="#{analyserListBean.onAnalyserRejection}"
+													update="@form" />
+											</p:commandButton> -->
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row even">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<div class="box">
+							<!-- /.box-header -->
+							<div class="box-body">
+
+								<div class="box-body">
+
+									<c:choose>
+										<c:when test="#{analyserHistoryBean.list.size() > 1}">
+											<div class="row title" style="font-weight: bold;">
+												<div class="col-xs-4">
+													<h:outputLink value="../analyser.xhtml" target="_parent">
+													View Detailed Analyzer
+													<f:param name="action" value="View" />
+														<f:param name="analyserId"
+															value="#{analyserHistoryBean.selectedAnalyser.analyserId}" />
+													</h:outputLink>
+												</div>
+												<div class="col-xs-4">PREVIOUS</div>
+
+												<div class="col-xs-4">MODIFIED / CURRENT</div>
+											</div>
+											<c:forEach items="#{analyserHistoryBean.difference}"
+												var="entry" varStatus="theCount">
+												<c:if test="${theCount.index % 2 == 0}">
+													<div class="row even">
+														<div class="col-xs-4"
+															style="font-weight: bold; text-transform: uppercase;">
+															#{entry.key}</div>
+														<div class="col-xs-4">#{entry.value[0]}</div>
+														<div class="col-xs-4" style="color: blue;">#{entry.value[1]}</div>
+													</div>
+												</c:if>
+												<c:if test="${theCount.index % 2 != 0}">
+													<div class="row odd">
+														<div class="col-xs-4"
+															style="font-weight: bold; text-transform: uppercase;">
+															#{entry.key}</div>
+														<div class="col-xs-4">#{entry.value[0]}</div>
+														<div class="col-xs-4" style="color: blue;">#{entry.value[1]}</div>
+													</div>
+												</c:if>
+
+											</c:forEach>
+										</c:when>
+										<c:otherwise>
+											<div class="row title" style="font-weight: bold;">
+												<div class="col-xs-4">
+													<h:outputLink value="../analyser.xhtml" target="_parent">
+													View Detailed Analyzer
+													<f:param name="action" value="View" />
+														<f:param name="analyserId"
+															value="#{analyserHistoryBean.selectedAnalyser.analyserId}" />
+													</h:outputLink>
+												</div>
+												<div class="col-xs-8">CURRENT</div>
+											</div>
+											<c:forEach items="#{analyserHistoryBean.difference}"
+												var="entry" varStatus="theCount">
+												<c:if test="${theCount.index % 2 == 0}">
+													<div class="row even">
+														<div class="col-xs-4"
+															style="font-weight: bold; text-transform: uppercase;">
+															#{entry.key}</div>
+														<div class="col-xs-8">#{entry.value[0]}</div>
+													</div>
+												</c:if>
+												<c:if test="${theCount.index % 2 != 0}">
+													<div class="row odd">
+														<div class="col-xs-4"
+															style="font-weight: bold; text-transform: uppercase;">
+															#{entry.key}</div>
+														<div class="col-xs-8">#{entry.value[0]}</div>
+													</div>
+												</c:if>
+											</c:forEach>
+										</c:otherwise>
+									</c:choose>
+
+								</div>
+
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+			</h:form>
+			<!-- /.row -->
+		</section>
+		<!-- /.content -->
+	</div>
+
+	<p:outputPanel autoUpdate="true">
+		<p:dialog id="messageDialog" widgetVar="messageDialog" modal="true"
+			appendToBody="true" visible="#{not empty facesContext.messageList}"
+			header="Validation Messages" width="400px;" height="400px;"
+			closeOnEscape="true" closable="true">
+			<p:messages id="messagesInDialog" showDetail="true"
+				rendered="#{facesContext.postback or facesContext.validationFailed}" />
+		</p:dialog>
+	</p:outputPanel>
+
+	<p:dialog header="Reject Analyzer" widgetVar="dlg" minHeight="80"
+		modal="true" closeOnEscape="false" draggable="false"
+		maximizable="false" minimizable="false" minWidth="100"
+		resizable="false" width="100%" position="top">
+		<section class="content">
+			<h:form id="analyzerRejectForm" role="form">
+				<div class="row even">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<div class="box">
+							<!-- /.box-header -->
+							<div class="box-body">
+								<div class="form-group" id="commentsDiv">
+									<h:outputLabel for="comments" value="Reasons" />
+									<p:inputTextarea id="comments" autoResize="false" rows="10"
+										placeholder="Analyzer rejection reason"
+										value="#{analyserHistoryBean.rejectReason}"
+										style="width: 100%; font-size: 14px; border: 1px solid #dddddd;"></p:inputTextarea>
+								</div>
+
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<div class="box-footer" id="buttonsDiv"
+					style="padding-top: 5px; text-transform: uppercase; font-size: 16px; text-align: center !important;">
+
+					<p:remoteCommand name="rejectRc"
+						actionListener="#{analyserHistoryBean.rejectAnalyser}" />
+					<p:commandButton type="button"
+						styleClass="btn btn-xs bg-blue active"
+						onclick="rejectRc()"
+						value="Reject" update="messageDialog">
+						<p:confirm header="Confirmation" message="Are you sure?"
+							icon="ui-icon-alert" />
+					</p:commandButton>
+					<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+						<p:commandButton value="Yes" type="button"
+							styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+						<p:commandButton value="No" type="button"
+							styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+					</p:confirmDialog>
+				</div>
+			</h:form>
+			<!-- /.row -->
+		</section>
+	</p:dialog>
+
+	<ui:include src="../includes/dialog-scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

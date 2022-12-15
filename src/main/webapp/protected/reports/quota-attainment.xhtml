@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Quota Attainment Tracking Report</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Accounting Period" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{quotaAttainmentReportsBean.month}" id="month">
+												<f:selectItems
+													value="#{quotaAttainmentReportsBean.monthsList}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Fiscal Year" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{quotaAttainmentReportsBean.year}" id="year">
+												<f:selectItems
+													value="#{quotaAttainmentReportsBean.yearsList}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Commission Person" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{quotaAttainmentReportsBean.person}" id="person">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{quotaAttainmentReportsBean.commissionPersons}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate
+												Report</span>
+											<f:ajax event="click"
+												listener="#{quotaAttainmentReportsBean.generateReport}"
+												execute="@form"
+												render=":dataTableForm :dataTableForm:recordTotal :dataTableForm:recordTotalZero" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{quotaAttainmentReportsBean.eraseFilter}"
+												oncomplete="resetEntirePage();"/>
+										</button>
+										
+										<h:commandButton value="Reset p:ajax" style="display:none;" id="resetButton">
+                							<p:ajax update="@form :dataTableForm" resetValues="true" oncomplete="initializePageComponents();"/>
+            							</h:commandButton>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{quotaAttainmentReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{quotaAttainmentReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{quotaAttainmentReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{quotaAttainmentReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{quotaAttainmentReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable"
+												value="#{quotaAttainmentReportsBean.reportData}" var="x"
+												rows="15" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{quotaAttainmentReportsBean.filteredList}" filterEvent="enter">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->
+           										<p:column headerText="Name" width="200" sortBy="#{x.get('COMMISSIONPERSONNAME')}" filterBy="#{x.get('COMMISSIONPERSONNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISSIONPERSONNAME')}" />
+           										</p:column>
+												
+           										<p:column headerText="Employee ID" width="130" sortBy="#{x.get('COMMISSIONPERSONEMPLID')}" filterBy="#{x.get('COMMISSIONPERSONEMPLID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISSIONPERSONEMPLID')}" />
+           										</p:column>
+												
+           										<p:column headerText="Job Code" width="130" sortBy="#{x.get('COMMISSIONPERSONJOBCODE')}" filterBy="#{x.get('COMMISSIONPERSONJOBCODE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMMISSIONPERSONJOBCODE')}" />
+           										</p:column>
+												
+           										<p:column headerText="Current Month GP" width="150" sortBy="#{x.get('CURRENTMONTHGPQUOTAAMOUNT')}" filterBy="#{x.get('CURRENTMONTHGPQUOTAAMOUNT')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('CURRENTMONTHGPQUOTAAMOUNT')}" />
+           										</p:column>
+												
+           										<p:column headerText="Current YTD GP" width="150" sortBy="#{x.get('CURRENTYTDATTAINEDGPQUOTAAMOUNT')}" filterBy="#{x.get('CURRENTYTDATTAINEDGPQUOTAAMOUNT')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('CURRENTYTDATTAINEDGPQUOTAAMOUNT')}" />
+           										</p:column>
+												
+           										<p:column headerText="Yearly Accelerator Quota Target" width="150" sortBy="#{x.get('YEARLYQUOTAATTAINMENTAMOUNT')}" filterBy="#{x.get('YEARLYQUOTAATTAINMENTAMOUNT')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('YEARLYQUOTAATTAINMENTAMOUNT')}" />
+           										</p:column>
+												
+           										<p:column headerText="Current Accelerator GP attainment %" width="200" sortBy="#{x.get('CURRENTGPATTAINMENT')}" filterBy="#{x.get('CURRENTGPATTAINMENT')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('CURRENTGPATTAINMENT')}" />
+           										</p:column>
+												
+           										<p:column headerText="Yearly Quota KPI Target" width="200" sortBy="#{x.get('KPIQUOTAAMOUNT')}" filterBy="#{x.get('KPIQUOTAAMOUNT')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('KPIQUOTAAMOUNT')}" />
+           										</p:column>
+												
+           										<p:column headerText="Current Quota GP Attainment %" width="200" sortBy="#{x.get('CURRENTQUOTAGPATTAINMENTPERCENT')}" filterBy="#{x.get('CURRENTQUOTAGPATTAINMENTPERCENT')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('CURRENTQUOTAGPATTAINMENTPERCENT')}" />
+           										</p:column>
+												
+           										<p:column headerText="Is accelerator commission paid" width="220" sortBy="#{x.get('ISCOMMPERSONELIGIBLEFORACCELERATORCOMM')}" filterBy="#{x.get('ISCOMMPERSONELIGIBLEFORACCELERATORCOMM')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('ISCOMMPERSONELIGIBLEFORACCELERATORCOMM')}" />
+           										</p:column>
+												
+           										<p:column headerText="Fiscal Year" width="160" sortBy="#{x.get('FISCALYEAR')}" filterBy="#{x.get('FISCALYEAR')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('FISCALYEAR')}" />
+           										</p:column>
+												
+           										<p:column headerText="Accounting Period" width="150" sortBy="#{x.get('ACCOUNTINGPERIOD')}" filterBy="#{x.get('ACCOUNTINGPERIOD')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('ACCOUNTINGPERIOD')}" />
+           										</p:column>
+<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->																								
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			initializeComponents();
+		});
+		
+		function initializeComponents(){
+			$('.select2').select2();
+		}
+	</script>
+
+</body>
+
+</html>

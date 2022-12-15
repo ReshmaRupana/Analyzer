@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+<style type="text/css">
+.center {
+	text-align: center;
+}
+/*
+https://stackoverflow.com/questions/43139828/how-to-change-z-index-for-primefaces-growl-component
+*/
+.ui-growl {
+	z-index: 9999 !important;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- <h:messages styleClass="errorMessage" globalOnly="true" /> -->
+				<!-- Global messages -->
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<h:form role="form" id="form1">
+							<p:growl showDetail="false" id="msgs" />
+							<div class="box">
+								<div class="box-header">
+									<h3 class="box-title">Create new Role</h3>
+								</div>
+								<!-- /.box-header -->
+
+								<div class="box-body">
+									<div class="form-group">
+										<div class="col-sm-2 control-label">
+											<h:outputLabel for="roleDescription" value="Role Description" />
+										</div>
+										<div class="col-sm-10">
+											<h:inputText id="roleDescription"
+												a:placeholder="Role Description"
+												value="#{applicationUserRolesBean.userRole.roleDesc}"
+												styleClass="form-control" required="true" />
+										</div>
+									</div>
+
+								</div>
+								<!-- /.box-body -->
+
+								<!-- <div class="box-footer"> -->
+								<div class="box-body">
+									<div class="form-group">
+										<div class="col-sm-2 control-label" />
+										<div class="col-sm-3 control-label">
+											<p:commandButton value="Save" id="btnSave"
+												update=":form1:msgs form2:crudDataTable"
+												rendered="#{!applicationUserRolesBean.showUpdateButton}"
+												styleClass="btn btn-primary btn-sm" icon="ui-icon-check"
+												actionListener="#{applicationUserRolesBean.saveRole}">
+											</p:commandButton>
+
+											<p:commandButton value="Update" id="btnUpdate"
+												update=":form1:msgs form2:crudDataTable"
+												rendered="#{applicationUserRolesBean.showUpdateButton}"
+												styleClass="btn btn-primary btn-sm" icon="ui-icon-check"
+												actionListener="#{applicationUserRolesBean.updateRole}">
+											</p:commandButton>
+
+											<p:commandButton value="Clear" id="btnClear"
+												styleClass="btn btn-default btn-sm" icon="fa fa-refresh"
+												actionListener="#{applicationUserRolesBean.clearForm}"
+												immediate="true" partialSubmit="true" update=":form1"
+												process="@this">
+												<f:ajax execute="@this"></f:ajax>
+											</p:commandButton>
+										</div>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+						<div class="box">
+							<div class="box-header">
+								<h3 class="box-title">Application Roles</h3>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body">
+								<h:form role="form" id="form2">
+
+									<p:dataTable id="crudDataTable"
+										value="#{applicationUserRolesBean.userRoles}" var="x"
+										rows="15" paginator="true"
+										paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+										scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+										emptyMessage="No data found with given criteria"
+										filteredValue="#{applicationUserRolesBean.filteredList}">
+
+										<f:facet name="header">
+											<p:outputPanel>
+												<h:outputText value="Search all fields:" />
+												<p:inputText id="globalFilter"
+													onchange="PF('dataTable').filter()" style="width:150px"
+													placeholder="Enter keyword" />
+											</p:outputPanel>
+										</f:facet>
+
+										<p:column width="110" filterStyle="display:none"
+											filterBy="#{x.roleDesc}" filterMatchMode="contains">
+											<f:facet name="header">
+												<h:outputText value="Role Description" />
+											</f:facet>
+											<h:outputText value="#{x.roleDesc}">
+											</h:outputText>
+										</p:column>
+
+										<p:column width="110" headerClass="center">
+											<f:facet name="header">
+												<h:outputText value="Action" />
+											</f:facet>
+
+											<p:link outcome="application-role-permissions"
+												title="Set Permissions" value="Set Permissions"
+												styleClass="btn btn-xs btn-primary btn-flat">
+												<i class="glyphicon glyphicon-pencil" />
+												<f:param name="roleId" value="#{x.roleId}" />
+												<f:param name="action" value="Modify" />
+											</p:link>
+											<h:outputText value=" " />
+											<h:commandLink title="Edit"
+												styleClass="btn btn-xs btn-primary" role="button">
+												<i class="glyphicon glyphicon-pencil" />
+												<f:ajax listener="#{applicationUserRolesBean.editRole}"
+													execute="@this" render=":form1" />
+												<f:setPropertyActionListener value="#{x}"
+													target="#{applicationUserRolesBean.userRole}" />
+											</h:commandLink>
+										</p:column>
+
+									</p:dataTable>
+								</h:form>
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

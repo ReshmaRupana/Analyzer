@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:include src="includes/header.xhtml"></ui:include>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+
+		<ui:include src="includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- /.box -->
+
+						<div class="box">
+							<div class="box-header">
+								<h3 class="box-title">Create new Role</h3>
+							</div>
+							<!-- /.box-header -->
+							<h:form role="form">
+								<div class="box-body">
+									<div class="form-group">
+										<h:outputLabel for="roleName" value="Role name" />
+										<h:inputText id="roleName" a:placeholder="Role name"
+											value="#{applicationUserRolesBean.userRole.roleAbbrev}"
+											styleClass="form-control" required="true" />
+									</div>
+									<div class="form-group">
+										<label for="exampleInputPassword1">Role Description</label> <input
+											type="password" class="form-control"
+											id="exampleInputPassword1" placeholder="Password" />
+									</div>
+
+
+									<div class="form-group">
+										<label>Date:</label>
+
+										<div class="input-group date">
+											<div class="input-group-addon">
+												<i class="fa fa-calendar"></i>
+											</div>
+											<input type="text" class="form-control pull-right"
+												id="datepicker" />
+										</div>
+										<!-- /.input group -->
+									</div>
+
+									<div class="form-group">
+										<label class="form-control"> <input type="checkbox" class="minimal" checked="checked" /> Check me out</label>
+									</div>
+									
+								</div>
+								<!-- /.box-body -->
+
+								<div class="box-footer">
+									<h:commandButton value="Save"
+										action="#{applicationUserRolesBean.saveRole}"
+										styleClass="btn btn-primary"></h:commandButton>
+								</div>
+							</h:form>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</section>
+
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="includes/scripts.xhtml"></ui:include>
+
+</body>
+
+</html>

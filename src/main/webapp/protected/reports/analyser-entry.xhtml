@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Analyzer Entry Report</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<!-- FILTER -->
+				<div id="filterCollapsible" class="expand">
+					<h:form id="filterForm">
+						<p:growl showDetail="false" id="msgs" />
+						<div class="panel panel-default" role="tabpanel"
+							aria-labelledby="filterHeading">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="startDate" value="Start Date" />
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="startDate"
+													value="#{analyserEntryReportsBean.startDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel for="endDate" value="End Date" />
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<p:inputMask styleClass="form-control input-sm pull-right"
+													id="endDate" value="#{analyserEntryReportsBean.endDate}"
+													mask="99/99/9999" />
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4 inner-end">
+										<div class="form-group">
+											<h:outputLabel value="Office" />
+											<h:selectOneMenu styleClass="form-control input-sm select2"
+												value="#{analyserEntryReportsBean.branch}" id="branch">
+												<f:selectItem itemLabel="ALL" itemValue="ALL" />
+												<f:selectItems
+													value="#{analyserEntryReportsBean.branchesList}"
+													var="branch" itemLabel="#{branch.label}"
+													itemValue="#{branch.value}" />
+											</h:selectOneMenu>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<button jsf:id="doFilterButton" type="submit"
+											class="btn btn-sm btn-primary">
+											<i class="glyphicon glyphicon-filter"></i> <span>Generate
+												Report</span>
+											<f:ajax event="click"
+												listener="#{analyserEntryReportsBean.generateReport}"
+												execute="@form"
+												render=":dataTableForm :dataTableForm:recordTotal :dataTableForm:recordTotalZero" />
+										</button>
+										<h:outputText value="&#160;" />
+										<button jsf:id="eraseFilterButton" type="submit"
+											class="btn btn-sm btn-warning">
+											<i class="glyphicon glyphicon-erase"></i> <span>Erase</span>
+											<p:ajax event="click"
+												listener="#{analyserEntryReportsBean.eraseFilter}"
+												oncomplete="resetEntirePage();"/>
+										</button>
+										
+										<h:commandButton value="Reset p:ajax" style="display:none;" id="resetButton">
+                							<p:ajax update="@form :dataTableForm" resetValues="true" 
+                							oncomplete="initializePageComponents(); resetDates();"/>
+            							</h:commandButton>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</h:form>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4" style="text-align: right;" />
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{analyserEntryReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{analyserEntryReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{analyserEntryReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{analyserEntryReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{analyserEntryReportsBean.newFileName}" />
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<p:dataTable id="crudDataTable"
+												value="#{analyserEntryReportsBean.reportData}" var="x"
+												rows="15" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="350" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{analyserEntryReportsBean.filteredList}" filterEvent="enter">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+												
+												
+											<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay value newly added  -->
+													
+
+												<p:column headerText="Analyzer ID" width="110" sortBy="#{x.get('ANALYSERID')}" filterBy="#{x.get('ANALYSERID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('ANALYSERID')}" />
+           										</p:column>
+	
+												<p:column headerText="Parent ID" width="110" sortBy="#{x.get('PARENTID')}" filterBy="#{x.get('PARENTID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('PARENTID')}" />
+           										</p:column>
+		
+												<p:column headerText="New Parent ID" width="130" sortBy="#{x.get('NEWPARENTID')}" filterBy="#{x.get('NEWPARENTID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('NEWPARENTID')}" />
+           										</p:column>
+							
+												<p:column headerText="Last Name" width="160" sortBy="#{x.get('LNAME')}" filterBy="#{x.get('LNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('LNAME')}" />
+           										</p:column>
+					
+												<p:column headerText="First Name" width="180" sortBy="#{x.get('FNAME')}" filterBy="#{x.get('FNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('FNAME')}" />
+           										</p:column>
+		
+												<p:column headerText="Start Date" width="150" sortBy="#{x.get('STARTDATE')}" filterBy="#{x.get('STARTDATE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('STARTDATE')}" />
+           										</p:column>
+
+												<p:column headerText="End Date" width="150" sortBy="#{x.get('ENDDATE')}" filterBy="#{x.get('ENDDATE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('ENDDATE')}" />
+           										</p:column>
+
+												<p:column headerText="Email" width="150" sortBy="#{x.get('EMAIL')}" filterBy="#{x.get('EMAIL')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('EMAIL')}" />
+           										</p:column>
+
+												<p:column headerText="Liaison Name" width="160" sortBy="#{x.get('LIAISONNAME')}" filterBy="#{x.get('LIAISONNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('LIAISONNAME')}" />
+           										</p:column>
+	
+												<p:column headerText="Client ID" width="160" sortBy="#{x.get('CLIENTID')}" filterBy="#{x.get('CLIENTID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('CLIENTID')}" />
+           										</p:column>
+
+												<p:column headerText="Company" width="200" sortBy="#{x.get('COMPANY')}" filterBy="#{x.get('COMPANY')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMPANY')}" />
+           										</p:column>
+
+												<p:column headerText="Client Address ID" width="200" sortBy="#{x.get('CLIENTADDRESSID')}" filterBy="#{x.get('CLIENTADDRESSID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('CLIENTADDRESSID')}" />
+           										</p:column>
+				
+												<p:column headerText="Site ID" width="140" sortBy="#{x.get('SITEID')}" filterBy="#{x.get('SITEID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SITEID')}" />
+           										</p:column>
+
+												<p:column headerText="Sub Contractor ID" width="160" sortBy="#{x.get('SUBCONTRACTORID')}" filterBy="#{x.get('SUBCONTRACTORID')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SUBCONTRACTORID')}" />
+           										</p:column>
+
+												<p:column headerText="Employee Type" width="150" sortBy="#{x.get('EMPTYPE')}" filterBy="#{x.get('EMPTYPE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('EMPTYPE')}" />
+           										</p:column>
+
+												<p:column headerText="Branch" width="180" sortBy="#{x.get('BRANCH')}" filterBy="#{x.get('BRANCH')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('BRANCH')}" />
+           										</p:column>
+						
+												<p:column headerText="Entry Date" width="140" sortBy="#{x.get('ENTRYDATE')}" filterBy="#{x.get('ENTRYDATE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('ENTRYDATE')}" />
+           										</p:column>
+
+												<p:column headerText="Terminate Date" width="150" sortBy="#{x.get('TERMINATEDATE')}" filterBy="#{x.get('TERMINATEDATE')}" 
+												filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('TERMINATEDATE')}" />
+           										</p:column>
+											
+												<p:column headerText="Company Code" width="150" sortBy="#{x.get('COMPANYCODE')}" filterBy="#{x.get('COMPANYCODE')}" 
+												filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMPANYCODE')}" />
+           										</p:column>
+												<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 -->
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+	
+	function initializeComponents() {
+		$('.select2').select2();
+
+		$('#filterForm\\:startDate').datepicker({
+			autoclose : true
+		})
+
+		$('#filterForm\\:endDate').datepicker({
+			autoclose : true
+		})
+	}
+		$(document).ready(
+				function() {
+					resetDates();
+				});
+		
+		function resetDates() {
+			$('.select2').select2();
+			var currentDate = new Date();
+
+			//due to time of 0000, it was setting it to one day before, so set 2 as start date.
+			var firstDay = new Date(currentDate.getFullYear(),
+					currentDate.getMonth(), 2);
+
+			var from = firstDay.toJSON().slice(0, 10).split('-');
+			firstDay = from[1] + "/" + from[2] + "/" + from[0];
+			$("#filterForm\\:startDate").val(firstDay);
+
+			var to = currentDate.toJSON().slice(0, 10).split('-');
+			currentDate = to[1] + "/" + to[2] + "/" + to[0];
+			$("#filterForm\\:endDate").val(currentDate);
+
+			$('#filterForm\\:startDate').datepicker({
+				autoclose : true
+			})
+
+			$('#filterForm\\:endDate').datepicker({
+				autoclose : true
+			})
+			
+			initializeComponents();
+		}
+	</script>
+
+</body>
+
+</html>

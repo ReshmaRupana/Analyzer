@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<ui:include src="../includes/header.xhtml"></ui:include>
+
+<!-- <style type="text/css">
+.pagination {
+	margin-top: 10px;
+	padding: 20px;
+	outline: 2px solid #ccc;
+	outline-offset: -10px;
+	-moz-outline-radius: 10px;
+	-webkit-outline-radius: 10px;
+}
+</style> -->
+
+<style type="text/css">
+.inner-end {
+	padding: 0px 15px;
+}
+</style>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<h:outputStylesheet
+		name="bower_components/select2/dist/css/select2.min.css" />
+	<div class="wrapper">
+
+		<ui:include src="../includes/top.xhtml"></ui:include>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>Active Consultants By Sub Contractors</h1>
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+							<div class="box-body">
+								<h:form id="dataTableForm" onkeypress="if(event.keyCode == 13){event.preventDefault();PF('dataTable').filter(); return;}">
+									<div class="row">
+										<div class="col-xs-4">
+											<!-- <h:outputText id="recordTotal"
+												rendered="#{fn:length(consultantsByRecruitersReportsBean.reportData) != 0 }"
+												value="Total records : #{fn:length(consultantsByRecruitersReportsBean.reportData)}" />
+
+											<h:outputText id="recordTotalZero"
+												rendered="#{fn:length(consultantsByRecruitersReportsBean.reportData) == 0 }"
+												value="No record found" /> -->
+										</div>
+										<div class="col-xs-8" style="text-align: right;">
+											<button jsf:id="excelButton" type="submit"
+												class="btn btn-sm btn-primary">
+												<i class="fa fa-file-excel-o"></i> <span>Export to
+													Excel</span>
+												<f:ajax event="click" render="completeFilePath"
+													listener="#{consultantsByRecruitersReportsBean.exportToExcel}"
+													execute="@form"
+													onevent="function(data) { if (data.status === 'success') { 
+    														parseMessage(data.responseText);
+    													} 
+    												}" />
+												<!-- render=":filterForm :dataTableForm" /> -->
+											</button>
+
+											<h:commandLink id="downlodButton" title="Download"
+												style="display:none;"
+												actionListener="#{consultantsByRecruitersReportsBean.downloadExcelFile('')}">
+												<!-- <p:graphicImage value="/resources/common/images/download.gif" alt="Download" /> -->
+												<f:attribute name="fileName"
+													value="#{consultantsByRecruitersReportsBean.newFileName}" />
+												<p:fileDownload
+													value="#{consultantsByRecruitersReportsBean.generatedExcelFile}" />
+											</h:commandLink>
+
+											<h:inputHidden id="completeFilePath" name="completeFilePath"
+												value="#{consultantsByRecruitersReportsBean.newFileName}" />
+
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+
+											<p:dataTable id="crudDataTable"
+												value="#{consultantsByRecruitersReportsBean.reportData}"
+												var="x" rows="15" paginator="true"
+												paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+												rowsPerPageTemplate="10,15,30,50,100" scrollable="false"
+												scrollHeight="380" scrollWidth="96%" widgetVar="dataTable"
+												emptyMessage="No data found with given criteria"
+												filteredValue="#{consultantsByRecruitersReportsBean.filteredList}" filterEvent="enter">
+
+												<f:facet name="header">
+													<p:outputPanel>
+														<h:outputText value="Search all fields:" />
+														<p:inputText id="globalFilter"
+															onchange="PF('dataTable').filter()" style="width:150px"
+															placeholder="Enter keyword" />
+													</p:outputPanel>
+												</f:facet>
+
+<!-- Start changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->
+										
+          										<p:column headerText="Company" width="250" sortBy="#{x.get('COMPANY')}" filterBy="#{x.get('COMPANY')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMPANY')}" />
+           										</p:column>
+												
+          										<p:column headerText="Company Email" width="200" sortBy="#{x.get('INVOICEEMAIL')}" filterBy="#{x.get('INVOICEEMAIL')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('INVOICEEMAIL')}" />
+           										</p:column>
+											
+          										<p:column headerText="Last Name" width="130" sortBy="#{x.get('LASTNAME')}" filterBy="#{x.get('LASTNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('LASTNAME')}" />
+           										</p:column>
+										
+          										<p:column headerText="First Name" width="130" sortBy="#{x.get('FIRSTNAME')}" filterBy="#{x.get('FIRSTNAME')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('FIRSTNAME')}" />
+           										</p:column>
+												
+          										<p:column headerText="AE" width="200" sortBy="#{x.get('AE')}" filterBy="#{x.get('AE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('AE')}" />
+           										</p:column>
+											
+          										<p:column headerText="Recruiter" width="200" sortBy="#{x.get('RECRUITER')}" filterBy="#{x.get('RECRUITER')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('RECRUITER')}" />
+           										</p:column>
+											
+          										<p:column headerText="Branch" width="200" sortBy="#{x.get('BRANCH')}" filterBy="#{x.get('BRANCH')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('BRANCH')}" />
+           										</p:column>
+											
+          										<p:column headerText="Terminate Date" width="200" sortBy="#{x.get('TERMINATEDATE')}" filterBy="#{x.get('TERMINATEDATE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('TERMINATEDATE')}" />
+           										</p:column>
+											
+         										<p:column headerText="Submitted on" width="200" sortBy="#{x.get('SUBMITTEDON')}" filterBy="#{x.get('SUBMITTEDON')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('SUBMITTEDON')}" />
+           										</p:column>
+												
+         										<p:column headerText="Start Date" width="200" sortBy="#{x.get('STARTDATE')}" filterBy="#{x.get('STARTDATE')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('STARTDATE')}" />
+           										</p:column>
+																								
+          										<p:column headerText="Company" width="300" sortBy="#{x.get('COMPANY')}" filterBy="#{x.get('COMPANY')}" filterMatchMode="contains">
+               								 		<h:outputText value="#{x.get('COMPANY')}" />
+           										</p:column>
+												
+<!--   End changes by Kumar on 16-Oct-2022  for the JIRA changes : UAT-610 In primefaces table filterDelay, filterEvent value newly added-->
+												
+											</p:dataTable>
+										</div>
+									</div>
+								</h:form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<ui:include src="../includes/footer.xhtml" />
+		</footer>
+
+		<!-- Control Sidebar -->
+		<ui:include src="../includes/side-navigation.xhtml"></ui:include>
+		<!-- /.control-sidebar -->
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<ui:include src="../includes/scripts.xhtml"></ui:include>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			initialize();
+		});
+
+		function initialize() {
+
+		}
+	</script>
+
+</body>
+
+</html>

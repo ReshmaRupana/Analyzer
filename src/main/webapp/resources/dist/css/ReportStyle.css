@@ -1,0 +1,14 @@
+@charset "ISO-8859-1";
+.ui-selectonemenu-filter-container {
+    width: 115% !important;
+}
+
+.ui-selectonemenu{
+ margin: 0 !important;
+ padding: 0 !important;
+ min-width: 100% !important;
+}
+
+.ui-icon-search{
+	display: none !important;
+}
