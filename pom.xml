@@ -127,8 +127,8 @@
 		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/sqljdbc4 -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>sqljdbc4</artifactId>
-			<version>${sql.connector-version}</version>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>6.1.0.jre8</version> 
 		</dependency>
 
 		<dependency>
