@@ -376,15 +376,6 @@
 
 	</dependencies>
 
- <repositories>
-        <repository>
-            <id>primefaces</id>
-            <name>PrimeFaces Maven Repository</name>
-            <url>http://repository.primefaces.org</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
-
 	<build>
 		<plugins>
 			<!-- COMPILER PLUGIN - SOURCE AND BUILD CODE CONFIGURATION -->
