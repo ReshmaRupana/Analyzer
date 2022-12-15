@@ -346,6 +346,27 @@
 			<version>1.5.7</version>
 		</dependency> 
 -->
+		
+				<dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <version>8.4.1.jre8</version>
+		</dependency>
+		
+		
+		
+	<dependency>
+        <groupId>javax.faces</groupId>
+        <artifactId>jsf-api</artifactId>
+        <version>2.1</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>org.glassfish</groupId>
+        <artifactId>javax.faces</artifactId>
+        <version>2.4.0</version>
+    </dependency>
 
 	</dependencies>
 
