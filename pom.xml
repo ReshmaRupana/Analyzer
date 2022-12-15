@@ -12,6 +12,11 @@
 	<description>Disys Analyzer</description>
 
 	<properties>
+	
+	<modelVersion>4.2.0</modelVersion>
+     <groupId>com.microsoft.sqlserver</groupId>
+     <artifactId>sqljdbc4</artifactId>
+     <version>4.2</version>
 		<java-version>1.9</java-version>
 
 		<spring-version>4.3.2.RELEASE</spring-version>
@@ -252,6 +257,13 @@
 			<version>${primefaces.version}</version>
 		</dependency>
 
+
+<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
+<dependency>
+    <groupId>com.microsoft.sqlserver</groupId>
+    <artifactId>mssql-jdbc</artifactId>
+    <version>6.1.0.jre8</version>
+</dependency>
 
 		<!-- <dependency> <groupId>org.omnifaces</groupId> <artifactId>omnifaces</artifactId> 
 			<version>${omnifaces.version}</version> </dependency> -->
