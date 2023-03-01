@@ -123,11 +123,12 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql.connector-version}</version>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/sqljdbc4 -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>sqljdbc4</artifactId>
-			<version>${sql.connector-version}</version>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>6.1.0.jre8</version> 
 		</dependency>
 
 		<dependency>
@@ -257,11 +258,11 @@
 			<version>${omnifaces.version}</version> </dependency> -->
 
 		<!-- https://mvnrepository.com/artifact/org.primefaces.themes/ui-lightness -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.primefaces.themes</groupId>
 			<artifactId>bootstrap</artifactId>
 			<version>1.0.10</version>
-		</dependency>
+		</dependency> -->
 
 		<!-- https://turreta.com/2017/07/14/find-out-the-differences-between-two-objects-in-java/ -->
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
@@ -365,4 +366,12 @@
 		</plugins>
 	</build>
 
+  <repositories>
+        <repository>
+            <id>primefaces</id>
+            <name>PrimeFaces Maven Repository</name>
+            <url>http://repository.primefaces.org</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
 </project>
